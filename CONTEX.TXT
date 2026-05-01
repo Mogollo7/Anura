@@ -1,0 +1,274 @@
+ediante entrevistas de elicitación con expertos herpetólogos para definir la base de conocimiento del sistema.
+Analizar: Descomponer los rasgos morfológicos de las especies de anuros locales para establecer los parámetros de segmentación semántica y las reglas de validación basadas en la distribución geográfica de Colombia.
+Construir: Diseñar y programar la interfaz adaptativa (Modo Oscuro/Claro) y la lógica de integración con el modelo BioClip, asegurando la funcionalidad offline para el trabajo de campo en zonas rurales
+Sintetizar: Combinar los resultados de la visión artificial con el feedback de la comunidad científica para originar un modelo de auto-afinado que mejore continuamente la precisión taxonómica del software.
+Evaluar: Valorar la eficacia del sistema mediante pruebas de campo con estudiantes de Medicina Veterinaria, comparando la tasa de acierto de la herramienta frente a los métodos de identificación manual tradicionales.
+ 
+6. Delimitación
+6.1. Delimitación espacial
+Ubicación de la empresa - Dirección
+6.1.1. Razón social
+Corporación Universitaria Lasallista.
+
+6.1.2. Objeto social de la organización 
+Institución de educación superior dedicada a la formación integral, la investigación científica y la extensión social, con especial énfasis en la innovación tecnológica y las ciencias agroambientales.
+
+6.1.3. Representante legal
+Juan Sebastián Martínez Galeano.
+6.1.4. Descripción o reseña histórica de la empresa
+Fundada en 1982, la institución se ha destacado por su liderazgo en el sector agropecuario y ambiental. En el año 2026, la universidad ha fortalecido la integración de la Ingeniería Informática con sus programas tradicionales, fomentando proyectos de vanguardia que utilizan inteligencia artificial para la protección de la fauna colombiana.
+6.1.5. Misión
+Contribuir al desarrollo humano y sostenible mediante la formación de profesionales capaces de integrar tecnología y ciencia animal para la resolución de problemas complejos en el territorio nacional.
+6.1.6. Visión
+Ser referente en el año 2028 por el desarrollo de soluciones tecnológicas aplicadas a la biodiversidad, liderando la transformación digital en el monitoreo de ecosistemas a través del trabajo colaborativo interfacultades
+6.1.7. Valores corporativos
+•	Trabajo Colaborativo: Sinergia constante entre las facultades de Ingeniería Informática y Medicina Veterinaria para el intercambio de conocimientos técnicos y biológicos.
+•	Innovación Interdisciplinaria: Aplicación de arquitecturas de software avanzadas en contextos de ciencias de la vida.
+•	Excelencia Científica: Compromiso con la precisión del modelo BioClip y la calidad de los datos herpetológicos.
+6.2. Delimitación temporal
+Nombre del Proyecto: SISTEMA BASADO EN INTELIGENCIA ARTIFICIAL PARA LA IDENTIFICACIÓN Y MONITOREO DE ESPECIES DEL ORDEN ANURA EN COLOMBIA.
+
+Fecha de Inicio: 1 de febrero de 2026.
+Fecha de Culminación: 20 de mayo de 2026.
+ 
+7. Alcance
+Para el producto de Gestión en Innovación Empresarial, que se adelanta en la Corporación Universitaria Lasallista en el marco del proyecto ANURA, se debe tener en cuenta los siguientes productos:
+1. Diagnóstico organizacional con el propósito de identificar las necesidades actuales en los procesos de identificación taxonómica de anuros colombianos, en relación con las limitaciones de las herramientas disponibles, los perfiles de los usuarios de campo y las condiciones reales de captura de imágenes en contextos de monitoreo ambiental.
+ALCANCE DEL PRODUCTO 1 Este diagnóstico permitirá determinar las oportunidades de mejora mediante el levantamiento de requerimientos funcionales y no funcionales del sistema, la caracterización de las especies prioritarias a identificar y la definición de los criterios de calidad de imagen necesarios para el entrenamiento del modelo, con el fin de orientar el desarrollo tecnológico hacia las necesidades reales de los usuarios y las organizaciones ambientales del país.
+
+2. Plan de acompañamiento en los procesos de identificación y registro de especies de anuros en campo, teniendo en cuenta las particularidades morfológicas de la fauna anfibia colombiana, los flujos de trabajo de biólogos e investigadores, y las políticas de protección de datos de especies amenazadas conforme a la normativa vigente.
+ALCANCE DEL PRODUCTO 2 Este plan establecerá las acciones específicas para el diseño, entrenamiento y validación del modelo de clasificación, así como para la implementación del módulo de georreferenciación, garantizando que la solución sea funcional en condiciones reales de campo y compatible con los procedimientos institucionales de monitoreo de biodiversidad.
+
+3. Proceso de Gestión en la Innovación Empresarial para la implementación de una herramienta tecnológica basada en visión por computador y aprendizaje profundo, orientada a la identificación automática de especies de anuros a partir de imágenes fotográficas, por parte de estudiantes, investigadores y autoridades ambientales vinculadas a la Corporación Universitaria Lasallista.
+ALCANCE DEL PRODUCTO 3 Este proceso permitirá contar con un sistema web funcional capaz de identificar especies de anuros colombianos a partir de fotografías de campo, alcanzando una precisión mínima del 90% en la clasificación de especies con diferencias morfológicas claramente distinguibles, y del 80% en la clasificación de especies morfológicamente similares o crípticas. El sistema integrará además un módulo de georreferenciación para el registro espacial de los avistamientos y contará con control de acceso por roles, en cumplimiento de los requisitos de seguridad establecidos para la protección de datos de localización de especies bajo criterio de amenaza.
+ 
+8. Marco teórico, Estado del arte
+
+8.1 Diversidad y complejidad taxonómica de los anuros en Colombia
+Colombia se posiciona como uno de los países con mayor riqueza anfibia del planeta. Los registros de biodiversidad disponibles en plataformas de acceso abierto como el Global Biodiversity Information Facility (GBIF, 2024) documentan cerca de 859 especies de anfibios en el territorio nacional, de las cuales aproximadamente 793 pertenecen al orden Anura. En ese sentido, la magnitud de esta diversidad convierte al país en un escenario prioritario para el desarrollo de herramientas tecnológicas que apoyen su monitoreo y conservación.
+La identificación taxonómica de anuros en campo representa, sin embargo, un desafío técnico de considerable complejidad. Tal como plantean Acosta-Galvis et al. (2019), la variabilidad intraespecífica en caracteres morfológicos como coloración, textura cutánea y tamaño corporal, combinada con la presencia de especies crípticas y morfológicamente similares, dificulta la determinación precisa de los especímenes incluso para especialistas experimentados. En este orden de ideas, la dependencia del criterio experto en los procesos de identificación genera cuellos de botella en los programas de monitoreo ambiental, especialmente en regiones con escasa presencia institucional.
+
+8.2 Plataformas de datos abiertos como fuente para el entrenamiento de modelos
+La disponibilidad de datos georreferenciados de ocurrencia de especies constituye un factor determinante en el desarrollo de modelos de clasificación biológica. GBIF (2024) centraliza actualmente más de dos mil millones de registros de biodiversidad aportados por instituciones científicas, museos de historia natural y redes de monitoreo de todo el mundo, incluyendo colecciones herpetológicas de Colombia. Así, esta plataforma representa una fuente estructurada y validada para la construcción de conjuntos de datos de entrenamiento, al permitir la descarga de registros con información taxonómica, fotográfica y geoespacial asociada.
+De manera complementaria, iNaturalist (2024) ha consolidado un modelo de ciencia ciudadana que ha generado millones de observaciones fotográficas de anfibios a nivel global, muchas de ellas verificadas por la comunidad científica mediante el sistema de identificación colaborativa de la plataforma. Como lo señalan Van Horn et al. (2018), los datos provenientes de iNaturalist presentan características particulares que los hacen especialmente relevantes para el entrenamiento de modelos de visión computacional orientados a condiciones reales: las imágenes fueron capturadas en entornos naturales, con variaciones de iluminación, ángulo y fondo que replican fielmente las condiciones de campo. Cabe resaltar que esta característica representa una ventaja frente a datasets de laboratorio, donde las condiciones controladas no reflejan la variabilidad que enfrenta un observador en terreno.
+
+8.3 Aprendizaje profundo aplicado a la clasificación de especies
+El uso de redes neuronales convolucionales (CNN, por sus siglas en inglés) para la identificación automática de especies biológicas a partir de imágenes ha experimentado un avance sostenido durante la última década. Según Norouzzadeh et al. (2018), "deep learning models can automatically identify, count, and describe animals in camera-trap images at nearly the same rate as humans, but with 96.6% accuracy" (p. 14). En ese sentido, la aplicabilidad de estas arquitecturas en contextos de biodiversidad ha quedado demostrada en múltiples estudios, abriendo la posibilidad de extender este enfoque a grupos taxonómicos específicos como los anuros colombianos.
+En el contexto particular de los anfibios, Kahl et al. (2021) plantean que los modelos basados en transferencia de aprendizaje —donde arquitecturas preentrenadas en grandes conjuntos de datos son ajustadas para tareas de clasificación específicas— ofrecen resultados competitivos incluso cuando el volumen de datos de entrenamiento disponible es limitado, condición frecuente en grupos taxonómicos poco documentados fotográficamente. Así, la combinación de datos provenientes de GBIF e iNaturalist con técnicas de transfer learning representa una estrategia metodológica viable para el desarrollo de ANURA, al reducir la dependencia de datasets exhaustivos construidos desde cero.
+
+8.4 Herramientas existentes y sus limitaciones en el contexto colombiano
+Existen en la actualidad diversas aplicaciones de identificación biológica basadas en inteligencia artificial, entre las que destacan iNaturalist, Pl@ntNet y la herramienta de identificación automatizada integrada en GBIF. No obstante, estas soluciones presentan limitaciones estructurales para su aplicación en el contexto específico de los anuros colombianos. Los modelos que las sustentan han sido entrenados predominantemente con datos de regiones con mayor densidad de registros fotográficos, como Europa y América del Norte, lo que genera sesgos de representación que reducen su precisión en especies endémicas del Neotrópico (Troudet et al., 2017). En este orden de ideas, la construcción de un sistema especializado en la fauna anfibia nacional, nutrido con fuentes de datos geográficamente pertinentes como los registros colombianos de GBIF e iNaturalist, responde a una brecha tecnológica concreta que las herramientas generales no han logrado cubrir.
+
+8.3.1 BioCLIP 2: modelo fundacional para la visión biológica a escala
+El estado más reciente del arte en clasificación visual de organismos biológicos está representado por BioCLIP 2, un modelo fundacional desarrollado por investigadores de The Ohio State University en colaboración con el Smithsonian Institution, Princeton University y Duke University, entre otras instituciones. El modelo fue entrenado sobre TreeOfLife-200M, un conjunto de datos compuesto por 214 millones de imágenes de organismos vivos distribuidos en 952.000 clases taxonómicas, constituyéndose como el catálogo visual de vida más grande y diverso disponible hasta la fecha. arXiv En ese sentido, la escala de este recurso supera con amplitud cualquier dataset biológico previamente publicado y establece un nuevo umbral de referencia para el campo.
+BioCLIP 2 logra una mejora del 18% en precisión de clasificación de especies con respecto a su predecesor BioCLIP, y supera en un 30,1% al modelo CLIP base utilizado como punto de partida. BioCLIP 2 Cabe resaltar que este avance no se limita a la tarea de clasificación taxonómica: a pesar de haber sido entrenado exclusivamente con supervisión a nivel de especie, el modelo generaliza de manera notable a tareas biológicas diversas como la clasificación de hábitats y la predicción de rasgos morfológicos, sin haber recibido supervisión explícita sobre ninguna de estas tareas. arXiv
+Según Gu et al. (2025), el comportamiento del modelo revela dos propiedades emergentes de particular relevancia científica. La primera es la alineación ecológica entre especies: el espacio de representaciones aprendido organiza las especies de acuerdo con sus relaciones funcionales y ecológicas, de modo que, por ejemplo, los pinzones de Darwin se distribuyen en el espacio de embeddings siguiendo un gradiente de tamaño de pico, sin que este criterio haya sido explícitamente supervisado durante el entrenamiento. La segunda propiedad emergente es la preservación de la variabilidad intraespecífica: las variaciones dentro de una misma especie —como etapas de vida y diferencias sexuales— se conservan en subespacios ortogonales a las diferencias interespecíficas, lo que permite que el modelo distinga simultáneamente entre especies y entre variantes dentro de una misma especie. arXiv En este orden de ideas, esta arquitectura representa un avance estructural frente a los modelos CNN tradicionales, que tienden a colapsar la variabilidad intraespecífica al optimizar la separación entre clases.
+Para el desarrollo de ANURA, BioCLIP 2 constituye una base de transferencia de aprendizaje de alto valor estratégico. El modelo y sus pesos han sido liberados públicamente para uso de la comunidad científica BioCLIP 2, lo que permite su uso como backbone preentrenado sobre el cual afinar un clasificador especializado en las especies de anuros colombianos registradas en GBIF e iNaturalist. Así, la combinación de un modelo fundacional con representaciones biológicamente estructuradas y un conjunto de datos geográficamente pertinente ofrece una ruta metodológica sólida para alcanzar los umbrales de precisión establecidos en el alcance del proyecto.
+
+ 
+9. Marco metodológico
+
+9.1 Sistema de procesos
+
+El alcance del proyecto Anura se define como el desarrollo de una solución tecnológica interdisciplinar que integra la inteligencia artificial con el trabajo de campo herpetológico. El sistema opera mediante la captura de entradas consistentes en registros fotográficos digitales y metadatos geoespaciales (GPS) obtenidos en tiempo real. Estas entradas alimentan un proceso de arquitectura robusta que inicia con la segmentación semántica del espécimen y su posterior análisis mediante el modelo fundacional BioClip, el cual cruza la morfología visual con bases de datos de distribución geográfica para validar la coherencia taxonómica. Como salida, la plataforma genera una ficha técnica detallada que incluye la clasificación por porcentajes de probabilidad, descripción morfológica, estado de conservación (UICN) y alertas de seguridad para especies amenazadas. El sistema se estructura bajo una arquitectura de Aplicación Web Progresiva (PWA) con capacidades offline, demostrando su funcionalidad al permitir la sincronización posterior de datos y el auto-afinado del modelo mediante el feedback de la comunidad científica, lo que determina un ciclo de vida de mejora continua y monitoreo biológico preciso.
+
+Tabla 5: Sistema de procesos de ANURA.
+Entradas	Procesos	Salidas
+Credenciales de usuario y permisos	Gestión de autenticación y control de acceso (Roles: Informática/Veterinaria)	Perfil de usuario activo y sesión segura
+Fotografía digital y coordenadas GPS	Procesamiento de imagen y segmentación semántica de partes	Imagen segmentada y metadatos validados
+Vectores de características (BioClip)	Identificación taxonómica y cruce de distribución geográfica	Listado de especies con % de probabilidad
+Validación de expertos / Comunidad	Gestión de trabajo colaborativo y auto-afinado del modelo	Modelo de IA actualizado y refinado automáticamente
+Base de datos de especies (UICN)	Gestión de alertas de conservación y seguridad de datos	Ficha técnica, guía morfológica e informe de alertas
+
+* Fuente: Elaboración propia
+	En la tabla 5 se evidencian las entradas operativas para cada proceso desde la gestión del cliente y la gestión del producto. 
+
+9.2 Análisis de requisitos
+Tabla 6:Tabla general para casos de uso.
+Gestión (Módulo)	Caso de Uso	Administrador (Informática)	Investigador (Veterinaria)	Estudiante (Veterinaria)
+Gestión de Usuarios	Administrar perfiles y permisos	X		
+Gestión de Campo	Capturar fotografía y datos GPS		X	X
+Identificación IA	Ejecutar análisis BioClip y segmentación		X	X
+Validación Científica	Corregir/Confirmar identificación (Auto-afinado)		X	
+Gestión de Alertas	Consultar especies en peligro y mapas		X	X
+Informes	Generar reportes de monitoreo y biodiversidad	X	X	
+
+ 
+9.3 Requisito de Usuario 
+
+Tabla 7: Requisitos de Usuario
+IdRequisito	Nombre del requisito	Descripción del requisito	Usuario
+RU-001	Gestionar Perfiles de Investigación	El sistema debe permitir la gestión de los investigadores y estudiantes vinculados al proyecto, permitiendo crear, modificar, inhabilitar y consultar sus niveles de acceso al software.	Ingeniero de Sistemas (Administrador)
+RU-002	Registro de Avistamientos Herpetológicos	El sistema debe permitir la gestión de los registros de campo (captura de foto y GPS), permitiendo crear nuevos reportes, modificarlos, consultarlos y guardarlos localmente (modo offline).	Estudiante / Investigador (Veterinaria)
+RU-003	Validación Taxonómica Experta	El sistema debe permitir la gestión de las validaciones científicas, donde el experto puede confirmar o corregir la especie identificada por la IA para asegurar la integridad de la base de datos.	Investigador Herpetólogo
+RU-004	Generación de Reportes Bioinformáticos	El sistema debe permitir la consulta y exportación de informes detallados sobre biodiversidad, mapas de calor y alertas de conservación de las especies registradas.	Administrador / Investigador
+
+9.4 Requisitos Funcionales (RF)
+Los Requisitos Funcionales definidos para el sistema ANURA especifican las capacidades operativas necesarias para la identificación taxonómica y la gestión de datos herpetológicos, asegurando que el software responda de manera efectiva al trabajo colaborativo entre Ingeniería y Veterinaria.
+Tabla 8: RF – Listado de Requisitos Funcionales del Módulo de Clientes.
+
+Id Requisito	Nombre del requisito	Descripción del requisito	Usuario	Id Requisito de Usuario
+RF-001	Capturar Registro Biométrico	Permite capturar o cargar una imagen del espécimen, obteniendo automáticamente las coordenadas GPS, fecha y hora del avistamiento.	Estudiante / Investigador	RU-002
+RF-002	Segmentar Imagen Morfológica	Permite al sistema separar el espécimen del fondo de la imagen para optimizar el análisis de patrones visuales por la IA.	Sistema / Investigador	RU-002
+RF-003	Identificar Especie (BioClip)	Permite ejecutar el modelo de visión artificial para generar un listado de las 3 especies más probables con su índice de confianza.	Estudiante / Investigador	RU-003
+RF-004	Validar Clasificación Científica	Permite al experto confirmar o corregir la especie sugerida, enviando el resultado a la base de datos de entrenamiento.	Investigador Herpetólogo	RU-003
+RF-005	Generar Ficha Técnica	Permite desplegar la información taxonómica completa, estado de vulnerabilidad (UICN) y mapa de distribución local.	Estudiante / Investigador	RU-004
+RF-006	Guardar Registro Offline	Permite almacenar los datos del registro en la memoria local del dispositivo (IndexedDB) cuando no se detecte conexión a internet.	Estudiante / Investigador	RU-002
+RF-007	Sincronizar Datos	Permite cargar automáticamente al servidor central los registros guardados localmente una vez se restablezca la conectividad.	Estudiante / Investigador	RU-002
+RF-008	Administrar Perfiles Académicos	Permite crear, modificar e inhabilitar perfiles de usuarios asignando roles específicos (Veterinaria/Informática).	Ingeniero (Administrador)	RU-001
+* Fuente: Elaboración propia.
+9.5 Requisitos No funcionales (RNF)
+Los Requisitos No Funcionales del sistema ANURA garantizan que la herramienta no solo sea funcional, sino también eficiente, segura y adaptable a las condiciones extremas del trabajo de campo herpetológico.
+ID	Requisito	Descripción del Requisito
+RNF-001	Interfaz Adaptativa (Usabilidad)	El sistema debe implementar un diseño con Modo Nocturno de alto contraste (para muestreos de madrugada) y un Modo Claro optimizado para lectura bajo luz solar directa, garantizando una interfaz intuitiva para el personal de Veterinaria.
+RNF-002	Tiempo de Respuesta (Rendimiento)	El proceso de identificación taxonómica mediante BioClip no debe exceder los 8 segundos desde el momento del envío de la imagen hasta la visualización de resultados en condiciones de conectividad estable.
+RNF-003	Disponibilidad Offline (Confiabilidad)	La aplicación debe ser operativa al 100% en sus funciones críticas (captura y almacenamiento local) en zonas sin cobertura de red, utilizando tecnologías de Service Workers y Cache Storage.
+RNF-004	Protección de Datos Sensibles (Seguridad)	El sistema debe encriptar las coordenadas GPS de especies clasificadas como "En Peligro Crítico" (CR) según la UICN, para prevenir el acceso de terceros y evitar el tráfico ilegal de fauna.
+RNF-005	Compatibilidad Multiplataforma (Portabilidad)	Al ser una PWA, el software debe ser compatible y visualmente consistente en navegadores Chrome (Android) y Safari (iOS), adaptando su resolución a diferentes tamaños de pantalla (Responsividad).
+RNF-006	Tasa de Acierto (Eficacia)	El modelo de IA integrado debe mantener un umbral de precisión mínima del 85% en la identificación de las 10 especies más comunes del Valle de Aburrá durante la fase piloto.
+
+9.5.1 Requisitos No Funcionales – Disponibilidad y Actualización de Datos
+En este apartado se detallan los requisitos que aseguran la continuidad del servicio en entornos rurales y la integridad de la información taxonómica recolectada. La disponibilidad en ANURA se redefine bajo el concepto de "Disponibilidad Local", permitiendo que el sistema sea funcional incluso sin acceso a redes de datos.
+Tabla 10: RNF – Disponibilidad y Actualización de Datos
+ID.	Requisito	Descripción del requisito
+RNF-007	Disponibilidad Híbrida (24/7)	El sistema debe garantizar acceso ininterrumpido a la interfaz de captura y consulta local mediante el uso de Service Workers, permitiendo la operatividad del software sin depender de la latencia o conexión con el servidor central.
+RNF-008	Sincronización Eventual de Datos	El sistema debe asegurar la actualización de la base de datos central en un tiempo no mayor a 30 segundos tras detectar una conexión estable a internet (Wi-Fi o datos móviles), garantizando la integridad del registro científico.
+RNF-009	Persistencia de Datos en Caché	La información registrada en campo debe permanecer almacenada en el dispositivo (IndexedDB) de forma persistente hasta que el servidor confirme la recepción exitosa y el respaldo del paquete de datos.
+RNF-010	Respaldo de Información (Backups)	El sistema de base de datos en la nube debe realizar copias de seguridad automáticas cada 24 horas para prevenir la pérdida de datos históricos de investigación y monitoreo.
+
+* Fuente: Elaboración propia.
+
+9.5.2 Requisitos No Funcionales – Ambiente de Trabajo (Performance)
+Los requisitos de rendimiento determinan la eficiencia del sistema ANURA bajo condiciones normales de uso, asegurando que el procesamiento de modelos de visión artificial no degrade la experiencia del usuario en campo
+Tabla 11: RNF – Ambiente de Trabajo (Performance).
+ID.	Requisito	Descripción del requisito
+RNF-011	Latencia de Inferencia IA	El tiempo de respuesta para la clasificación taxonómica debe ser de un máximo de 10 segundos (promedio de 6s), evitando demoras críticas en la interacción con la base de datos distribuida.
+RNF-012	Capacidad de Almacenamiento Escalamiento	El sistema de archivos (Blob Storage) debe estar configurado para soportar un crecimiento proyectado de 50 GB anuales en imágenes de alta resolución y metadatos científicos.
+RNF-013	Optimización de Recursos (Cliente)	La aplicación debe consumir menos del 15% de la memoria RAM disponible en dispositivos móviles estándar durante la ejecución del modelo de segmentación semántica.
+RNF-014	Condiciones del Entorno (Hardware)	Para la versión Android nativa (expansión), el dispositivo debe contar con al menos 4 GB de RAM y una unidad de procesamiento gráfico (GPU) básica para garantizar la fluidez de la IA.
+RNF-015	Optimización de Carga Inicial	El tiempo de carga de la PWA (First Contentful Paint) no debe superar los 3 segundos bajo conexión 4G, permitiendo un acceso rápido a la cámara en situaciones críticas.
+* Fuente: Elaboración propia.
+
+9.5.3 Requisitos No Funcionales – Restricciones de Diseño
+Las restricciones de diseño establecen el marco técnico y normativo que condiciona el desarrollo del sistema ANURA. Estas decisiones garantizan que el software sea compatible con la infraestructura local del servidor y con los estándares institucionales de la Corporación Universitaria Lasallista.. 
+Tabla 12: RNF – Restricciones de Diseño.
+ID.	Requisito	Descripción del requisito
+RNF-016	Lenguaje y Framework de Desarrollo	El sistema debe ser desarrollado utilizando JavaScript/TypeScript con el framework React para el frontend, asegurando la compatibilidad con los estándares de las Aplicaciones Web Progresivas (PWA).
+RNF-017	Entorno de Despliegue (Contenedores)	La aplicación debe ser desplegada obligatoriamente mediante contenedores Docker y gestionada a través de Portainer en un servidor local (juanlabs.me), facilitando el mantenimiento y escalabilidad.
+RNF-018	Seguridad y Privatización de Red	El acceso al sistema debe estar restringido mediante túneles de Cloudflare Zero Trust y políticas de acceso que eliminen la exposición de puertos públicos, cumpliendo con estándares de ciberseguridad.
+RNF-019	Integración de Modelos de IA	La lógica de identificación taxonómica debe interactuar con servicios locales BioClip mediante protocolos REST, respetando el aislamiento de datos.
+RNF-020	Estándares de Diseño (UI/UX)	El diseño de la interfaz debe seguir las guías de Material Design para asegurar que sea intuitiva para usuarios de la facultad de Medicina Veterinaria, independientemente de sus conocimientos técnicos.
+RNF-021	Normativa de Protección de Datos	El desarrollo debe cumplir estrictamente con la Ley 1581 de 2012 en el manejo de la información de los investigadores y el registro de ubicación geográfica.
+* Fuente: Elaboración propia.
+
+9.5.4 Requisitos No Funcionales – Seguridad
+Los requisitos de seguridad para el sistema ANURA establecen las medidas necesarias para blindar la información recolectada en campo y proteger el acceso a la infraestructura del servidor local, garantizando la confidencialidad de la investigación científica..
+Tabla 13: RNF – Seguridad
+ID.	Requisito	Descripción del requisito
+RNF-022	Criptografía de Credenciales	Todas las contraseñas de los usuarios (Investigadores y Estudiantes) deben ser almacenadas utilizando algoritmos de reducción criptográfica de alto nivel (como Argon2 o BCrypt), evitando el almacenamiento en texto plano.
+RNF-023	Políticas de Acceso Zero Trust	El sistema debe estar protegido mediante un túnel de Cloudflare, exigiendo autenticación de doble factor (2FA) para el acceso a los módulos de administración y gestión de bases de datos.
+RNF-024	Protección de Datos Geográficos	Las coordenadas GPS de especies catalogadas como "Sujetas a Tráfico Ilegal" deben ser cifradas en la base de datos (Encryption at Rest) para evitar su filtración y proteger la fauna.
+RNF-025	Auditoría de Registros (Logs)	Todas las acciones críticas (eliminación de avistamientos, cambio de taxonomía o modificación de perfiles) deben quedar registradas en un log de auditoría inmutable para asegurar la trazabilidad científica.
+RNF-026	Integridad de Conexión (HTTPS)	La comunicación entre la PWA y el servidor en juanlabs.me debe realizarse obligatoriamente bajo certificados SSL/TLS vigentes, garantizando que los datos no sean interceptados en tránsito.
+RNF-027	Backups de Redundancia	Se debe realizar un respaldo diario automatizado de la base de datos de investigación en un almacenamiento externo cifrado, garantizando la recuperación de desastres ante fallos de hardware local.
+
+* Fuente: Elaboración propia.
+ 
+9.5.5 Requisitos No Funcionales – Documentación de Usuario y Sistemas de Ayuda
+La documentación y los sistemas de ayuda del proyecto ANURA están diseñados para cerrar la brecha técnica entre las facultades de Ingeniería y Veterinaria, asegurando que el conocimiento sea transferible y la herramienta sea adoptada con éxito.
+
+Tabla 14: RNF – Documentación de Usuario y Sistemas de Ayuda
+ID.	Requisito	Descripción del requisito
+RNF-028	Programa de Capacitación Interdisciplinar	Se debe realizar una jornada de capacitación dirigida a estudiantes e investigadores sobre el manejo de la PWA en campo y la interpretación de los índices de confianza de la IA.
+RNF-029	Manual de Usuario con Guía Morfológica	El sistema debe contar con un manual digital que incluya instrucciones de uso y una guía visual sobre cómo capturar imágenes de anuros que optimicen la segmentación semántica.
+RNF-030	Wiki Técnica de Infraestructura	Se debe entregar documentación técnica detallada sobre la configuración del servidor en juanlabs.me, el manejo de contenedores Docker y el mantenimiento del modelo BioClip.
+RNF-031	Ayuda Contextual Integrada	La interfaz debe incluir "tooltips" o globos de texto informativos en funciones críticas, como la validación taxonómica, para guiar al usuario sin necesidad de consultar el manual físico.
+RNF-032	Protocolo de Ética y Manejo de Datos	Debe incluirse un documento guía sobre el tratamiento de datos sensibles y el protocolo de bioseguridad al interactuar con fauna silvestre durante el uso de la aplicación.
+
+* Fuente: Elaboración propia
+
+9.5.6 Requisitos No Funcionales de la Interfaz de Usuario
+Los requisitos de interfaz para el sistema ANURA priorizan la legibilidad en condiciones ambientales variables y la facilidad de interacción táctil, fundamentales para el personal de Medicina Veterinaria en campo.
+
+Tabla 15: RNF – interfaz de usuario.
+ID.	Requisito	Descripción del requisito
+RNF-033	Dispositivo de Uso Primario	El sistema será operado principalmente a través de dispositivos móviles y tablets (Android/iOS), con una interfaz responsiva adaptable a computadores de escritorio para análisis en laboratorio.
+RNF-034	Paleta de Colores Institucional	Se utilizarán colores con alto contraste: Verde esmeralda (identidad biológica), Gris Oxford para fondos nocturnos, y Blanco/Azul para legibilidad de datos técnicos.
+RNF-035	Tipografía y Legibilidad	El texto utilizará la fuente Roboto o Inter (tamaño mínimo 12pt en móviles) para garantizar la lectura rápida en exteriores; los títulos tendrán un tamaño de 16pt a 20pt.
+RNF-036	Elementos de Interacción Táctil	Los botones y elementos interactivos deberán tener un área mínima de 44x44 píxeles para facilitar su activación con guantes de látex o en condiciones de humedad.
+
+* Fuente: Elaboración propia
+9.5.7 Requisitos No Funcionales – Interfaces de Comunicación
+
+Estos requisitos describen la infraestructura de red que soporta el intercambio de datos entre la PWA y tu servidor local, garantizando la seguridad en la transmisión de información científica.
+Tabla 16: RNF – Interfaces de Comunicación
+ID.	Requisito	Descripción del requisito
+RNF-037	Protocolo de Acceso y Red	El acceso al software será vía Web (PWA) mediante el dominio juanlabs.me, utilizando protocolos HTTPS/TLS 1.3 para asegurar la privacidad del túnel de comunicación.
+RNF-038	Gestión de Tráfico y Proxy	La comunicación entre el cliente y el servidor será gestionada por Nginx Proxy Manager, actuando como balanceador de carga y capa de seguridad para los servicios en contenedores.
+RNF-039	Comunicación Asíncrona (API)	El intercambio de datos entre la interfaz y el modelo de IA se realizará mediante una API REST, permitiendo que la interfaz permanezca fluida mientras se procesan las imágenes.
+RNF-040	Estabilidad de Conexión Eventual	El sistema debe implementar mecanismos de reintento automático para la sincronización de datos en caso de micro-cortes de red durante el trabajo en zonas de baja cobertura.
+
+* Fuente: Elaboración propia
+ 
+10. Diagramas del Modelo de Casos de Uso
+
+El Modelo de Casos de Uso del sistema ANURA representa la interacción entre los usuarios especializados y la plataforma de inteligencia artificial. Este modelo permite visualizar cómo el conocimiento herpetológico se integra con las capacidades de visión computacional para lograr una identificación taxonómica precisa.
+Tabla 17: Descripción General de Actores
+Actor	Descripción
+Ingeniero (Administrador)	Representa el perfil de Ingeniería Informática. Es el encargado de la administración del servidor (juanlabs.me), la gestión de contenedores Docker, el control de acceso y el mantenimiento de la infraestructura de red.
+Investigador Experto	Representa el perfil científico de Medicina Veterinaria. Es el encargado de validar las identificaciones sugeridas por la IA, supervisar la calidad de los datos taxonómicos y liderar el proceso de auto-afinado del modelo BioClip.
+Estudiante de Veterinaria	Es el encargado de la gestión operativa en campo. Su rol consiste en capturar los registros biométricos (fotos y GPS), realizar consultas en la base de datos y recolectar la información primaria necesaria para el monitoreo.
+Sistema BioClip (Actor Externo)	Modelo fundacional de IA que actúa como un sistema externo interactuando con la plataforma para procesar los vectores de características de las imágenes y devolver probabilidades taxonómicas.
+
+* Fuente: Elaboración propia
+Los actores en este sistema representan los roles específicos que desempeñan los miembros de las facultades colaboradoras. Cada actor tiene responsabilidades delimitadas para garantizar la integridad de los datos científicos y la estabilidad de la infraestructura tecnológica.
+
+10.1 Especificación del Requisito
+
+El diagrama general de casos de uso representa de manera gráfica la interacción entre los actores del sistema y las funcionalidades principales que este ofrece. En este modelo se identifican dos actores externos: Gerente y Secretaria, quienes interactúan con los diferentes módulos del sistema de gestión. El rectángulo que delimita el diagrama corresponde a la frontera del sistema, indicando qué procesos pertenecen a la solución desarrollada.
+Dentro de la frontera se ubican los casos de uso representados por óvalos, tales como: Gestión de perfiles, Gestión de usuarios, Gestión de clientes, Gestión de proveedores, Gestión de productos, Gestión de forma de pago, Gestión tipo de documento, Gestión de facturas, Gestión de transacciones de inventario y Gestión de informes. Cada uno describe una funcionalidad específica que el sistema permite ejecutar.
+Para realizar el diagrama se siguen los siguientes pasos básicos:
+1.	Identificar los actores que interactúan con el sistema.
+2.	Definir las funcionalidades principales (casos de uso).
+3.	Dibujar la frontera del sistema (rectángulo).
+4.	Ubicar los actores fuera del rectángulo.
+5.	Colocar los casos de uso dentro del rectángulo.
+6.	Establecer las relaciones entre actores y casos de uso mediante líneas de asociación.
+Nota: En un diagrama de casos de uso, cuando el actor se encuentra por fuera del recuadro, indica que dicho actor interactúa o tiene relación con los procesos internos del sistema.
+Figura 1:Diagrama general del sistema.
+
+* Fuente: Diseño propio.
+El diagrama general de casos de uso permite visualizar de forma clara y estructurada las funcionalidades del sistema y los actores que intervienen en él. Esta representación facilita la comprensión de los requisitos funcionales, delimita el alcance del sistema y sirve como base para el análisis, diseño y desarrollo del software, asegurando que todas las necesidades identificadas sean consideradas dentro del proyecto.
+Tener presente: 
+Se desarrollan todos lo diagramas de casos de uso. 
+10.2 Diagramas de casos de uso extendidos
+Cada uno de los usos del diagrama General, se deben expandir, mostrando las acciones que se pueden ejecutar sobre el. Se muestra el ejemplo con la Gestión Cliente.
+10.3 Diagrama de casos de uso extendido para la Gestión Cliente
+(para cada gestión se realiza un diagrama extendido) 
+Este tipo de diagrama permite representar con mayor detalle el comportamiento interno de un módulo específico del sistema.
+Figura 2:Diagrama general del sistema.
+* Fuente: Diseño propio.
+
+Para cada caso de uso se realiza una plantilla (se continua con el ejemplo para la Gestión Cliente).
+
+10.4 Documentación o especificación de los Casos de Uso (Plantillas o escenarios) 
+El diagrama de caso de uso “Gestión de Cliente” detalla las funcionalidades específicas relacionadas con la administración de clientes dentro del sistema. En este modelo se identifican dos actores: Gerente y Secretaria, quienes interactúan con el módulo de gestión de clientes según sus roles y permisos.
+El caso de uso principal es Gestión Cliente, del cual se derivan varios procesos mediante relaciones «extend» e «include». Las acciones principales asociadas son: Crear, Consultar, Modificar, Inhabilitar, Guardar y Salir.
+Para elaborar este diagrama se siguen los siguientes pasos:
+1.	Identificar el caso de uso principal (Gestión Cliente).
+2.	Determinar las acciones que componen el proceso (crear, consultar, modificar, etc.).
+3.	Establecer relaciones «include» cuando un caso de uso requiere obligatoriamente otro para ejecutarse (por ejemplo, Modificar incluye Guardar).
+4.	Utilizar relaciones «extend» cuando una funcionalidad amplía el comportamiento del caso principal bajo ciertas condiciones (por ejemplo, Crear o Consultar extienden Gestión Cliente).
+5.	Ubicar los actores fuera del sistema y conectarlos mediante líneas de asociación a los casos de uso correspondientes.
+
+
+
+
+
+
+
+
+El diagrama de caso de uso “Gestión de Cliente” detalla las funcionalidades específicas relacionadas con la administración de clientes dentro del sistema. En este modelo se identifican dos actores: Gerente y Secretaria, quienes interactúan con el módulo de gestión de clientes según sus roles y permisos.
+11. Especificación del Requisito
+El caso de uso Crear Clientes describe el proceso mediante el cual el sistema permite registrar un nuevo cliente en la base de datos. Este procedimiento puede ser ejecutado por los actores Gerente y Secretaria, siempre que se encuentren autenticados en el sistema.
+El objetivo principal es garantizar que la información del cliente sea registrada correctamente, validando campos obligatorios y evitando duplicidad de registros.

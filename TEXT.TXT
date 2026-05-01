@@ -1,0 +1,43 @@
+# PROYECTO SAPITO - DOCUMENTACIÓN TÉCNICA
+
+## Descripción General
+El Proyecto "Sapito" es una plataforma de inteligencia artificial especializada en la clasificación biológica de anuros (ranas y sapos). Utiliza el modelo BioCLIP (Biological Contrastive Language-Image Pretraining) para realizar inferencias de alta precisión, complementado con un clasificador lineal personalizado entrenado para especies específicas de Colombia.
+
+## Componentes del Sistema
+
+### 1. Backend (Flask) - `app.py`
+- Servidor web basado en Flask que gestiona las peticiones de inferencia.
+- Carga el modelo BioCLIP (`imageomics/bioclip-2.5-vith14`) y un clasificador personalizado (`custom_model.pkl`).
+- Procesa imágenes enviadas por el usuario, extrae embeddings y devuelve las 5 mejores predicciones con sus probabilidades.
+
+### 2. Frontend (Web UI) - `index.html`, `script.js`, `style.css`
+- Interfaz moderna con estética "Dark Mode" y efectos de glassmorphism.
+- Funcionalidad de "Drag & Drop" para carga de imágenes.
+- Visualización dinámica de resultados mediante barras de progreso animadas.
+
+### 3. Recolección de Datos - `download_gbif_data.py`
+- Script automatizado para la descarga de datos de ocurrencia desde la API de GBIF.
+- Organiza la información en una estructura jerárquica de carpetas: `PAIS/CO/FAMILIA/GENERO/ESPECIE/`.
+
+## Taxonomía de Especies Soportadas
+El sistema está configurado para manejar las siguientes especies (basado en la base de datos de GBIF Colombia):
+
+| Familia          | Género          | Especie                     |
+|------------------|-----------------|-----------------------------|
+| Bufonidae        | Rhinella        | Rhinella alata              |
+| Bufonidae        | Rhinella        | Rhinella horribilis         |
+| Dendrobatidae    | Dendrobates     | Dendrobates truncatus       |
+| Dendrobatidae    | Leucostethus    | Leucostethus fraterdanieli  |
+| Hylidae          | Dendropsophus   | Dendropsophus bogerti       |
+| Hylidae          | Dendropsophus   | Dendropsophus microcephalus |
+| Hylidae          | Hyloscirtus     | Hyloscirtus palmeri         |
+| Craugastoridae   | Pristimantis    | Pristimantis achatinus      |
+| Craugastoridae   | Pristimantis    | Pristimantis paisa          |
+| Craugastoridae   | Pristimantis    | Pristimantis penelopus      |
+
+## Requerimientos Técnicos
+- Python 3.x
+- PyTorch (con soporte CUDA preferiblemente)
+- Flask, Flask-CORS
+- Open-CLIP-torch
+- Pillow, Joblib

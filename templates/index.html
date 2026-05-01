@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioCLIP Zero-Shot Image Classification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+    </div>
+    
+    <div class="app-container">
+        <header>
+            <h1>BioCLIP <span>Vision AI</span></h1>
+            <p>Zero-Shot Biological Image Classification powered by <a href="https://huggingface.co/imageomics/bioclip-2.5-vith14" target="_blank">imageomics/bioclip-2.5-vith14</a>.</p>
+        </header>
+
+        <main>
+            <div class="card upload-card">
+                <h2>1. Provide an Image</h2>
+                <div class="drop-zone" id="drop-zone">
+                    <span class="drop-zone__prompt">Drag & Drop or Click to Upload</span>
+                    <input type="file" id="file-input" name="image" accept="image/*">
+                    <img id="preview" src="#" alt="Preview" style="display:none;"/>
+                </div>
+            </div>
+
+            <div class="card config-card">
+                <div class="action-bar" style="justify-content: center;">
+                    <button id="analyze-btn" disabled>
+                        <span>Analyze Image</span>
+                        <div class="spinner" id="spinner" style="display:none;"></div>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <section class="results-section card" id="results-section" style="display:none;">
+            <h2>Analysis Results</h2>
+            <div id="results-container">
+                <!-- Results injected here by JS -->
+            </div>
+        </section>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

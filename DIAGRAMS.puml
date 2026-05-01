@@ -1,0 +1,89 @@
+@startuml Architecture
+!theme carbon-gray
+skinparam backgroundColor #0f111a
+skinparam ArrowColor #6ee7b7
+skinparam PackageBackgroundColor #191c29
+skinparam PackageBorderColor #ffffff
+
+title Arquitectura del Sistema - Proyecto Sapito
+
+package "Cliente (Browser)" {
+    [UI Interface] as UI
+    [JavaScript Logic] as JS
+}
+
+package "Backend (Flask)" {
+    [API Routes] as API
+    [BioCLIP Model] as Model
+    [Classifier] as Clf
+}
+
+database "Model Cache" {
+    [Hugging Face /models] as HF
+}
+
+database "Local Data" {
+    [custom_model.pkl] as PKL
+    [Taxonomy Folders] as Tax
+}
+
+UI <-> JS : User Actions
+JS -> API : POST /api/predict (Image)
+API -> Model : Extract Features
+Model <- HF : Load Weights
+API -> Clf : Predict Label
+Clf <- PKL : Load Classifier
+API -> JS : Top 5 Predictions
+JS -> UI : Update Results (Bars)
+
+@enduml
+
+@startuml DataPipeline
+!theme carbon-gray
+skinparam backgroundColor #0f111a
+
+title Pipeline de Recolección de Datos (GBIF)
+
+actor "Investigador" as Inv
+participant "download_gbif_data.py" as Script
+entity "GBIF API" as GBIF
+database "FileSystem" as FS
+
+Inv -> Script : Ejecuta script
+loop por cada Especie en TAXONOMY
+    Script -> GBIF : GET /occurrence/search?scientificName=X
+    GBIF --> Script : JSON (Resultados)
+    Script -> Script : Filtrar Lat/Lon
+    Script -> FS : Crear Carpeta (PAIS/CO/FAM/GEN/ESP)
+    Script -> FS : Guardar esp_name.json
+end
+Script --> Inv : Resumen de registros descargados
+
+@enduml
+
+@startuml Sequence
+!theme carbon-gray
+skinparam backgroundColor #0f111a
+
+title Flujo de Análisis de Imagen
+
+actor Usuario
+participant "Browser (UI)" as UI
+participant "Flask Server" as Srv
+participant "BioCLIP" as Bio
+participant "Custom Head" as Head
+
+Usuario -> UI : Arrastra imagen
+UI -> UI : Previsualiza imagen
+Usuario -> UI : Clic "Analyze Image"
+UI -> Srv : POST /api/predict (Multipart)
+Srv -> Bio : preprocess_val(image)
+Srv -> Bio : encode_image()
+Bio --> Srv : Image Features (Embeddings)
+Srv -> Head : clf.predict_proba(features)
+Head --> Srv : Probabilidades por Clase
+Srv -> Srv : Sort & Filter Top 5
+Srv --> UI : JSON Response
+UI -> UI : Animar barras de progreso
+UI -> Usuario : Mostrar resultados
+@enduml
