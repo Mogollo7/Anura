@@ -1,85 +1,174 @@
 import os
-from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS
-from PIL import Image
+import json
 import torch
 import joblib
+import numpy as np
+from PIL import Image
+from flask import Flask, request, jsonify, render_template
 
-# Configure the cache directory to be the 'models' folder in your project
+# ─── CONFIGURACIÓN ──────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 os.environ["HF_HOME"] = os.path.join(BASE_DIR, "models")
 
 import open_clip
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
-print("Loading BioCLIP model from local 'models' folder... This might take a few minutes if downloading.")
-# Load Model
+# ─── CARGA DEL MODELO ────────────────────────────────────────────────────────
+print("Cargando BioCLIP (ViT-H/14)...")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model, preprocess_train, preprocess_val = open_clip.create_model_and_transforms('hf-hub:imageomics/bioclip-2.5-vith14')
-model.to(device)
-model.eval()
+model, _, preprocess_val = open_clip.create_model_and_transforms(
+    'hf-hub:imageomics/bioclip-2.5-vith14'
+)
+model.to(device).eval()
 
-print("Loading custom trained classifier...")
-CUSTOM_MODEL_PATH = os.path.join(BASE_DIR, "data", "custom_model.pkl")
-try:
-    custom_model = joblib.load(CUSTOM_MODEL_PATH)
-    clf = custom_model["classifier"]
-    le = custom_model["label_encoder"]
-except Exception as e:
-    print(f"Error loading custom model! Make sure you run train_finetune.py first: {e}")
-print("Pre-warming model on GPU...")
+# Pre-calentamiento
 with torch.no_grad():
     _dummy = torch.zeros(1, 3, 224, 224).to(device)
     model.encode_image(_dummy)
-print("Model ready!")
+print(f"BioCLIP listo en {device}.")
 
+# ─── CARGA DEL CLASIFICADOR ──────────────────────────────────────────────────
+CUSTOM_MODEL_PATH = os.path.join(BASE_DIR, "data", "custom_model.pkl")
+clf = le = geo_features = None
+loc_weight = 0.0
+
+try:
+    model_data   = joblib.load(CUSTOM_MODEL_PATH)
+    clf          = model_data["classifier"]
+    le           = model_data["label_encoder"]
+    geo_features = model_data.get("geo_features", None)
+    loc_weight   = model_data.get("loc_weight", 0.0)
+    print(f"Clasificador cargado. Clases: {list(le.classes_)}")
+except Exception as e:
+    print(f"[!] Error cargando clasificador: {e}")
+    print("    Ejecuta primero: python scripts/train_finetune.py")
+
+NO_FROG_LABEL = "no_frog"
+
+
+# ─── HELPERS ─────────────────────────────────────────────────────────────────
+def get_location_score(species: str, lat: float, lon: float) -> float:
+    """Score de compatibilidad geográfica (0-1) con datos GBIF."""
+    if geo_features is None or lat is None or lon is None:
+        return 1.0
+    feat = geo_features.get(species)
+    if feat is None:
+        for key in geo_features:
+            if key in species or species in key:
+                feat = geo_features[key]
+                break
+    if feat is None:
+        return 1.0
+    lat_mean, lon_mean, lat_std, lon_std = feat
+    lat_std = max(float(lat_std), 0.5)
+    lon_std = max(float(lon_std), 0.5)
+    lat_score = np.exp(-0.5 * ((lat - lat_mean) / lat_std) ** 2)
+    lon_score = np.exp(-0.5 * ((lon - lon_mean) / lon_std) ** 2)
+    return float(lat_score * lon_score)
+
+
+def build_feature_vector(emb: np.ndarray, loc: np.ndarray) -> np.ndarray:
+    return np.concatenate([emb, loc * loc_weight])
+
+
+# ─── RUTAS ───────────────────────────────────────────────────────────────────
 @app.after_request
 def no_cache(response):
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
     response.headers["Pragma"] = "no-cache"
     return response
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
+@app.route('/api/status')
+def status():
+    """Endpoint para verificar si el modelo está cargado."""
+    return jsonify({
+        "bioclip": "loaded",
+        "classifier": "loaded" if clf is not None else "not_loaded",
+        "classes": list(le.classes_) if le is not None else [],
+        "device": str(device),
+        "gbif_species": len(geo_features) if geo_features else 0,
+    })
+
+
 @app.route('/api/predict', methods=['POST'])
 def predict():
-    if 'image' not in request.files:
-        return jsonify({"error": "No image file provided"}), 400
-    try:
-        if 'clf' not in globals():
-            return jsonify({"error": "Custom model not loaded on server."}), 500
-            
-        file = request.files['image']
-        image = Image.open(file.stream).convert("RGB")
-        
-        # Preprocess
-        image_input = preprocess_val(image).unsqueeze(0).to(device)
+    if clf is None or le is None:
+        return jsonify({"error": "Clasificador no cargado. Ejecuta train_finetune.py primero."}), 503
 
-        # Inference
+    if 'image' not in request.files:
+        return jsonify({"error": "No se proporcionó imagen (campo 'image')"}), 400
+
+    try:
+        # Parámetros opcionales de localización
+        lat = request.form.get('lat', type=float)
+        lon = request.form.get('lon', type=float)
+
+        # Procesar imagen
+        file  = request.files['image']
+        image = Image.open(file.stream).convert("RGB")
+        inp   = preprocess_val(image).unsqueeze(0).to(device)
+
         with torch.no_grad(), torch.autocast(device_type=device.type):
-            image_features = model.encode_image(image_input)
-            image_features /= image_features.norm(dim=-1, keepdim=True)
-            
-        features = image_features.cpu().to(torch.float32).numpy().squeeze()
-        
-        # Linear Head Prediction
-        probs = clf.predict_proba([features])[0]
-        
-        # Format results (Top 5)
+            feats = model.encode_image(inp)
+            feats = feats / feats.norm(dim=-1, keepdim=True)
+
+        emb = feats.cpu().to(torch.float32).numpy().squeeze()
+
+        # Vector de localización
+        if lat is not None and lon is not None:
+            loc = np.array([lat, lon, 0.5, 0.5], dtype=np.float32)
+        else:
+            loc = np.zeros(4, dtype=np.float32)
+
+        feat_vec = build_feature_vector(emb, loc)
+        probs    = clf.predict_proba([feat_vec])[0]
+
+        # Ajuste por localización (soft)
+        if lat is not None and lon is not None:
+            adjusted = probs.copy()
+            for i, cname in enumerate(le.classes_):
+                if cname != NO_FROG_LABEL:
+                    score = get_location_score(cname, lat, lon)
+                    adjusted[i] *= (0.5 + 0.5 * score)
+            total = adjusted.sum()
+            if total > 0:
+                probs = adjusted / total
+
+        # Top 5 resultados
         top_indices = probs.argsort()[::-1][:5]
-        results = [
-            {"class": le.inverse_transform([idx])[0], "probability": float(probs[idx])} 
-            for idx in top_indices
-        ]
-        
-        return jsonify({"predictions": results})
-        
+        results = []
+        for idx in top_indices:
+            cname = le.classes_[idx]
+            prob  = float(probs[idx])
+            loc_score = get_location_score(cname, lat, lon) if lat is not None else None
+            results.append({
+                "class":        cname,
+                "probability":  prob,
+                "is_frog":      cname != NO_FROG_LABEL,
+                "location_score": loc_score,
+            })
+
+        best = results[0]
+        return jsonify({
+            "predictions":   results,
+            "best_class":    best["class"],
+            "best_prob":     best["probability"],
+            "is_frog":       best["is_frog"],
+            "location_used": lat is not None and lon is not None,
+        })
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)

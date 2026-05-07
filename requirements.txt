@@ -1,8 +1,6 @@
 torch
 torchvision
 timm
-streamlit
-label-studio-sdk
 scikit-learn
 albumentations
 opencv-python-headless
@@ -13,3 +11,6 @@ polars
 open_clip_torch
 flask
 flask-cors
+joblib
+mlflow
+requests

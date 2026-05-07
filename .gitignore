@@ -211,3 +211,18 @@ __marimo__/
 # Ignore downloaded models and large data files
 models/
 *.pkl
+
+# --- ANURA PROJECT SPECIFIC IGNORES ---
+# 1. NO IGNORAR el modelo entrenado (es liviano y necesario para la app)
+!data/custom_model.pkl
+
+# 2. Ignorar entorno virtual
+venv/
+env/
+
+# 3. Ignorar fotos y datos crudos (muy pesados)
+Datos Crudos label/
+
+# 4. Ignorar caché de embeddings y tracking de mlflow (muy pesados)
+data/features_cache.pkl
+data/mlruns/

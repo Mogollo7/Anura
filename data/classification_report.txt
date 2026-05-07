@@ -1,0 +1,19 @@
+Validation Accuracy: 97.19%
+
+                             precision    recall  f1-score   support
+
+      Dendrobates truncatus       0.99      1.00      0.99        87
+      Dendropsophus bogerti       1.00      0.95      0.97        94
+Dendropsophus microcephalus       0.97      1.00      0.99       100
+        Hyloscirtus palmeri       1.00      1.00      1.00       100
+ Leucostethus fraterdanieli       0.99      0.99      0.99        91
+    Pristimantis acanthinus       0.96      0.98      0.97        83
+         Pristimantis paisa       0.91      0.93      0.92       100
+     Pristimantis penelopus       0.92      0.90      0.91        91
+             Rhinella alata       0.98      0.98      0.98       100
+        Rhinella horribilis       0.99      0.99      0.99        80
+                    no_frog       1.00      1.00      1.00        35
+
+                   accuracy                           0.97       961
+                  macro avg       0.97      0.97      0.97       961
+               weighted avg       0.97      0.97      0.97       961
