@@ -1,0 +1,16 @@
+.git
+.env
+venv
+**/node_modules
+**/dist
+**/__pycache__
+**/models
+**/weights
+**/venv
+datasets
+infrastructure/postgres_data
+infrastructure/minio_data
+*.log
+*.pkl
+*.pt
+*.h5

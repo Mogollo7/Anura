@@ -1,0 +1,197 @@
+services:
+  # ── Nginx Proxy Manager (Gateway) ──────────────────────────────────
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: anura_npm
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    volumes:
+      - ./gateway/data:/data
+      - ./gateway/letsencrypt:/etc/letsencrypt
+    networks:
+      - anura-net
+
+  # ── Databases ──────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: anura_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-anura}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - anura-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: anura_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - anura-net
+
+  minio:
+    image: quay.io/minio/aistor/minio:latest
+    container_name: aistor-server
+    command: server /mnt/data --console-address ":9001" --license /minio.license
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/mnt/data
+      - ./infrastructure/minio/minio.license:/minio.license
+      - ./infrastructure/minio/certs:/etc/minio/certs
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - anura-net
+
+  # ── Application Services ───────────────────────────────────────────
+  frontend:
+    build: ./frontend
+    container_name: anura_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - anura-net
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: anura_auth
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - anura-net
+
+  observation-service:
+    build: ./services/observation-service
+    container_name: anura_observations
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_PORT: ${MINIO_PORT}
+    depends_on:
+      - postgres
+      - minio
+    networks:
+      - anura-net
+
+  ai-service:
+    build: ./services/ai-service
+    container_name: anura_ai_service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./services/ai-service/weights:/app/weights
+      - ./models:/app/models
+    depends_on:
+      - postgres
+    networks:
+      - anura-net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  geo-service:
+    build: ./services/geo-service
+    container_name: anura_geo
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    networks:
+      - anura-net
+
+  thumbnail-service:
+    build: ./services/thumbnail-service
+    container_name: anura_thumbnails
+    restart: unless-stopped
+    ports:
+      - "3004:3004"
+    environment:
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_PORT: ${MINIO_PORT}
+    depends_on:
+      - minio
+    networks:
+      - anura-net
+
+  explorer-service:
+    build: ./services/explorer-service
+    container_name: anura_explorer
+    restart: unless-stopped
+    ports:
+      - "3005:3005"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      GEO_SERVICE_URL: ${GEO_SERVICE_URL}
+    depends_on:
+      - postgres
+    networks:
+      - anura-net
+
+  notification-service:
+    build: ./services/notification-service
+    container_name: anura_notifications
+    restart: unless-stopped
+    ports:
+      - "3006:3006"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - anura-net
+
+  validation-service:
+    build: ./services/validation-service
+    container_name: anura_validation
+    restart: unless-stopped
+    ports:
+      - "3007:3007"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - postgres
+    networks:
+      - anura-net
+
+networks:
+  anura-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  minio_data:

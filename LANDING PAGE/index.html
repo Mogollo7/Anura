@@ -1,0 +1,1271 @@
+﻿<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Landing page y arquitectura grafica para Anura AI: microservicios, event-driven, IA contextual, Redis, PostgreSQL y MinIO."
+    />
+    <title>Anura AI | Arquitectura Event-Driven</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: "dark",
+        securityLevel: "loose",
+        flowchart: { curve: "basis", htmlLabels: true },
+        er: { layoutDirection: "LR" },
+        themeVariables: {
+          background: "#07110f",
+          primaryColor: "#10231f",
+          primaryTextColor: "#edf7f2",
+          primaryBorderColor: "#58d68d",
+          lineColor: "#58d68d",
+          secondaryColor: "#14342d",
+          tertiaryColor: "#0d1b18",
+          fontFamily: "Inter, system-ui, sans-serif"
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#hero" aria-label="Ir al inicio">
+        <span class="brand-mark">AI</span>
+        <span>Anura AI</span>
+      </a>
+      <nav class="nav" aria-label="Navegacion principal">
+        <a href="#simulacion">Arquitectura</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#comparativa">Comparativa</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#docker">Docker</a>
+      </nav>
+      <a class="nav-cta" href="https://huggingface.co/spaces/imageomics/bioclip-2-demo" target="_blank" rel="noreferrer">
+        Probar BioCLIP
+      </a>
+    </header>
+
+    <main>
+      <section id="hero" class="hero section">
+        <div class="hero-copy">
+          <p class="eyebrow">Plataforma PWA de identificacion inteligente de anuros</p>
+          <h1>Anura</h1>
+          <p class="hero-text">
+            Una landing tecnica para comparar Microservicios y Event-Driven, ver el recorrido de una imagen desde el upload
+            hasta la prediccion con IA contextual, y entender como PostgreSQL, Redis y MinIO cooperan sin confundirse como una sola base de datos.
+          </p>
+          <div class="hero-actions">
+            <a class="primary-btn" href="#simulacion">Ver arquitectura grafica</a>
+            <a class="secondary-btn" href="#arquitectura">Ver arquitectura</a>
+            <a class="secondary-btn" href="https://github.com/Mogollo7/Anura.git" target="_blank" rel="noreferrer">Repositorio GitHub</a>
+          </div>
+          <dl class="hero-metrics">
+            <div><dt>8</dt><dd>microservicios</dd></div>
+            <div><dt>6</dt><dd>eventos clave</dd></div>
+            <div><dt>3</dt><dd>capas de almacenamiento</dd></div>
+          </dl>
+        </div>
+        <div class="hero-visual" aria-label="Ilustracion de pipeline Anura AI">
+          <div class="phone-shell">
+            <div class="phone-header">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="frog-photo">
+              <div class="frog-orbit"></div>
+              <div class="frog-body"></div>
+              <div class="frog-eye left"></div>
+              <div class="frog-eye right"></div>
+              <div class="leaf leaf-a"></div>
+              <div class="leaf leaf-b"></div>
+            </div>
+            <div class="prediction-card">
+              <span>Prediccion contextual</span>
+              <strong>Pristimantis achatinus</strong>
+              <small>Imagen + altitud + clima + bioma</small>
+            </div>
+          </div>
+          <div class="floating-chip chip-a">Redis Streams</div>
+          <div class="floating-chip chip-b">MinIO Object Storage</div>
+          <div class="floating-chip chip-c">PostgreSQL</div>
+        </div>
+      </section>
+
+      <section id="arquitectura" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Arquitectura objetivo</p>
+          <h2>Mapa por categorias del sistema</h2>
+          <p>
+            La arquitectura separa experiencia de usuario, entrada segura, servicios de dominio, almacenamiento, eventos e IA.
+            Asi se entiende que cada tecnologia cumple una funcion concreta y no compite con las demas.
+          </p>
+        </div>
+
+        <div class="category-grid">
+          <article>
+            <span class="card-kicker">Frontend PWA</span>
+            <h3>React + Vite + Tailwind</h3>
+            <p>Captura foto, GPS, permisos, privacidad, modo offline, explorer y feedback de prediccion.</p>
+          </article>
+          <article>
+            <span class="card-kicker">Gateway</span>
+            <h3>NGINX Reverse Proxy</h3>
+            <p>Enruta <code>/api/auth</code>, <code>/api/observations</code>, <code>/api/ai</code>, aplica TLS, limites y headers.</p>
+          </article>
+          <article>
+            <span class="card-kicker">Microservicios</span>
+            <h3>FastAPI / servicios de dominio</h3>
+            <p>auth, observation, explorer, ai, geo, thumbnail, notification y validation con despliegue independiente.</p>
+          </article>
+          <article>
+            <span class="card-kicker">Infraestructura</span>
+            <h3>Docker Compose</h3>
+            <p>Contenedores reproducibles para frontend, gateway, servicios, PostgreSQL, Redis y MinIO.</p>
+          </article>
+          <article>
+            <span class="card-kicker">IA contextual</span>
+            <h3>PyTorch + OpenCV + BioCLIP 2.5</h3>
+            <p>Preprocesamiento, embeddings biologicos, clasificacion y re-ranking por altitud, clima, humedad y bioma.</p>
+          </article>
+          <article>
+            <span class="card-kicker">Datos y eventos</span>
+            <h3>PostgreSQL + Redis + MinIO</h3>
+            <p>PostgreSQL persiste datos; Redis coordina eventos/cache/sesiones; MinIO guarda objetos pesados.</p>
+          </article>
+        </div>
+
+        <div class="architecture-patterns">
+          <article><span>01</span><strong>Microservicios moderados</strong><p>Servicios separados por dominio sin sobredimensionar el MVP.</p></article>
+          <article><span>02</span><strong>DDD-like</strong><p>Auth, observaciones, explorer, IA, geo, imagenes, validacion y admin.</p></article>
+          <article><span>03</span><strong>Gateway-Centric</strong><p>NGINX centraliza entrada, rutas, seguridad, limites y trazabilidad.</p></article>
+          <article><span>04</span><strong>REST API</strong><p>Comandos y consultas sincronas para frontend, explorer y panel admin.</p></article>
+          <article><span>05</span><strong>IA multimodal contextual</strong><p>Imagen, taxonomia, GPS, clima, altitud, bioma y re-ranking.</p></article>
+          <article><span>06</span><strong>Contenedores</strong><p>Servicios dockerizados con configuracion reproducible.</p></article>
+          <article><span>07</span><strong>Cloud-Native Lite</strong><p>Preparada para health checks, logs, metricas, secretos y escalado gradual.</p></article>
+          <article><span>08</span><strong>Event-Driven parcial</strong><p>Eventos para trabajos pesados: thumbnails, IA, notificaciones y validacion.</p></article>
+          <article><span>09</span><strong>Objetos</strong><p>MinIO guarda uploads, thumbnails, datasets y modelos.</p></article>
+          <article><span>10</span><strong>Backend modular</strong><p>Cada servicio mantiene rutas, dominio, modelos, eventos y pruebas.</p></article>
+          <article><span>11</span><strong>Geoespacial integrada</strong><p>GPS se convierte en contexto ecologico para decision de IA.</p></article>
+          <article><span>12</span><strong>PWA</strong><p>Camara, archivos, ubicacion, notificaciones y trabajo offline bajo demanda.</p></article>
+          <article><span>13</span><strong>Datos centralizados por schemas</strong><p>PostgreSQL organiza auth, species, observations, geo, validation, notifications y explorer.</p></article>
+        </div>
+
+        <div class="storage-grid">
+          <article class="storage-card primary">
+            <span class="card-kicker">DB principal</span>
+            <h3>PostgreSQL</h3>
+            <p>Guarda datos transaccionales, relacionales y consultables con integridad.</p>
+            <ul>
+              <li>users, login, Google OAuth, perfil, preferencias</li>
+              <li>observations, species, geo_metadata</li>
+              <li>comments, validations, notifications, favorites</li>
+            </ul>
+          </article>
+          <article class="storage-card">
+            <span class="card-kicker">Eventos y cache</span>
+            <h3>Redis</h3>
+            <p>No es la DB principal. Funciona como bus operacional para colas, pub/sub, cache, sesiones y notificaciones.</p>
+            <ul>
+              <li>image_uploaded, observation_created</li>
+              <li>ai_prediction_completed, comment_created</li>
+              <li>validation_added, notification_created</li>
+            </ul>
+          </article>
+          <article class="storage-card">
+            <span class="card-kicker">Objetos</span>
+            <h3>MinIO</h3>
+            <p>No es DB principal. Almacena binarios S3-compatible y evita inflar PostgreSQL con archivos grandes.</p>
+            <ul>
+              <li>uploads originales y thumbnails WebP</li>
+              <li>datasets curados y aumentados</li>
+              <li>pesos de modelos y artefactos de inferencia</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="simulacion" class="section simulation-section">
+        <div class="section-heading compact">
+          <p class="eyebrow">Arquitectura interactiva del sistema</p>
+          <h2>Distribucion grafica de microservicios y pipeline Event-Driven</h2>
+          <p>
+            Este grafico principal muestra como se distribuyen los microservicios, que se comunica por REST,
+            que viaja por Redis como evento, que se guarda en PostgreSQL y que queda como objeto en MinIO.
+          </p>
+        </div>
+
+        <div class="remotion-note">
+          <strong>Composicion tipo Remotion:</strong>
+          cada bloque funciona como una escena: entrada, gateway, servicios, bus de eventos, almacenamiento y salida.
+        </div>
+
+        <div class="sim-layout architecture-only">
+          <div class="diagram-panel">
+            <svg class="flow-lines" viewBox="0 0 1200 620" preserveAspectRatio="none" aria-hidden="true">
+              <path id="line-user-frontend" d="M85 116 C170 116 170 116 255 116" />
+              <path id="line-frontend-gateway" d="M355 116 C440 116 440 116 525 116" />
+              <path id="line-gateway-observation" d="M625 116 C710 116 710 116 795 116" />
+              <path id="line-observation-redis" d="M845 168 C845 250 650 250 650 338" />
+              <path id="line-redis-thumb" d="M594 388 C508 388 508 480 424 480" />
+              <path id="line-redis-ai" d="M650 388 C650 445 650 445 650 480" />
+              <path id="line-redis-geo" d="M706 388 C792 388 792 480 876 480" />
+              <path id="line-ai-postgres" d="M700 480 C804 410 888 360 988 290" />
+              <path id="line-thumb-minio" d="M376 480 C300 430 245 365 210 292" />
+              <path id="line-observation-postgres" d="M895 130 C980 150 1025 210 1032 274" />
+              <path id="line-postgres-notification" d="M1032 338 C1032 420 962 476 876 488" />
+              <path id="line-notification-frontend" d="M822 506 C600 590 370 450 314 170" />
+            </svg>
+
+            <button class="node node-user" data-node="user">
+              <span>Usuario</span><strong>Foto + GPS</strong>
+            </button>
+            <button class="node node-frontend" data-node="frontend">
+              <span>Frontend</span><strong>React PWA</strong>
+            </button>
+            <button class="node node-gateway" data-node="gateway">
+              <span>Gateway</span><strong>NGINX</strong>
+            </button>
+            <button class="node node-observation" data-node="observation">
+              <span>Microservicio</span><strong>observation-service</strong>
+            </button>
+            <div class="support-service-grid" aria-label="Servicios REST adicionales">
+              <div>auth-service<small>JWT / OAuth</small></div>
+              <div>explorer-service<small>mapas / filtros</small></div>
+              <div>validation-service<small>consenso</small></div>
+              <div>admin-analytics<small>metricas</small></div>
+            </div>
+            <button class="node node-minio" data-node="minio">
+              <span>Storage</span><strong>MinIO</strong>
+            </button>
+            <button class="node node-redis" data-node="redis">
+              <span>Event Bus</span><strong>Redis Streams</strong>
+            </button>
+            <button class="node node-postgres" data-node="postgres">
+              <span>DB principal</span><strong>PostgreSQL</strong>
+            </button>
+            <button class="node node-thumb" data-node="thumbnail">
+              <span>Consumer</span><strong>thumbnail-service</strong>
+            </button>
+            <button class="node node-ai" data-node="ai">
+              <span>Consumer</span><strong>ai-service</strong>
+            </button>
+            <button class="node node-geo" data-node="geo">
+              <span>Consumer</span><strong>geo-service</strong>
+            </button>
+            <button class="node node-notification" data-node="notification">
+              <span>Consumer</span><strong>notification-service</strong>
+            </button>
+
+            <div class="message-token" id="message-token">image_uploaded</div>
+            <div class="flow-label label-rest">REST sincrono</div>
+            <div class="flow-label label-events">Eventos asincronos Redis</div>
+            <div class="flow-label label-storage">Storage objetos + DB principal</div>
+          </div>
+        </div>
+
+        <div class="mermaid-panel">
+          <h3>Arquitectura general de comunicacion</h3>
+          <pre class="mermaid">
+flowchart LR
+  U[Usuario de campo] --> PWA[Frontend React PWA]
+  PWA -->|REST HTTPS| GW[NGINX API Gateway]
+
+  GW --> AUTH[auth-service]
+  GW --> OBS[observation-service]
+  GW --> EXP[explorer-service]
+  GW --> AI[ai-service]
+  GW --> GEO[geo-service]
+  GW --> ADMIN[admin-analytics-service]
+
+  OBS -->|metadata| PG[(PostgreSQL)]
+  AUTH -->|usuarios y sesiones persistidas| PG
+  EXP -->|consultas cientificas| PG
+  GEO -->|geo metadata| PG
+  ADMIN -->|metricas y auditoria| PG
+
+  OBS -->|uploads originales| MINIO[(MinIO)]
+  TH[thumbnail-service] -->|small medium webp| MINIO
+  AI -->|modelos y artefactos| MINIO
+
+  OBS -->|image_uploaded observation_created| REDIS[(Redis Streams)]
+  REDIS --> TH
+  REDIS --> AI
+  REDIS --> GEO
+  REDIS --> NOTI[notification-service]
+  REDIS --> VAL[validation-service]
+
+  AI -->|ai_prediction_completed| REDIS
+  VAL -->|validation_added| REDIS
+  NOTI -->|notification_created| PWA
+          </pre>
+        </div>
+      </section>
+
+      <section id="comparativa" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Comparativa arquitectonica</p>
+          <h2>Microservicios vs Event-Driven en Anura AI</h2>
+          <p>
+            La comparativa no enfrenta tecnologias excluyentes. Microservicios define como se divide el sistema;
+            Event-Driven define como se comunican partes del sistema mediante hechos asincronos. En Anura AI se combinan:
+            REST para comandos inmediatos y eventos para trabajo desacoplado.
+          </p>
+        </div>
+
+        <div class="comparison-table" role="table" aria-label="Comparativa de arquitectura">
+          <div class="table-row table-head" role="row">
+            <div role="columnheader">Criterio</div>
+            <div role="columnheader">Microservicios</div>
+            <div role="columnheader">Event-Driven</div>
+          </div>
+          <div class="table-row" role="row">
+            <div>Escalabilidad</div>
+            <div>Escala servicios independientes: IA, thumbnails, observaciones.</div>
+            <div>Escala consumers por cola o stream segun carga de eventos.</div>
+          </div>
+          <div class="table-row" role="row">
+            <div>Complejidad</div>
+            <div>Introduce red, contratos, versionado, despliegues multiples.</div>
+            <div>Introduce orden eventual, idempotencia, reintentos y trazabilidad.</div>
+          </div>
+          <div class="table-row" role="row">
+            <div>Rendimiento</div>
+            <div>REST directo es claro para consultas y operaciones sincronas.</div>
+            <div>Reduce latencia percibida moviendo procesamiento pesado al background.</div>
+          </div>
+          <div class="table-row" role="row">
+            <div>Resiliencia</div>
+            <div>Una falla queda aislada si hay timeouts, circuit breakers y health checks.</div>
+            <div>Los eventos absorben picos y permiten reprocesar mensajes pendientes.</div>
+          </div>
+          <div class="table-row" role="row">
+            <div>CI/CD</div>
+            <div>Pipelines por servicio, imagen Docker, pruebas por contrato.</div>
+            <div>Pruebas de consumers, esquemas de eventos y compatibilidad retroactiva.</div>
+          </div>
+          <div class="table-row" role="row">
+            <div>Observabilidad</div>
+            <div>Logs, metricas y trazas por servicio y endpoint.</div>
+            <div>Correlation IDs por evento, lag de colas, DLQ y auditoria de mensajes.</div>
+          </div>
+          <div class="table-row" role="row">
+            <div>Costo</div>
+            <div>Mas contenedores, mas redes, mas supervision.</div>
+            <div>Compensa costos cuando evita sobredimensionar servicios sincronos.</div>
+          </div>
+        </div>
+
+        <div class="pros-cons">
+          <article>
+            <h3>Ventajas de Microservicios</h3>
+            <ul>
+              <li>Equipos pueden trabajar por dominio: auth, observation, explorer, ai, geo.</li>
+              <li>Despliegue independiente y escalado selectivo.</li>
+              <li>Fronteras claras de seguridad, ownership y contratos API.</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Riesgos de Microservicios</h3>
+            <ul>
+              <li>Mayor costo operativo que un monolito modular.</li>
+              <li>Fallas de red, versionado, consistencia distribuida y pruebas mas complejas.</li>
+              <li>Requiere observabilidad desde el primer MVP.</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Ventajas Event-Driven</h3>
+            <ul>
+              <li>Desacopla producers y consumers.</li>
+              <li>Permite thumbnails, IA, geolocalizacion y notificaciones en paralelo.</li>
+              <li>Absorbe picos cuando muchos usuarios suben imagenes.</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Riesgos Event-Driven</h3>
+            <ul>
+              <li>Necesita idempotencia para evitar duplicados.</li>
+              <li>La depuracion exige correlation IDs, trazas y dashboards.</li>
+              <li>La consistencia eventual debe explicarse al producto y al usuario.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="servicios" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Servicios del dominio</p>
+          <h2>Mapa funcional de microservicios</h2>
+        </div>
+        <div class="remotion-service-diagram" aria-label="Diagrama de servicios Anura AI">
+          <svg class="service-lines" viewBox="0 0 1200 620" aria-hidden="true">
+            <path d="M600 64 L600 136" />
+            <path d="M600 190 L600 248" />
+            <path d="M600 248 C210 248 145 300 145 354" />
+            <path d="M600 248 C360 248 335 300 335 354" />
+            <path d="M600 248 C520 248 525 300 525 354" />
+            <path d="M600 248 C680 248 675 300 675 354" />
+            <path d="M600 248 C840 248 865 300 865 354" />
+            <path d="M600 248 C1000 248 1055 300 1055 354" />
+            <path d="M600 416 L600 470" />
+            <path d="M600 500 C345 500 300 545 300 585" />
+            <path d="M600 500 C600 540 600 548 600 585" />
+            <path d="M600 500 C855 500 900 545 900 585" />
+          </svg>
+          <div class="r-node r-front">Frontend React PWA</div>
+          <div class="r-arrow">HTTPS / REST</div>
+          <div class="r-node r-gateway">NGINX Gateway</div>
+          <div class="r-services">
+            <div>Auth<br><small>JWT, OAuth, roles</small></div>
+            <div>Observation<br><small>uploads, metadata</small></div>
+            <div>Explorer<br><small>busqueda, mapas</small></div>
+            <div>AI<br><small>BioCLIP 2.5, re-ranking</small></div>
+            <div>Geo<br><small>clima, altitud, bioma</small></div>
+            <div>Thumbnail<br><small>small, medium, WebP</small></div>
+            <div>Notification<br><small>push, alertas</small></div>
+            <div>Validation<br><small>IA, comunidad, expertos</small></div>
+            <div>Admin Analytics<br><small>gestion, auditoria, evaluacion</small></div>
+          </div>
+          <div class="r-event">Redis Event Bus: image_uploaded, ai_prediction_completed, validation_added</div>
+          <div class="r-storage-row">
+            <div>PostgreSQL<br><small>DB principal</small></div>
+            <div>Redis<br><small>eventos, cache, sesiones</small></div>
+            <div>MinIO<br><small>imagenes, thumbnails, modelos</small></div>
+          </div>
+        </div>
+        <div class="mermaid-panel">
+          <h3>Distribucion DDD-like por dominio</h3>
+          <pre class="mermaid">
+flowchart TB
+  subgraph Edge["Capa Edge"]
+    PWA[React PWA]
+    GW[NGINX Gateway]
+    PWA --> GW
+  end
+
+  subgraph Identity["Dominio Identidad"]
+    AUTH[auth-service]
+    AUTH --> AUTHDB[(auth schema)]
+  end
+
+  subgraph Observation["Dominio Observaciones"]
+    OBS[observation-service]
+    IMG[thumbnail-service]
+    OBS --> ODB[(observations schema)]
+    OBS --> OBJ[(MinIO uploads)]
+    IMG --> OBJ
+  end
+
+  subgraph Science["Dominio Ciencia"]
+    EXP[explorer-service]
+    VAL[validation-service]
+    EXP --> SDB[(species/explorer schemas)]
+    VAL --> VDB[(validation schema)]
+  end
+
+  subgraph Intelligence["Dominio IA contextual"]
+    AIS[ai-service]
+    GEO[geo-service]
+    AIS --> MODELS[(model artifacts)]
+    GEO --> GDB[(geo schema)]
+  end
+
+  subgraph Operations["Dominio Gestion y Analisis"]
+    ADM[admin-analytics-service]
+    ADM --> MET[(metricas auditoria evaluacion)]
+  end
+
+  GW --> AUTH
+  GW --> OBS
+  GW --> EXP
+  GW --> AIS
+  GW --> GEO
+  GW --> ADM
+
+  BUS[(Redis Streams)]
+  OBS --> BUS
+  BUS --> IMG
+  BUS --> AIS
+  BUS --> GEO
+  BUS --> VAL
+  BUS --> ADM
+          </pre>
+        </div>
+        <div class="service-grid">
+          <article><h3>auth-service</h3><p>Login, registro, JWT, OAuth Google, recuperacion de contrasena, sesiones, roles y preferencias.</p><code>/register /login /me</code></article>
+          <article><h3>observation-service</h3><p>Observaciones, imagenes, comentarios, privacidad, publicaciones, metadata y eventos.</p><code>observation_created image_uploaded</code></article>
+          <article><h3>explorer-service</h3><p>Busquedas, filtros, mapas, estadisticas, observaciones publicas, ranking y cache Redis.</p><code>/explore/species /explore/map</code></article>
+          <article><h3>ai-service</h3><p>PyTorch, OpenCV, BioCLIP 2.5, inferencia, confianza, contextualizacion y re-ranking.</p><code>/predict /model-info /health</code></article>
+          <article><h3>geo-service</h3><p>Clima, altitud, region, bioma, humedad, OpenWeather, OpenTopoData y reverse geocoding.</p><code>GPS -> clima + altura + region</code></article>
+          <article><h3>thumbnail-service</h3><p>Miniaturas small/medium, WebP, compresion, optimizacion movil y escritura en MinIO.</p><code>consume image_uploaded</code></article>
+          <article><h3>notification-service</h3><p>Push, emails y alertas para comentarios, respuestas, validaciones y predicciones listas.</p><code>comment_created validation_added</code></article>
+          <article><h3>validation-service</h3><p>Validaciones IA, comunidad y expertos con estados AI_VALIDATED, COMMUNITY_VALIDATED y EXPERT_VALIDATED.</p><code>validation_added</code></article>
+          <article><h3>admin-analytics-service</h3><p>Gestion operativa, auditoria, metricas de uso, evaluacion de modelos, calidad de datos y seguimiento del sistema.</p><code>/admin/metrics /admin/models</code></article>
+        </div>
+        <div class="service-pipeline-grid">
+          <article><h3>Auth Service</h3><p><strong>Flujo:</strong> request, validacion de datos, verificacion de usuario, hash de password, emision JWT, persistencia de preferencias y respuesta al frontend.</p><p><strong>Eventos:</strong> user_registered, user_logged_in, password_reset_requested.</p></article>
+          <article><h3>Observation Service</h3><p><strong>Flujo:</strong> valida JWT, procesa formulario, sube imagen a MinIO, crea observacion en PostgreSQL y publica eventos del dominio.</p><p><strong>Eventos:</strong> image_uploaded, observation_created, comment_created.</p></article>
+          <article><h3>Thumbnail Service</h3><p><strong>Flujo:</strong> consume image_uploaded, descarga objeto, genera thumbnail, medium y WebP, comprime y actualiza metadata de imagen.</p><p><strong>Objetivo:</strong> explorer rapido, menor ancho de banda y experiencia movil optimizada.</p></article>
+          <article><h3>AI Service</h3><p><strong>Flujo:</strong> consume imagen, preprocesa, ejecuta BioCLIP, U-Net y SegFormer, solicita contexto geo, reordena candidatos y publica prediccion.</p><p><strong>Eventos:</strong> ai_prediction_completed, prediction_failed.</p></article>
+          <article><h3>Geo Service</h3><p><strong>Flujo:</strong> recibe latitud/longitud, resuelve altitud, clima, humedad, region y bioma; devuelve contexto ecologico para IA y explorer.</p><p><strong>Uso:</strong> filtrar especies incompatibles con altura, temperatura o distribucion geografica.</p></article>
+          <article><h3>Explorer Service</h3><p><strong>Flujo:</strong> recibe filtros cientificos, consulta PostgreSQL/PostGIS, usa cache Redis, agrega estadisticas y responde mapas, ranking y distribucion.</p><p><strong>Funciones:</strong> mapas, heatmaps, observaciones publicas y busqueda por especie.</p></article>
+          <article><h3>Validation Service</h3><p><strong>Flujo:</strong> recibe validacion, verifica permisos, guarda decision, recalcula consenso y actualiza estado cientifico de la observacion.</p><p><strong>Estados:</strong> AI_VALIDATED, COMMUNITY_VALIDATED, EXPERT_VALIDATED.</p></article>
+          <article><h3>Notification Service</h3><p><strong>Flujo:</strong> consume eventos, construye mensaje, guarda notificacion y entrega aviso al frontend, push o email.</p><p><strong>Eventos:</strong> comment_created, validation_added, prediction_completed.</p></article>
+          <article><h3>Admin Analytics Service</h3><p><strong>Flujo:</strong> consolida metricas, auditoria, uso de servicios, calidad de datos, rendimiento de modelos y salud operativa.</p><p><strong>Capacidades:</strong> evaluacion del sistema, trazabilidad, reportes, panel de gestion y seguimiento de errores.</p></article>
+        </div>
+      </section>
+
+      <section id="pipeline" class="section pipeline-section">
+        <div class="section-heading">
+          <p class="eyebrow">Pipeline de desarrollo de software</p>
+          <h2>5 flujos separados + 1 flujo integrador</h2>
+          <p>
+            El pipeline organiza el proyecto desde el negocio hasta el monitoreo. Cada flujo produce artefactos concretos:
+            historias, diagramas, APIs, contenedores, pruebas, seguridad y despliegue.
+          </p>
+        </div>
+        <div class="project-pipeline">
+          <div class="pipe-lane">
+            <span>1</span>
+            <strong>Negocio</strong>
+            <small>subir foto, privacidad, explorer, validacion</small>
+          </div>
+          <div class="pipe-arrow">REST/API</div>
+          <div class="pipe-lane">
+            <span>2</span>
+            <strong>Arquitectura</strong>
+            <small>microservicios, eventos, DB, MinIO</small>
+          </div>
+          <div class="pipe-arrow">contratos</div>
+          <div class="pipe-lane">
+            <span>3</span>
+            <strong>Full stack</strong>
+            <small>React PWA, NGINX, FastAPI, Docker</small>
+          </div>
+          <div class="pipe-arrow">calidad</div>
+          <div class="pipe-lane">
+            <span>4</span>
+            <strong>DevSecOps</strong>
+            <small>tests, SAST, secrets, imagenes</small>
+          </div>
+          <div class="pipe-arrow">release</div>
+          <div class="pipe-lane">
+            <span>5</span>
+            <strong>Operaciones</strong>
+            <small>logs, metricas, alertas, feedback</small>
+          </div>
+        </div>
+        <div class="pipeline-grid">
+          <article>
+            <span>1</span>
+            <h3>Negocio y requerimientos</h3>
+            <p>Historias: subir foto, detectar especie, privacidad, explorer, validacion experta. Backlog priorizado con MVP.</p>
+          </article>
+          <article>
+            <span>2</span>
+            <h3>Diseno y arquitectura</h3>
+            <p>Modelo de dominios, APIs REST, eventos, schemas PostgreSQL, storage MinIO y contratos de Redis Streams.</p>
+          </article>
+          <article>
+            <span>3</span>
+            <h3>Desarrollo full stack</h3>
+            <p>React PWA, FastAPI, microservicios Dockerizados, gateway NGINX e integracion con IA contextual.</p>
+          </article>
+          <article>
+            <span>4</span>
+            <h3>Calidad y documentacion</h3>
+            <p>Pruebas unitarias, integracion, E2E, seguridad, OpenAPI, ADRs, diagramas y trazabilidad.</p>
+          </article>
+          <article>
+            <span>5</span>
+            <h3>DevSecOps</h3>
+            <p>SAST, analisis de dependencias, secretos, imagenes Docker, politicas y proteccion de datos sensibles.</p>
+          </article>
+        </div>
+        <div class="integrator-flow">
+          <div>Plan MVP</div><span></span><div>Build</div><span></span><div>Tests</div><span></span><div>Security</div><span></span><div>Deploy</div><span></span><div>Monitor</div><span></span><div>Feedback</div>
+        </div>
+      </section>
+
+      <section id="estructura" class="section communication-section">
+        <div class="section-heading">
+          <p class="eyebrow">Organizacion y comunicacion</p>
+          <h2>Que se comunica con que</h2>
+          <p>
+            Esta organizacion muestra donde vive cada parte del proyecto y como se conecta dentro de la arquitectura.
+            El repositorio guarda el codigo; la comunicacion real ocurre por Gateway, REST, Redis, PostgreSQL y MinIO.
+          </p>
+        </div>
+        <div class="communication-board">
+          <div class="comm-diagram clean-comm" aria-label="Diagrama de comunicacion del proyecto">
+            <div class="comm-row comm-row-entry">
+              <div class="comm-box accent-blue">frontend/<small>React PWA, offline, permisos y captura</small></div>
+              <div class="comm-arrow">REST HTTPS</div>
+              <div class="comm-box accent-green">gateway/<small>NGINX reverse proxy, rutas, seguridad y limites</small></div>
+            </div>
+            <div class="comm-down">El gateway distribuye comandos REST hacia dominios independientes</div>
+            <div class="comm-grid-services">
+              <div class="comm-box">auth-service<small>usuarios, JWT, OAuth, sesiones, roles</small></div>
+              <div class="comm-box">observation-service<small>observaciones, comentarios, imagenes, privacidad</small></div>
+              <div class="comm-box">explorer-service<small>mapas, busquedas, filtros, estadisticas</small></div>
+              <div class="comm-box">ai-service<small>BioCLIP 2.5, U-Net, SegFormer, re-ranking</small></div>
+              <div class="comm-box">geo-service<small>clima, altitud, region, bioma</small></div>
+              <div class="comm-box">thumbnail-service<small>small, medium, WebP, compresion</small></div>
+              <div class="comm-box">validation-service<small>IA, comunidad, expertos, consenso</small></div>
+              <div class="comm-box">notification-service<small>push, email, avisos frontend</small></div>
+              <div class="comm-box">admin-analytics-service<small>auditoria, metricas, calidad, evaluacion</small></div>
+            </div>
+            <div class="comm-bus">Redis Streams: image_uploaded · thumbnail_generated · ai_prediction_completed · validation_added</div>
+            <div class="comm-storage-grid">
+              <div class="comm-box accent-green">PostgreSQL<small>DB principal por schemas</small></div>
+              <div class="comm-box accent-cyan">Redis<small>eventos, cache, sesiones, pub/sub</small></div>
+              <div class="comm-box accent-amber">MinIO<small>imagenes, thumbnails, datasets, modelos</small></div>
+            </div>
+          </div>
+          <div class="sequence-readable">
+            <h3>Secuencia de comunicacion real</h3>
+            <div class="sequence-grid">
+              <article><span>01</span><h4>Captura</h4><p>La PWA recibe foto, GPS opcional, privacidad, descripcion y fecha.</p></article>
+              <article><span>02</span><h4>Gateway</h4><p>NGINX enruta el comando REST, agrega limites y correlation id.</p></article>
+              <article><span>03</span><h4>Observacion</h4><p>observation-service valida JWT, guarda metadata y sube original a MinIO.</p></article>
+              <article><span>04</span><h4>Evento</h4><p>Publica image_uploaded y observation_created en Redis Streams.</p></article>
+              <article><span>05</span><h4>Thumbnails</h4><p>thumbnail-service genera small, medium y WebP; PostgreSQL guarda URLs.</p></article>
+              <article><span>06</span><h4>IA</h4><p>ai-service ejecuta BioCLIP, U-Net, SegFormer y re-ranking ecologico.</p></article>
+              <article><span>07</span><h4>Geo</h4><p>geo-service resuelve altitud, clima, humedad, region y bioma.</p></article>
+              <article><span>08</span><h4>Resultado</h4><p>Se persisten prediccion, confianza, mascara y mapa anatomico.</p></article>
+              <article><span>09</span><h4>Notificacion</h4><p>notification-service avisa a la PWA que el resultado esta listo.</p></article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="db" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Diagrama de base de datos</p>
+          <h2>PostgreSQL por schemas y relaciones principales</h2>
+          <p>
+            PostgreSQL es la base principal. Redis no reemplaza estas tablas; solo mueve eventos, cache y sesiones.
+            MinIO tampoco reemplaza estas tablas; guarda archivos y PostgreSQL conserva URLs y metadata.
+          </p>
+        </div>
+        <div class="erd-stage" aria-label="Diagrama entidad relacion PostgreSQL">
+          <div class="erd-card erd-auth">
+            <h3>auth</h3>
+            <p><strong>users</strong><br>user_preferences<br>password_reset_codes</p>
+          </div>
+          <div class="erd-card erd-species">
+            <h3>species</h3>
+            <p>families<br>genera<br><strong>species</strong></p>
+          </div>
+          <div class="erd-card erd-observations">
+            <h3>observations</h3>
+            <p><strong>observations</strong><br>observation_images<br>comments<br>favorites</p>
+          </div>
+          <div class="erd-card erd-geo">
+            <h3>geo</h3>
+            <p>geo_metadata<br><small>altitud, clima, bioma</small></p>
+          </div>
+          <div class="erd-card erd-validation">
+            <h3>validation</h3>
+            <p>validations<br><small>IA, comunidad, expertos</small></p>
+          </div>
+          <div class="erd-card erd-notifications">
+            <h3>notifications</h3>
+            <p>notifications<br><small>comentarios, predicciones, validaciones</small></p>
+          </div>
+          <div class="erd-card erd-explorer">
+            <h3>explorer</h3>
+            <p>search_history<br>trending_species</p>
+          </div>
+          <svg class="erd-lines" viewBox="0 0 1200 520" aria-hidden="true">
+            <path d="M190 130 C300 130 335 250 440 250" />
+            <path d="M230 385 C340 360 350 280 440 260" />
+            <path d="M610 250 C720 205 770 130 890 130" />
+            <path d="M610 260 C730 265 770 270 890 270" />
+            <path d="M610 280 C730 350 770 400 890 400" />
+            <path d="M195 120 C340 40 760 40 890 120" />
+            <path d="M230 390 C430 500 725 500 890 410" />
+          </svg>
+          <div class="erd-relation rel-user-obs">usuario crea observaciones</div>
+          <div class="erd-relation rel-species-obs">taxonomia clasifica observacion</div>
+          <div class="erd-relation rel-obs-geo">observacion tiene contexto geo</div>
+          <div class="erd-relation rel-obs-val">observacion recibe validaciones</div>
+          <div class="erd-relation rel-obs-not">comentarios y predicciones generan avisos</div>
+        </div>
+        <div class="mermaid-panel">
+          <h3>ERD centralizado por schemas</h3>
+          <pre class="mermaid">
+erDiagram
+  AUTH_USERS ||--|| AUTH_USER_PREFERENCES : configura
+  AUTH_USERS ||--o{ AUTH_PASSWORD_RESET_CODES : solicita
+  AUTH_USERS ||--o{ OBSERVATIONS : crea
+  AUTH_USERS ||--o{ COMMENTS : comenta
+  AUTH_USERS ||--o{ FAVORITES : guarda
+  AUTH_USERS ||--o{ VALIDATIONS : valida
+  AUTH_USERS ||--o{ NOTIFICATIONS : recibe
+
+  SPECIES_FAMILIES ||--o{ SPECIES_GENERA : agrupa
+  SPECIES_GENERA ||--o{ SPECIES_SPECIES : contiene
+  SPECIES_SPECIES ||--o{ OBSERVATIONS : clasifica
+  SPECIES_SPECIES ||--o{ TRENDING_SPECIES : posiciona
+
+  OBSERVATIONS ||--o{ OBSERVATION_IMAGES : tiene
+  OBSERVATIONS ||--o{ COMMENTS : recibe
+  OBSERVATIONS ||--o{ FAVORITES : marcada
+  OBSERVATIONS ||--|| GEO_METADATA : contextualiza
+  OBSERVATIONS ||--o{ VALIDATIONS : revisada
+  OBSERVATIONS ||--o{ NOTIFICATIONS : notifica
+  COMMENTS ||--o{ NOTIFICATIONS : dispara
+  AUTH_USERS ||--o{ SEARCH_HISTORY : consulta
+
+  AUTH_USERS {
+    uuid id PK
+    string username
+    string email
+    boolean allow_ai_training
+  }
+  OBSERVATIONS {
+    uuid id PK
+    uuid user_id FK
+    uuid species_id FK
+    decimal latitude
+    decimal longitude
+    string visibility
+  }
+  OBSERVATION_IMAGES {
+    uuid id PK
+    string original_url
+    string thumbnail_url
+    string webp_url
+  }
+  GEO_METADATA {
+    uuid id PK
+    int altitude
+    decimal temperature
+    string biome
+  }
+  VALIDATIONS {
+    uuid id PK
+    string validation_type
+    boolean is_correct
+  }
+  NOTIFICATIONS {
+    uuid id PK
+    string type
+    boolean is_read
+  }
+          </pre>
+        </div>
+      </section>
+
+      <section id="pwa" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">PWA, permisos y privacidad</p>
+          <h2>Permisos bajo demanda, no todos al inicio</h2>
+          <p>
+            La PWA debe solicitar permisos solo cuando el usuario usa una funcion. Esto reduce friccion y mejora privacidad.
+          </p>
+        </div>
+        <div class="permission-grid">
+          <article><h3>Camara</h3><p>Necesita permiso solo cuando el usuario elige tomar una foto del anuro desde el dispositivo.</p></article>
+          <article><h3>Galeria / archivos</h3><p>Permite subir imagenes existentes sin pedir acceso completo a la galeria del usuario.</p></article>
+          <article><h3>Geolocalizacion</h3><p>Se solicita al usar ubicacion para estimar clima, altitud, bioma y distribucion probable de especies.</p></article>
+          <article><h3>Notificaciones</h3><p>Se activa cuando el usuario quiere recibir avisos de predicciones, comentarios o validaciones.</p></article>
+          <article><h3>Offline</h3><p>Guarda borradores, cache y observaciones pendientes cuando el investigador trabaja sin conexion.</p></article>
+          <article><h3>Privacidad</h3><p>Permite observaciones publicas o privadas, ubicacion exacta, aproximada u oculta, y decision sobre entrenamiento IA.</p></article>
+        </div>
+      </section>
+
+      <section id="contexto" class="section context-section">
+        <div class="section-heading">
+          <p class="eyebrow">Contexto ecologico inteligente</p>
+          <h2>Herramientas GIS, clima, altitud y mapas</h2>
+          <p>
+            Anura AI no clasifica solamente por imagen. La prediccion final combina vision por computadora con contexto ecologico:
+            ubicacion, clima, altitud, humedad, bioma, region y distribucion geografica probable.
+          </p>
+        </div>
+        <div class="context-grid">
+          <article><h3>OpenStreetMap</h3><p>Mapa base para mostrar observaciones, especies, ubicacion del usuario, distribucion geografica y capas del explorer cientifico.</p><strong>Uso: mapas, clustering, heatmaps y observaciones cercanas.</strong></article>
+          <article><h3>Leaflet</h3><p>Integra mapas interactivos en React y permite navegar observaciones, filtros por region y visualizacion geografica liviana.</p><strong>Pipeline: GPS -> Leaflet -> OpenStreetMap -> Explorer.</strong></article>
+          <article><h3>Geolocalizacion del navegador</h3><p>Obtiene latitud y longitud bajo demanda para enriquecer la observacion y no pedir permisos innecesarios al inicio.</p><strong>Uso: enviar GPS al GeoService.</strong></article>
+          <article><h3>OpenTopoData</h3><p>Calcula elevacion. La altitud es decisiva en anuros porque muchas especies no son viables fuera de rangos concretos.</p><strong>Ejemplo: una rana amazonica es improbable a 2800 m.</strong></article>
+          <article><h3>OpenWeather</h3><p>Entrega temperatura, humedad y estado del clima. Los anuros dependen fuertemente de lluvia, humedad y temperatura.</p><strong>Uso: GPS -> clima -> IA contextual.</strong></article>
+          <article><h3>Nominatim</h3><p>Convierte coordenadas en pais, region y ciudad. Esto alimenta filtros, estadisticas, explorer y distribucion geografica.</p><strong>Ejemplo: 4.6,-74.08 -> Bogota, Cundinamarca, Colombia.</strong></article>
+          <article><h3>PostGIS</h3><p>Extension geoespacial sobre PostgreSQL para distancias, zonas, contencion geografica, distribuciones y busquedas cercanas.</p><strong>Uso: ST_DWithin y ST_Contains.</strong></article>
+          <article><h3>Redis Event Bus</h3><p>Coordina eventos, colas, cache y pub/sub para desacoplar IA, thumbnails, validaciones y notificaciones.</p><strong>Eventos: image_uploaded, prediction_completed, thumbnail_generated.</strong></article>
+          <article><h3>MinIO</h3><p>Guarda imagenes originales, thumbnails, datasets, pesos IA y artefactos de modelos sin inflar la base transaccional.</p><strong>Pipeline: upload -> MinIO -> thumbnail-service -> AI Service.</strong></article>
+          <article><h3>PyTorch y OpenCV</h3><p>PyTorch ejecuta modelos de clasificacion y segmentacion; OpenCV prepara imagenes, resize, normalizacion y operaciones visuales.</p><strong>Uso: imagen + contexto -> prediccion final.</strong></article>
+          <article><h3>Pillow / OpenCV thumbnails</h3><p>Procesan resize, compresion, WebP y thumbnails adaptativos para que el explorer cargue rapido en movil.</p><strong>Resultado: small, medium, webp.</strong></article>
+          <article><h3>NGINX y Docker</h3><p>NGINX centraliza rutas, HTTPS y seguridad; Docker aisla cada servicio para despliegue portable, reproducible y escalable.</p><strong>Uso: gateway + contenedores por dominio.</strong></article>
+        </div>
+        <div class="context-final-flow">
+          <div>Usuario</div><span></span><div>Camara</div><span></span><div>GPS</div><span></span><div>Upload</div><span></span><div>Observation</div><span></span><div>Redis Event</div><span></span><div>Thumbnail + IA + Geo</div><span></span><div>PostgreSQL/PostGIS</div><span></span><div>Explorer</div>
+        </div>
+        <div class="context-difference">
+          <strong>Diferencial tecnico:</strong>
+          Computer Vision + GIS + Ecological Context + Microservices + Event-Driven Architecture + PWA.
+          El resultado es una plataforma cientifica inteligente, no un clasificador de imagenes aislado.
+        </div>
+      </section>
+
+      <section id="modelo" class="section model-section">
+        <div class="section-heading">
+          <p class="eyebrow">Modelo IA y proceso academico</p>
+          <h2>Como funciona la identificacion contextual</h2>
+          <p>
+            El modelo de identificacion integra tres capacidades ya definidas en el proyecto: clasificacion taxonomica,
+            segmentacion binaria rana/fondo y segmentacion semantica de partes anatomicas. La imagen produce candidatos visuales,
+            el contexto geografico ajusta la probabilidad y las validaciones humanas cierran el ciclo cientifico.
+          </p>
+        </div>
+        <div class="model-architecture-diagram">
+          <div class="model-track">
+            <h3>Modelo 01 / Clasificacion</h3>
+            <p>BioCLIP 2.5 fine-tuned con cabezas para familia, genero y especie.</p>
+          </div>
+          <div class="model-track">
+            <h3>Modelo 02 / Segmentacion binaria</h3>
+            <p>U-Net con encoder ResNet-34 separa rana y fondo con BCE + Dice Loss.</p>
+          </div>
+          <div class="model-track">
+            <h3>Modelo 03 / Anatomia semantica</h3>
+            <p>SegFormer mit-b2 identifica cuerpo, ojos, manos, patas, timpano, boca y piel.</p>
+          </div>
+          <div class="model-track">
+            <h3>Contexto ecologico</h3>
+            <p>GPS, altitud, clima, humedad, bioma y consulta opcional GBIF enriquecen el resultado.</p>
+          </div>
+        </div>
+        <div class="ai-core-diagram">
+          <div class="ai-input">Imagen de Entrada<small>JPEG · PNG · Campo / Laboratorio · GPS metadata</small></div>
+          <div class="ai-model-card">
+            <span>Modelo 01 / Clasificacion</span>
+            <h3>BioCLIP Multi-tarea</h3>
+            <p>Fine-tuning sobre encoder biologico pre-entrenado con tres cabezas independientes para clasificacion jerarquica.</p>
+            <div class="tag-row"><b>Familia</b><b>Genero</b><b>Especie</b><b>CrossEntropy</b><b>LLRD</b></div>
+          </div>
+          <div class="ai-model-card">
+            <span>Modelo 02 / Segmentacion Binaria</span>
+            <h3>U-Net + ResNet-34</h3>
+            <p>Segmentacion binaria rana/fondo con decoder skip-connection y perdida BCE + Dice para manejar desbalance de clases.</p>
+            <div class="tag-row"><b>Mascara binaria</b><b>Dice Loss</b><b>Albumentations</b><b>CutMix</b></div>
+          </div>
+          <div class="ai-model-card">
+            <span>Modelo 03 / Segmentacion Semantica</span>
+            <h3>SegFormer mit-b2</h3>
+            <p>Segmentacion semantica multi-clase de 8 partes anatomicas con backbone transformer pre-entrenado en ADE20K.</p>
+            <div class="tag-row"><b>8 clases</b><b>mIoU</b><b>Weighted CE</b><b>Mosaic Aug</b></div>
+          </div>
+          <div class="ai-output-card">Familia / Genero / Especie</div>
+          <div class="ai-output-card">Mascara binaria rana</div>
+          <div class="ai-output-card">Mapa semantico partes</div>
+          <div class="ai-output-card">Coordenadas GPS + GBIF</div>
+        </div>
+        <div class="mermaid-panel">
+          <h3>Pipeline de creacion e inferencia del modelo</h3>
+          <pre class="mermaid">
+flowchart LR
+  IMG[Imagen real de campo] --> LS[Label Studio]
+  LS --> TAX[Etiqueta taxonomica<br/>familia genero especie]
+  LS --> BIN[Mascara binaria<br/>rana vs fondo]
+  LS --> SEM[Partes anatomicas<br/>8 clases]
+  IMG --> GPS[Metadata GPS]
+
+  TAX --> BIO[BioCLIP 2.5 fine-tuned<br/>clasificacion multi-tarea]
+  BIN --> UNET[U-Net + ResNet-34<br/>BCE + Dice Loss]
+  SEM --> SEG[SegFormer mit-b2<br/>mIoU + Weighted CE]
+
+  IMG --> AUG[Albumentations<br/>geometria color textura]
+  AUG --> BIO
+  AUG --> UNET
+  AUG --> SEG
+
+  BIO --> FAM[Familia]
+  BIO --> GEN[Genero]
+  BIO --> SPE[Especie]
+  UNET --> MASK[Mascara rana]
+  SEG --> PARTS[Mapa anatomico]
+  GPS --> ECO[Altitud clima bioma GBIF]
+
+  FAM --> RANK[Re-ranking contextual]
+  GEN --> RANK
+  SPE --> RANK
+  ECO --> RANK
+  MASK --> OUT[Respuesta /predict JSON]
+  PARTS --> OUT
+  RANK --> OUT
+          </pre>
+        </div>
+        <div class="model-flow">
+          <div>Imagen<br><small>foto o upload</small></div>
+          <span></span>
+          <div>Preprocesamiento<br><small>OpenCV, resize, limpieza</small></div>
+          <span></span>
+          <div>BioCLIP 2.5<br><small>embeddings biologicos</small></div>
+          <span></span>
+          <div>Re-ranking<br><small>altitud, clima, bioma</small></div>
+          <span></span>
+          <div>Resultado<br><small>top especies + confianza</small></div>
+        </div>
+        <div class="model-data-grid">
+          <article><h3>Dataset</h3><p>Imagenes reales de campo etiquetadas con Label Studio para taxonomia, mascara binaria y partes anatomicas.</p></article>
+          <article><h3>Falsos positivos</h3><p>Objetos similares y fondos confusos entrenan robustez para condiciones reales de campo.</p></article>
+          <article><h3>Augmentacion</h3><p>Albumentations aplica transformaciones geometricas y fotometricas sincronizadas entre imagen y mascara.</p></article>
+          <article><h3>Salida API</h3><p>El endpoint de prediccion devuelve especie, confianza, mascara, mapa anatomico y coordenadas/contexto.</p></article>
+        </div>
+        <div class="training-docs">
+          <h3>Metodo de entrenamiento y anotacion</h3>
+          <div class="data-table">
+            <div class="data-head">Tipo de anotacion</div><div class="data-head">Herramienta</div><div class="data-head">Descripcion</div>
+            <div>Clasificacion taxonomica</div><div>Label Studio</div><div>Clasificacion jerarquica: Familia / Genero / Especie.</div>
+            <div>Segmentacion binaria</div><div>Label Studio</div><div>Mascara poligonal para separar rana y fondo.</div>
+            <div>Partes del cuerpo</div><div>Label Studio</div><div>Segmentacion semantica multi-clase de 8 clases anatomicas.</div>
+            <div>Coordenadas GPS</div><div>JSON metadata</div><div>Metadata por imagen con integracion opcional GBIF.</div>
+          </div>
+
+          <h3>Clases de segmentacion semantica</h3>
+          <div class="data-table semantic-table">
+            <div class="data-head">ID</div><div class="data-head">Parte anatomica</div><div class="data-head">Notas</div>
+            <div>0</div><div>Fondo</div><div>Clase mas frecuente; genera desbalance.</div>
+            <div>1</div><div>Cuerpo / Torso</div><div>Area principal de la rana.</div>
+            <div>2</div><div>Ojos</div><div>Clase pequena con mayor peso en perdida.</div>
+            <div>3</div><div>Manos / Dedos anteriores</div><div>RandomCrop estratificado para balanceo.</div>
+            <div>4</div><div>Patas / Dedos posteriores</div><div>Pose variable y augmentacion intensiva.</div>
+            <div>5</div><div>Timpano</div><div>Clase rara; requiere oversampling.</div>
+            <div>6</div><div>Boca</div><div>Clase rara; Dice Loss sensible.</div>
+            <div>7</div><div>Piel</div><div>Textura general opcional con HueSaturationValue.</div>
+          </div>
+
+          <h3>Pipeline de mascara binaria</h3>
+          <div class="mask-pipeline">
+            <div>PNG RGBA<small>R · G · B · Alpha</small></div>
+            <span></span>
+            <div>Umbral Alpha 128<small>A &gt; 128 = rana · A <= 128 = fondo</small></div>
+            <span></span>
+            <div>Mascara uint8<small>binaria 0 / 1</small></div>
+            <span></span>
+            <div>Img + Mask<small>augmentacion simultanea</small></div>
+            <span></span>
+            <div>U-Net<small>ResNet-34 encoder · BCE + Dice Loss</small></div>
+          </div>
+          <p class="training-note">La eliminacion de fondo es clave anti-overfitting: el modelo aprende a ignorar fondos de campo en lugar de memorizarlos. CutMix y CoarseDropout generan ejemplos dificiles, falsos positivos y oclusiones parciales.</p>
+
+          <h3>Division del dataset de segmentacion binaria</h3>
+          <div class="data-table split-table">
+            <div class="data-head">Etapa</div><div class="data-head">Imagenes originales</div><div class="data-head">Con augmentacion</div><div class="data-head">Notas</div>
+            <div>Train</div><div>550</div><div>5,100 - 6,000</div><div>Augmentacion solo en train y oversampling de clases raras.</div>
+            <div>Validacion</div><div>120</div><div>N/A</div><div>Evaluacion limpia sin augmentacion.</div>
+            <div>Test</div><div>120</div><div>N/A</div><div>Conjunto nunca visto para evaluacion final.</div>
+          </div>
+
+          <h3>Albumentations: geometria</h3>
+          <div class="data-table aug-table">
+            <div class="data-head">Transformacion</div><div class="data-head">Parametros</div><div class="data-head">Probabilidad</div><div class="data-head">Proposito</div>
+            <div>HorizontalFlip</div><div>-</div><div>p = 0.5</div><div>Espejado horizontal.</div>
+            <div>VerticalFlip</div><div>-</div><div>p = 0.3</div><div>Poses invertidas poco frecuentes.</div>
+            <div>RandomRotate90</div><div>rotacion 90 grados</div><div>p = 0.5</div><div>Rotaciones ortogonales.</div>
+            <div>ShiftScaleRotate</div><div>limit=0.2, R_lim=0.3</div><div>p = 0.5</div><div>Variabilidad de pose y escala.</div>
+            <div>ElasticTransform</div><div>alpha=120, sigma=6</div><div>p = 0.3</div><div>Deformacion organica.</div>
+            <div>GridDistortion</div><div>-</div><div>p = 0.2</div><div>Deformacion de cuadricula.</div>
+            <div>Perspective</div><div>-</div><div>p = 0.3</div><div>Cambio de perspectiva de camara.</div>
+          </div>
+
+          <h3>Albumentations: color, textura y calidad</h3>
+          <div class="data-table aug-table">
+            <div class="data-head">Transformacion</div><div class="data-head">Parametros</div><div class="data-head">Probabilidad</div><div class="data-head">Proposito</div>
+            <div>RandomBrightnessContrast</div><div>brightness=0.3, contrast=0.3</div><div>p = 0.5</div><div>Variacion de iluminacion de campo.</div>
+            <div>RandomShadow</div><div>-</div><div>p = 0.2</div><div>Sombras artificiales.</div>
+            <div>HueSaturationValue</div><div>hue=10, sat=20, val=20</div><div>p = 0.3</div><div>Colores variables entre individuos.</div>
+            <div>RGBShift</div><div>r=15, g=15, b=15</div><div>p = 0.3</div><div>Temperatura de color.</div>
+            <div>CLAHE</div><div>clip=4.0</div><div>p = 0.3</div><div>Contraste local en fondos complejos.</div>
+            <div>GaussianBlur</div><div>blur_limit=3</div><div>p = 0.2</div><div>Desenfoque de camara.</div>
+            <div>GaussNoise</div><div>var_limit=(10,50)</div><div>p = 0.2</div><div>Ruido de sensor.</div>
+            <div>ImageCompression</div><div>quality=60-100</div><div>p = 0.3</div><div>Compresion JPEG de campo.</div>
+            <div>CoarseDropout</div><div>holes=8, size=32</div><div>p = 0.3</div><div>Oclusion parcial anti-overfitting.</div>
+          </div>
+        </div>
+        <div class="progress-board">
+          <article class="done"><span></span><p>Crear estructura base del monorepo academico.</p></article>
+          <article class="done"><span></span><p>Implementar backend Express con seguridad, simulacion y tests.</p></article>
+          <article><span></span><p>Implementar frontend React con landing, simulador, comparador y UX.</p></article>
+          <article><span></span><p>Agregar investigacion, UML, diagramas tecnicos, requisitos, MVP, pitch y soportes.</p></article>
+          <article><span></span><p>Agregar CI/CD, deploy configs y README profesional.</p></article>
+          <article><span></span><p>Instalar dependencias, verificar pruebas o dejar instrucciones si falla la red.</p></article>
+        </div>
+        <div class="hero-actions">
+          <a class="secondary-btn" href="https://mogollo7.github.io/Seguimiento-2-IS/" target="_blank" rel="noreferrer">Ver seguimiento del proyecto</a>
+        </div>
+      </section>
+
+      <section id="docker" class="section split-section">
+        <div>
+          <p class="eyebrow">Docker Compose</p>
+          <h2>Laboratorio local reproducible</h2>
+          <p>
+            Ejemplo funcional para levantar frontend, gateway, microservicios, PostgreSQL, Redis y MinIO. En produccion se agregarian TLS,
+            autoscaling, secret manager, observabilidad y backups.
+          </p>
+          <a class="primary-btn inline-action" href="https://huggingface.co/spaces/imageomics/bioclip-2-demo" target="_blank" rel="noreferrer">
+            Ver demo del modelo IA
+          </a>
+        </div>
+        <pre class="code-block large"><code>services:
+  frontend:
+    build: ./frontend
+    ports: ["3000:80"]
+  gateway:
+    image: nginx:alpine
+    volumes: ["./gateway/nginx.conf:/etc/nginx/nginx.conf:ro"]
+    ports: ["80:80"]
+  auth-service:
+    build: ./services/auth-service
+    environment: [DATABASE_URL, REDIS_URL, JWT_SECRET]
+  observation-service:
+    build: ./services/observation-service
+    environment: [DATABASE_URL, REDIS_URL, MINIO_ENDPOINT]
+  explorer-service:
+    build: ./services/explorer-service
+    environment: [DATABASE_URL]
+  ai-service:
+    build: ./services/ai-service
+    environment: [DATABASE_URL, REDIS_URL, MINIO_ENDPOINT]
+  geo-service:
+    build: ./services/geo-service
+    environment: [DATABASE_URL, REDIS_URL]
+  thumbnail-service:
+    build: ./services/thumbnail-service
+    environment: [REDIS_URL, MINIO_ENDPOINT]
+  notification-service:
+    build: ./services/notification-service
+    environment: [DATABASE_URL, REDIS_URL]
+  validation-service:
+    build: ./services/validation-service
+    environment: [DATABASE_URL, REDIS_URL]
+  postgres:
+    image: postgres:16-alpine
+    environment: [POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD]
+  redis:
+    image: redis:7-alpine
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"</code></pre>
+      </section>
+
+      <section id="fuentes" class="section sources">
+        <div class="section-heading compact">
+          <p class="eyebrow">Investigacion base</p>
+          <h2>Conceptos usados y herramientas</h2>
+          <p>
+            La documentacion aplica conceptos de arquitectura, GIS, IA contextual, procesamiento de imagenes, PWA,
+            microservicios y almacenamiento distribuido usados en Anura AI.
+          </p>
+        </div>
+        <div class="concept-tool-grid">
+          <article><h3>Microservicios moderados</h3><p>Se separan dominios criticos sin convertir el MVP en una malla innecesariamente compleja.</p><strong>Usado en auth, observation, explorer, ai, geo, thumbnail, validation, notification y admin.</strong></article>
+          <article><h3>Arquitectura DDD-like</h3><p>El sistema se organiza por capacidades de negocio y ciencia, no por capas tecnicas mezcladas.</p><strong>Permite ownership, contratos y evolucion independiente.</strong></article>
+          <article><h3>Gateway-Centric</h3><p>NGINX concentra la entrada, rutas, seguridad, HTTPS, limites y observabilidad inicial.</p><strong>Evita exponer servicios internos directamente.</strong></article>
+          <article><h3>REST API</h3><p>Los comandos de usuario y consultas inmediatas usan HTTP claro y versionable.</p><strong>Ideal para login, explorer, observaciones y panel admin.</strong></article>
+          <article><h3>Event-Driven parcial</h3><p>Los trabajos pesados se desacoplan mediante eventos para no bloquear al usuario.</p><strong>Activa IA, thumbnails, notificaciones y validaciones.</strong></article>
+          <article><h3>Object Storage</h3><p>Los objetos pesados no viven en PostgreSQL; se almacenan en MinIO y se referencian por URL.</p><strong>Imagenes, thumbnails, datasets y pesos IA.</strong></article>
+          <article><h3>IA multimodal contextual</h3><p>La prediccion no depende solo de pixeles; incorpora altitud, clima, humedad, bioma y region.</p><strong>Mejora precision con re-ranking ecologico.</strong></article>
+          <article><h3>Geoespacial integrada</h3><p>PostGIS, GPS, mapas y APIs ambientales convierten coordenadas en conocimiento biologico.</p><strong>Soporta filtros, distribucion y especies cercanas.</strong></article>
+        </div>
+        <div class="tool-layer-board" aria-label="Herramientas usadas por capa">
+          <article>
+            <h3>Frontend y PWA</h3>
+            <p>React, Vite, Tailwind, Service Worker, Cache API, IndexedDB, permisos de camara, galeria, GPS y notificaciones.</p>
+          </article>
+          <article>
+            <h3>Backend y gateway</h3>
+            <p>FastAPI, NGINX, REST, JWT, OAuth Google, contratos API, versionado, health checks y separacion por dominios.</p>
+          </article>
+          <article>
+            <h3>Datos y eventos</h3>
+            <p>PostgreSQL por schemas, PostGIS, Redis Streams, cache, sesiones, pub/sub y MinIO para objetos pesados.</p>
+          </article>
+          <article>
+            <h3>IA e imagenes</h3>
+            <p>BioCLIP 2.5, PyTorch, OpenCV, U-Net, ResNet-34, SegFormer, Label Studio, Albumentations, Sharp y WebP.</p>
+          </article>
+          <article>
+            <h3>Contexto ecologico</h3>
+            <p>OpenStreetMap, Leaflet, OpenTopoData, OpenWeather, Nominatim, GBIF, altitud, clima, humedad, bioma y region.</p>
+          </article>
+          <article>
+            <h3>DevOps y evaluacion</h3>
+            <p>Docker Compose, despliegue reproducible, logs, metricas, auditoria, trazabilidad, monitoreo y admin-analytics-service.</p>
+          </article>
+        </div>
+        <div class="tool-chip-cloud" aria-label="Inventario de herramientas tecnicas">
+          <span>React</span>
+          <span>Vite</span>
+          <span>Tailwind CSS</span>
+          <span>PWA</span>
+          <span>Service Worker</span>
+          <span>IndexedDB</span>
+          <span>FastAPI</span>
+          <span>NGINX</span>
+          <span>Docker Compose</span>
+          <span>PostgreSQL</span>
+          <span>PostGIS</span>
+          <span>Redis Streams</span>
+          <span>MinIO</span>
+          <span>PyTorch</span>
+          <span>OpenCV</span>
+          <span>BioCLIP 2.5</span>
+          <span>U-Net</span>
+          <span>ResNet-34</span>
+          <span>SegFormer</span>
+          <span>Label Studio</span>
+          <span>Albumentations</span>
+          <span>Sharp</span>
+          <span>WebP</span>
+          <span>OpenStreetMap</span>
+          <span>Leaflet</span>
+          <span>OpenTopoData</span>
+          <span>OpenWeather</span>
+          <span>Nominatim</span>
+          <span>GBIF</span>
+          <span>Hugging Face</span>
+        </div>
+        <div class="source-accordion">
+          <details>
+            <summary>React</summary>
+            <p>Base del frontend PWA: vistas, componentes, estado de formularios, explorer, subida de imagenes y paneles del usuario.</p>
+            <a href="https://react.dev/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>Vite</summary>
+            <p>Tooling del frontend para desarrollo rapido, build optimizado y servidor local de la landing/PWA.</p>
+            <a href="https://vite.dev/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>Tailwind CSS</summary>
+            <p>Sistema utilitario de estilos para construir una UI consistente, responsive y mantenible en React.</p>
+            <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>FastAPI</summary>
+            <p>Framework backend para exponer APIs REST por microservicio, health checks, validacion de esquemas y OpenAPI.</p>
+            <a href="https://fastapi.tiangolo.com/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>PostgreSQL</summary>
+            <p>Base de datos principal para usuarios, observaciones, especies, comentarios, validaciones, notificaciones y metadata geografica.</p>
+            <a href="https://www.postgresql.org/docs/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>Martin Fowler - Microservices Guide</summary>
+            <p>Referencia para explicar servicios pequenos, ownership por dominio, despliegue independiente y complejidad distribuida.</p>
+            <a href="https://www.martinfowler.com/microservices/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>Redis Streams</summary>
+            <p>Se uso para representar colas/eventos, grupos de consumo, reintentos y procesamiento asincrono.</p>
+            <a href="https://redis.io/docs/latest/develop/data-types/streams/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>MinIO Object Storage</summary>
+            <p>Se uso para justificar almacenamiento S3-compatible de imagenes, thumbnails, datasets y modelos fuera de PostgreSQL.</p>
+            <a href="https://github.com/minio/docs" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>Sharp - thumbnails y WebP</summary>
+            <p>Se uso como referencia para el thumbnail-service: redimensionar uploads, generar small/medium, convertir a WebP y optimizar ancho de banda movil.</p>
+            <a href="https://sharp.pixelplumbing.com/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>Imageomics BioCLIP 2.5 ViT-H/14</summary>
+            <p>Referencia del modelo biologico para embeddings visuales y clasificacion de especies con contexto ecologico.</p>
+            <a href="https://huggingface.co/imageomics/bioclip-2.5-vith14" target="_blank" rel="noreferrer">Abrir modelo</a>
+          </details>
+          <details>
+            <summary>Hugging Face Spaces - BioCLIP Demo</summary>
+            <p>Demo publica para probar el modelo BioCLIP y conectar la explicacion de IA con una experiencia verificable.</p>
+            <a href="https://huggingface.co/spaces/imageomics/bioclip-2-demo" target="_blank" rel="noreferrer">Abrir demo</a>
+          </details>
+          <details>
+            <summary>PyTorch</summary>
+            <p>Framework de entrenamiento e inferencia para BioCLIP fine-tuning, U-Net, SegFormer y experimentos de clasificacion.</p>
+            <a href="https://pytorch.org/docs/stable/index.html" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>OpenCV</summary>
+            <p>Procesamiento de imagenes para lectura, normalizacion, transformaciones, control de calidad y apoyo al thumbnail-service.</p>
+            <a href="https://docs.opencv.org/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>Label Studio</summary>
+            <p>Herramienta de anotacion para clasificacion taxonomica, mascara binaria y segmentacion semantica de partes anatomicas.</p>
+            <a href="https://labelstud.io/guide/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>Albumentations</summary>
+            <p>Pipeline de augmentacion para aplicar transformaciones sincronizadas entre imagen y mascara sin romper correspondencia pixel a pixel.</p>
+            <a href="https://albumentations.ai/docs/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>MDN Progressive Web Apps</summary>
+            <p>Se uso para explicar permisos bajo demanda, offline, cache, service workers y experiencia instalable.</p>
+            <a href="https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>OpenStreetMap</summary>
+            <p>Mapa base para explorer cientifico, distribucion geografica, ubicacion del usuario, clustering y heatmaps.</p>
+            <a href="https://www.openstreetmap.org/" target="_blank" rel="noreferrer">Abrir herramienta</a>
+          </details>
+          <details>
+            <summary>Leaflet</summary>
+            <p>Libreria de mapas para conectar React con OpenStreetMap y construir visualizaciones geograficas livianas.</p>
+            <a href="https://leafletjs.com/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>OpenTopoData</summary>
+            <p>API de elevacion usada para obtener altitud y filtrar especies incompatibles con rangos ecologicos.</p>
+            <a href="https://www.opentopodata.org/" target="_blank" rel="noreferrer">Abrir API</a>
+          </details>
+          <details>
+            <summary>OpenWeather</summary>
+            <p>Fuente de temperatura, humedad y clima para enriquecer predicciones de anuros sensibles a lluvia y humedad.</p>
+            <a href="https://openweathermap.org/" target="_blank" rel="noreferrer">Abrir API</a>
+          </details>
+          <details>
+            <summary>Nominatim</summary>
+            <p>Reverse geocoding basado en OpenStreetMap para convertir coordenadas en pais, region y ciudad.</p>
+            <a href="https://nominatim.org/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>PostGIS</summary>
+            <p>Extension geoespacial de PostgreSQL para distancias, zonas, contencion geografica y consultas por region.</p>
+            <a href="https://postgis.net/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>GBIF</summary>
+            <p>Referencia de biodiversidad para contrastar coordenadas, distribuciones esperadas y plausibilidad ecologica de especies.</p>
+            <a href="https://www.gbif.org/developer/summary" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>NGINX</summary>
+            <p>Reverse proxy y gateway para routing, HTTPS, seguridad, headers, limites y entrada unica al backend.</p>
+            <a href="https://nginx.org/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+          <details>
+            <summary>Docker</summary>
+            <p>Contenedores para aislar servicios, hacer despliegues reproducibles y levantar el laboratorio local con Compose.</p>
+            <a href="https://docs.docker.com/" target="_blank" rel="noreferrer">Abrir documentacion</a>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Anura AI Architecture Landing</span>
+      <a href="#hero">Volver arriba</a>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
+
