@@ -5,11 +5,19 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api/predict': 'http://localhost:8000',
-      '/api/ai':      'http://localhost:8000',
-      '/api/auth':    'http://localhost:3001',
-      '/api/obs':     'http://localhost:3002',
-      '/api/geo':     'http://localhost:3003',
+      '/api/predict': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        timeout: 60000,
+      },
+      '/api/ai': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        timeout: 60000,
+      },
+      '/api/auth': 'http://127.0.0.1:3001',
+      '/api/obs':  'http://127.0.0.1:3002',
+      '/api/geo':  'http://127.0.0.1:3003',
     }
   }
 })

@@ -1,4 +1,4 @@
-﻿# Envs
+# Envs
 .env
 venv/
 env/
@@ -14,6 +14,7 @@ __pycache__/
 
 # Models & heavy data (use Git LFS or DVC instead)
 services/ai-service/weights/*.pkl
+!services/ai-service/weights/custom_model.pkl
 services/ai-service/weights/*.pt
 services/ai-service/models/hub/
 data/features_cache.pkl

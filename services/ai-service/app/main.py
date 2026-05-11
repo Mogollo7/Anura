@@ -43,6 +43,17 @@ with torch.no_grad():
     model.encode_image(_dummy)
 print(f"BioCLIP listo en {device}.")
 
+# ─── FILTRO TAXONÓMICO (ANURA) ───────────────────────────────────────────────
+tokenizer = open_clip.get_tokenizer("hf-hub:imageomics/bioclip-2.5-vith14")
+with torch.no_grad():
+    # Usamos el nombre del orden científico para máxima precisión en BioCLIP
+    txt_tokens = tokenizer(["Anura", "object", "animal"]).to(device)
+    txt_feats  = model.encode_text(txt_tokens)
+    txt_feats /= txt_feats.norm(dim=-1, keepdim=True)
+    anura_text_feat = txt_feats[0:1] # Primer vector: "Anura"
+
+TAXONOMIC_THRESHOLD = 0.18 # Umbral de similitud para descartar no-ranas
+
 # ─── CARGA DEL CLASIFICADOR ──────────────────────────────────────────────────
 CUSTOM_MODEL_PATH = os.path.join(WEIGHTS_DIR, "custom_model.pkl")
 clf = le = geo_features = None
@@ -54,6 +65,11 @@ try:
     le           = model_data["label_encoder"]
     geo_features = model_data.get("geo_features", None)
     loc_weight   = model_data.get("loc_weight", 0.0)
+    
+    # Parche para compatibilidad de versiones de scikit-learn
+    if not hasattr(clf, 'multi_class'):
+        clf.multi_class = 'multinomial'
+        
     print(f"Clasificador cargado. Clases: {list(le.classes_)}")
 except Exception as e:
     print(f"[!] Error cargando clasificador: {e}")
@@ -121,6 +137,27 @@ async def predict(
             feats = model.encode_image(inp)
             feats = feats / feats.norm(dim=-1, keepdim=True)
 
+            # --- VALIDACIÓN TAXONÓMICA ---
+            # Comparamos el embedding de la imagen con el del orden "Anura"
+            tax_sim = (feats @ anura_text_feat.T).item()
+            print(f"DEBUG: Similitud con Anura: {tax_sim:.4f}")
+
+            if tax_sim < TAXONOMIC_THRESHOLD:
+                print(f"FILTRADO: Imagen descartada por baja similitud taxonómica ({tax_sim:.4f} < {TAXONOMIC_THRESHOLD})")
+                return {
+                    "predictions": [{
+                        "class": NO_FROG_LABEL,
+                        "probability": 1.0,
+                        "is_frog": False,
+                        "location_score": 0.0
+                    }],
+                    "best_class": NO_FROG_LABEL,
+                    "best_prob": 1.0,
+                    "is_frog": False,
+                    "location_used": False,
+                    "taxonomic_similarity": tax_sim
+                }
+
         emb = feats.cpu().to(torch.float32).numpy().squeeze()
 
         if lat is not None and lon is not None:
@@ -149,7 +186,7 @@ async def predict(
             prob  = float(probs[idx])
             loc_score = get_location_score(cname, lat, lon) if lat is not None else None
             results.append({
-                "class":          cname,
+                "class":          str(cname),
                 "probability":    prob,
                 "is_frog":        cname != NO_FROG_LABEL,
                 "location_score": loc_score,
@@ -165,4 +202,6 @@ async def predict(
         }
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))

@@ -1,4 +1,13 @@
 services:
+  # ── Cloudflare Tunnel (External Access) ────────────────────────────
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: anura_tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+    networks:
+      - anura-net
+
   # ── Nginx Proxy Manager (Gateway) ──────────────────────────────────
   npm:
     image: jc21/nginx-proxy-manager:latest
@@ -20,14 +29,14 @@ services:
     container_name: anura_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-anura}
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5432:5432" # Optional: for external DB management
     networks:
       - anura-net
 
@@ -35,8 +44,6 @@ services:
     image: redis:7-alpine
     container_name: anura_redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     networks:
       - anura-net
 
@@ -62,8 +69,7 @@ services:
     build: ./frontend
     container_name: anura_frontend
     restart: unless-stopped
-    ports:
-      - "3000:80"
+    # No direct ports: NPM handles it on port 80
     networks:
       - anura-net
 
@@ -71,8 +77,6 @@ services:
     build: ./services/auth-service
     container_name: anura_auth
     restart: unless-stopped
-    ports:
-      - "3001:3001"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
@@ -87,8 +91,6 @@ services:
     build: ./services/observation-service
     container_name: anura_observations
     restart: unless-stopped
-    ports:
-      - "3002:3002"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       MINIO_ENDPOINT: ${MINIO_ENDPOINT}
@@ -103,14 +105,15 @@ services:
     build: ./services/ai-service
     container_name: anura_ai_service
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       PYTHONUNBUFFERED: 1
+      HF_TOKEN: ${HF_TOKEN}
     volumes:
+      - ./services/ai-service/app:/app/app
       - ./services/ai-service/weights:/app/weights
       - ./models:/app/models
+      - hf_cache:/root/.cache/huggingface
     depends_on:
       - postgres
     networks:
@@ -127,8 +130,6 @@ services:
     build: ./services/geo-service
     container_name: anura_geo
     restart: unless-stopped
-    ports:
-      - "3003:3003"
     networks:
       - anura-net
 
@@ -136,8 +137,6 @@ services:
     build: ./services/thumbnail-service
     container_name: anura_thumbnails
     restart: unless-stopped
-    ports:
-      - "3004:3004"
     environment:
       MINIO_ENDPOINT: ${MINIO_ENDPOINT}
       MINIO_PORT: ${MINIO_PORT}
@@ -150,8 +149,6 @@ services:
     build: ./services/explorer-service
     container_name: anura_explorer
     restart: unless-stopped
-    ports:
-      - "3005:3005"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       GEO_SERVICE_URL: ${GEO_SERVICE_URL}
@@ -164,8 +161,6 @@ services:
     build: ./services/notification-service
     container_name: anura_notifications
     restart: unless-stopped
-    ports:
-      - "3006:3006"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
@@ -179,8 +174,6 @@ services:
     build: ./services/validation-service
     container_name: anura_validation
     restart: unless-stopped
-    ports:
-      - "3007:3007"
     environment:
       DATABASE_URL: ${DATABASE_URL}
     depends_on:
@@ -195,3 +188,4 @@ networks:
 volumes:
   postgres_data:
   minio_data:
+  hf_cache:

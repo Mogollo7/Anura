@@ -9,7 +9,26 @@ export default function App() {
   const [loading, setLoading]     = useState(false)
   const [error, setError]         = useState(null)
   const [coords, setCoords]       = useState({ lat: '', lon: '' })
+  const [token, setToken]         = useState(localStorage.getItem('anura_token'))
+  const [loginData, setLoginData] = useState({ user: '', pass: '' })
   const fileRef = useRef()
+
+  const handleLogin = (e) => {
+    e.preventDefault()
+    // TODO: Connect with auth-service /api/auth/login
+    // For now, dummy login for testing
+    if (loginData.user && loginData.pass) {
+      localStorage.setItem('anura_token', 'dummy_token')
+      setToken('dummy_token')
+    } else {
+      setError('Credenciales inválidas')
+    }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('anura_token')
+    setToken(null)
+  }
 
   const handleFile = (e) => {
     const file = e.target.files[0]
@@ -47,9 +66,39 @@ export default function App() {
     )
   }
 
+  if (!token) {
+    return (
+      <main className="app login-view">
+        <div className="login-card card">
+          <h1>🐸 Anura</h1>
+          <p>Inicia sesión para identificar especies</p>
+          <form onSubmit={handleLogin}>
+            <input 
+              type="text" 
+              placeholder="Usuario" 
+              value={loginData.user} 
+              onChange={e => setLoginData({...loginData, user: e.target.value})} 
+            />
+            <input 
+              type="password" 
+              placeholder="Contraseña" 
+              value={loginData.pass} 
+              onChange={e => setLoginData({...loginData, pass: e.target.value})} 
+            />
+            <button type="submit" className="btn-predict">Entrar</button>
+          </form>
+          {error && <div className="error-box">⚠️ {error}</div>}
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="app">
-      <h1>🐸 Anura</h1>
+      <header className="app-header">
+        <h1>🐸 Anura</h1>
+        <button onClick={handleLogout} className="btn-logout">Salir</button>
+      </header>
       <p className="subtitle">Identificación de anfibios colombianos con IA</p>
 
       <div className="card upload-card">
