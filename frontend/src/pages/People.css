@@ -1,0 +1,243 @@
+.people-view {
+  min-height: 100vh;
+  background: var(--bg, #f4f6f0);
+}
+
+.container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-left: clamp(1rem, 7vw, 6.5rem) !important;
+  padding-right: clamp(1rem, 7vw, 6.5rem) !important;
+}
+
+.people-header-banner {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 3rem 0 2rem;
+}
+
+[data-theme='dark'] .people-header-banner {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.people-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.people-avatar-large {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #eee;
+  border: 4px solid var(--surface);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.people-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.people-identity h1 {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--text, #333);
+}
+
+.people-meta {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  margin-top: 0.5rem;
+}
+
+.people-meta .separator {
+  display: inline-flex;
+  margin: 0 0.8rem;
+  font-size: var(--text-2xs);
+  vertical-align: middle;
+}
+
+.people-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+[data-theme='dark'] .people-nav {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.people-nav ul {
+  display: flex;
+  overflow-x: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.people-nav li {
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.people-nav li:hover {
+  color: #74AC00;
+}
+
+.people-nav li.active {
+  color: #74AC00;
+  border-bottom-color: #74AC00;
+}
+
+.people-content {
+  padding: 2rem 0;
+}
+
+.people-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+}
+
+.stats-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.stat-val {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: #74AC00;
+}
+
+.stat-label {
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 600;
+}
+
+.people-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.bio-section, .recent-activity {
+  padding: 2rem;
+}
+
+.bio-section h3, .recent-activity h3 {
+  margin-top: 0;
+  font-size: var(--text-lg);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.bio-text {
+  line-height: 1.6;
+  color: var(--text, #444);
+}
+
+.no-bio {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.placeholder-text {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.people-error p {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .people-grid {
+    grid-template-columns: 1fr;
+  }
+  .people-profile-summary {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .people-nav li {
+    white-space: nowrap;
+    padding: 0.85rem 1rem;
+  }
+}
+
+/* Teléfonos estrechos (p. ej. iPhone 12–15 ~390px) */
+@media (max-width: 390px) {
+  .people-view .container {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  .people-header-banner {
+    padding: 1.75rem 0 1.25rem;
+  }
+
+  .people-avatar-large {
+    width: 88px;
+    height: 88px;
+    border-width: 3px;
+  }
+
+  .people-identity h1 {
+    font-size: clamp(1.1rem, 5.5vw, 1.35rem);
+    word-break: break-word;
+  }
+
+  .people-meta {
+    font-size: 0.72rem;
+    line-height: 1.45;
+  }
+
+  .people-meta .separator {
+    margin: 0 0.35rem;
+  }
+
+  .people-nav li {
+    padding: 0.65rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  .stats-box {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .bio-section,
+  .recent-activity {
+    padding: 1.25rem;
+  }
+}

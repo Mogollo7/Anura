@@ -4,16 +4,22 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "migrate:profile-minio": "node src/cli/migrate-profile-images-to-minio.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "express": "^4.18.2",
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.2",
+    "minio": "^7.1.3",
+    "multer": "^2.1.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.1",
     "pg": "^8.11.3",
+    "sharp": "^0.34.5",
+    "uuid": "^14.0.0",
     "zod": "^3.22.4"
   }
 }

@@ -1,8 +1,29 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
 const config = require('../core/config');
 const userRepository = require('../repositories/userRepository');
 const bcrypt = require('bcryptjs');
+
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: config.jwtSecret || process.env.JWT_SECRET || 'fallback_secret'
+};
+
+passport.use(
+  new JwtStrategy(jwtOptions, async (payload, done) => {
+    try {
+      const user = await userRepository.findById(payload.id);
+      if (user) {
+        return done(null, user);
+      }
+      return done(null, false);
+    } catch (err) {
+      return done(err, false);
+    }
+  })
+);
 
 // Verificar que las variables de Google estén definidas, sino puede dar error al iniciar Passport
 if (config.google.clientId && config.google.clientSecret) {

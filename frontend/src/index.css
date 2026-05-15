@@ -1,6 +1,9 @@
+/* Reset mínimo; tokens de tema en App.css */
+html {
+  color-scheme: light dark;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #0d1117;
-  color: #c9d1d9;
 }

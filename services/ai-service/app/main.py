@@ -3,6 +3,7 @@ import io
 import joblib
 import numpy as np
 import torch
+import asyncio
 from PIL import Image
 
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
@@ -76,6 +77,7 @@ except Exception as e:
     print("    Ejecuta primero: python training/train_finetune.py")
 
 NO_FROG_LABEL = "no_frog"
+prediction_lock = asyncio.Lock()
 
 
 # ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -129,77 +131,78 @@ async def predict(
         )
 
     try:
-        contents = await image.read()
-        img = Image.open(io.BytesIO(contents)).convert("RGB")
-        inp = preprocess_val(img).unsqueeze(0).to(device)
+        async with prediction_lock:
+            contents = await image.read()
+            img = Image.open(io.BytesIO(contents)).convert("RGB")
+            inp = preprocess_val(img).unsqueeze(0).to(device)
 
-        with torch.no_grad(), torch.autocast(device_type=device.type):
-            feats = model.encode_image(inp)
-            feats = feats / feats.norm(dim=-1, keepdim=True)
+            with torch.no_grad(), torch.autocast(device_type=device.type):
+                feats = model.encode_image(inp)
+                feats = feats / feats.norm(dim=-1, keepdim=True)
 
-            # --- VALIDACIÓN TAXONÓMICA ---
-            # Comparamos el embedding de la imagen con el del orden "Anura"
-            tax_sim = (feats @ anura_text_feat.T).item()
-            print(f"DEBUG: Similitud con Anura: {tax_sim:.4f}")
+                # --- VALIDACIÓN TAXONÓMICA ---
+                # Comparamos el embedding de la imagen con el del orden "Anura"
+                tax_sim = (feats @ anura_text_feat.T).item()
+                print(f"DEBUG: Similitud con Anura: {tax_sim:.4f}")
 
-            if tax_sim < TAXONOMIC_THRESHOLD:
-                print(f"FILTRADO: Imagen descartada por baja similitud taxonómica ({tax_sim:.4f} < {TAXONOMIC_THRESHOLD})")
-                return {
-                    "predictions": [{
-                        "class": NO_FROG_LABEL,
-                        "probability": 1.0,
+                if tax_sim < TAXONOMIC_THRESHOLD:
+                    print(f"FILTRADO: Imagen descartada por baja similitud taxonómica ({tax_sim:.4f} < {TAXONOMIC_THRESHOLD})")
+                    return {
+                        "predictions": [{
+                            "class": NO_FROG_LABEL,
+                            "probability": 1.0,
+                            "is_frog": False,
+                            "location_score": 0.0
+                        }],
+                        "best_class": NO_FROG_LABEL,
+                        "best_prob": 1.0,
                         "is_frog": False,
-                        "location_score": 0.0
-                    }],
-                    "best_class": NO_FROG_LABEL,
-                    "best_prob": 1.0,
-                    "is_frog": False,
-                    "location_used": False,
-                    "taxonomic_similarity": tax_sim
-                }
+                        "location_used": False,
+                        "taxonomic_similarity": tax_sim
+                    }
 
-        emb = feats.cpu().to(torch.float32).numpy().squeeze()
+            emb = feats.cpu().to(torch.float32).numpy().squeeze()
 
-        if lat is not None and lon is not None:
-            loc = np.array([lat, lon, 0.5, 0.5], dtype=np.float32)
-        else:
-            loc = np.zeros(4, dtype=np.float32)
+            if lat is not None and lon is not None:
+                loc = np.array([lat, lon, 0.5, 0.5], dtype=np.float32)
+            else:
+                loc = np.zeros(4, dtype=np.float32)
 
-        feat_vec = build_feature_vector(emb, loc)
-        probs    = clf.predict_proba([feat_vec])[0]
+            feat_vec = build_feature_vector(emb, loc)
+            probs    = clf.predict_proba([feat_vec])[0]
 
-        # Ajuste geográfico suave
-        if lat is not None and lon is not None:
-            adjusted = probs.copy()
-            for i, cname in enumerate(le.classes_):
-                if cname != NO_FROG_LABEL:
-                    score = get_location_score(cname, lat, lon)
-                    adjusted[i] *= (0.5 + 0.5 * score)
-            total = adjusted.sum()
-            if total > 0:
-                probs = adjusted / total
+            # Ajuste geográfico suave
+            if lat is not None and lon is not None:
+                adjusted = probs.copy()
+                for i, cname in enumerate(le.classes_):
+                    if cname != NO_FROG_LABEL:
+                        score = get_location_score(cname, lat, lon)
+                        adjusted[i] *= (0.5 + 0.5 * score)
+                total = adjusted.sum()
+                if total > 0:
+                    probs = adjusted / total
 
-        top_indices = probs.argsort()[::-1][:5]
-        results = []
-        for idx in top_indices:
-            cname = le.classes_[idx]
-            prob  = float(probs[idx])
-            loc_score = get_location_score(cname, lat, lon) if lat is not None else None
-            results.append({
-                "class":          str(cname),
-                "probability":    prob,
-                "is_frog":        cname != NO_FROG_LABEL,
-                "location_score": loc_score,
-            })
+            top_indices = probs.argsort()[::-1][:5]
+            results = []
+            for idx in top_indices:
+                cname = le.classes_[idx]
+                prob  = float(probs[idx])
+                loc_score = get_location_score(cname, lat, lon) if lat is not None else None
+                results.append({
+                    "class":          str(cname),
+                    "probability":    prob,
+                    "is_frog":        cname != NO_FROG_LABEL,
+                    "location_score": loc_score,
+                })
 
-        best = results[0]
-        return {
-            "predictions":   results,
-            "best_class":    best["class"],
-            "best_prob":     best["probability"],
-            "is_frog":       best["is_frog"],
-            "location_used": lat is not None and lon is not None,
-        }
+            best = results[0]
+            return {
+                "predictions":   results,
+                "best_class":    best["class"],
+                "best_prob":     best["probability"],
+                "is_frog":       best["is_frog"],
+                "location_used": lat is not None and lon is not None,
+            }
 
     except Exception as e:
         import traceback

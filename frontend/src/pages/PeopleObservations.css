@@ -1,0 +1,579 @@
+/* ── PeopleObservations.css ── */
+
+.container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-left: clamp(1.25rem, 7vw, 6.5rem) !important;
+  padding-right: clamp(1.25rem, 7vw, 6.5rem) !important;
+}
+
+/* ── Heart button ── */
+.po-heart-btn {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 1.25rem;
+  transition: transform 0.2s, color 0.2s;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.po-heart-btn:focus, .po-heart-btn:active {
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.po-heart-btn:hover:not(:disabled) {
+  transform: scale(1.25);
+}
+
+.po-heart-btn:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.po-heart-btn.liked {
+  color: #e44;
+  animation: po-heart-pop 0.3s ease;
+}
+
+@keyframes po-heart-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+/* Heart in card image */
+.po-card-img .po-heart-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent !important;
+  color: #fff;
+  font-size: 1.3rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.po-card-img .po-heart-btn.liked {
+  color: #e44;
+}
+
+/* Heart in list end column */
+.po-list-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+/* ── Guest modal ── */
+.po-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.po-modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem 2rem 2rem;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+
+.po-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.po-modal-close:hover { background: var(--surface-2); }
+
+.po-modal-icon {
+  font-size: 2.5rem;
+  color: #e44;
+  margin-bottom: 1rem;
+}
+
+.po-modal-card h2 {
+  margin: 0 0 0.6rem;
+  font-size: var(--text-lg);
+  color: var(--text);
+}
+
+.po-modal-card p {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.po-modal-login {
+  width: 100%;
+  margin-bottom: 0.75rem;
+  justify-content: center;
+}
+
+.po-modal-skip {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ── Guest block (favorites tab) ── */
+.po-guest-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  gap: 1rem;
+  color: var(--muted);
+}
+
+.po-guest-block .po-empty-icon {
+  font-size: 3rem;
+  color: #e44;
+  opacity: 0.5;
+}
+
+.po-guest-block h3 {
+  font-size: var(--text-lg);
+  color: var(--text);
+  margin: 0;
+}
+
+.po-guest-block p {
+  font-size: var(--text-sm);
+  max-width: 320px;
+  margin: 0;
+}
+
+.po-guest-block .btn-primary {
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+
+
+/* Controls bar */
+.po-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.po-search-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.po-search-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  pointer-events: none;
+}
+
+.po-search-input {
+  width: 100%;
+  padding: 0.65rem 1rem 0.65rem 2.4rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--text-sm);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.po-search-input:focus {
+  border-color: #74AC00;
+}
+
+.po-switcher {
+  display: flex;
+  gap: 0.3rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.25rem;
+}
+
+.po-sw-btn {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--text-base);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.po-sw-btn.active {
+  background: #74AC00;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(116, 172, 0, 0.3);
+}
+
+.po-sw-btn:hover:not(.active) {
+  color: #74AC00;
+  background: color-mix(in srgb, #74AC00 10%, transparent);
+}
+
+/* Content area */
+.po-content {
+  padding-bottom: 3rem;
+}
+
+/* Loading / Empty */
+.po-loading,
+.po-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  gap: 1rem;
+  color: var(--muted);
+}
+
+.po-loading-icon,
+.po-empty-icon {
+  font-size: 3rem;
+  color: #74AC00;
+  opacity: 0.4;
+  animation: po-bounce 1.6s ease-in-out infinite;
+}
+
+@keyframes po-bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ── Grid view ── */
+.po-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.po-card {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.po-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.po-card-img {
+  position: relative;
+  aspect-ratio: 4/3;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.po-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.po-card:hover .po-card-img img {
+  transform: scale(1.04);
+}
+
+.po-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #74AC00;
+  color: #fff;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.po-card-body {
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.po-common {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.po-sci {
+  font-size: var(--text-2xs);
+  color: var(--muted);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.po-date,
+.po-place {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--text-2xs);
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.po-place {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  padding-left: 0;
+}
+
+/* ── List view ── */
+.po-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.po-list-item {
+  display: grid;
+  grid-template-columns: 72px 1fr 40px;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.po-list-item:last-child {
+  border-bottom: none;
+}
+
+.po-list-item:hover {
+  background: color-mix(in srgb, #74AC00 5%, var(--surface));
+}
+
+.po-list-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-2);
+  flex-shrink: 0;
+}
+
+.po-list-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.po-list-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  overflow: hidden;
+}
+
+.po-list-info strong {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.po-list-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: var(--text-2xs);
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.po-list-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.po-list-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+/* Mobile */
+@media (max-width: 720px) {
+  .po-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .po-controls {
+    flex-wrap: nowrap;
+  }
+
+  .po-search-wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .po-list-item {
+    grid-template-columns: 60px 1fr 36px;
+    gap: 1.25rem;
+  }
+
+  .po-list-thumb {
+    width: 60px;
+    height: 60px;
+  }
+
+  .po-list-meta {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .po-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+
+  .po-card-body {
+    padding: 0.65rem 0.75rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .people-view .po-controls.container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding-top: 1rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .people-view .po-switcher {
+    align-self: flex-end;
+  }
+
+  .po-search-input {
+    font-size: 16px; /* evita zoom iOS al enfocar */
+  }
+
+  .po-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .po-card-img {
+    aspect-ratio: 16 / 10;
+  }
+
+  .po-card-body {
+    padding: 0.6rem 0.65rem;
+  }
+
+  .po-list-item {
+    grid-template-columns: 48px 1fr 32px;
+    gap: 0.55rem;
+    padding: 0.6rem 0.65rem;
+  }
+
+  .po-list-thumb {
+    width: 48px;
+    height: 48px;
+  }
+
+  .po-list-meta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .po-modal-card {
+    margin: 0.75rem;
+    max-width: calc(100vw - 1.5rem);
+    padding: 1.1rem 1rem;
+  }
+
+  .po-card-img .po-heart-btn {
+    font-size: 1.15rem;
+    padding: 0.3rem;
+  }
+}

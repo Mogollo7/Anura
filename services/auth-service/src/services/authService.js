@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const userRepository = require('../repositories/userRepository');
+const preferencesRepository = require('../repositories/preferencesRepository');
 const config = require('../core/config');
 
 const createToken = (user, rememberMe = false) => {
@@ -44,6 +45,9 @@ exports.registrar = async (data) => {
     role
   });
 
+  // Crear preferencias por defecto para el nuevo usuario
+  await preferencesRepository.create(newUser.id, {});
+
   return newUser;
 };
 
@@ -64,49 +68,80 @@ exports.login = async (data) => {
     throw new Error('Contraseña incorrecta');
   }
 
+  // Obtener o crear preferencias del usuario
+  let preferences = await preferencesRepository.findByUserId(user.id);
+  if (!preferences) {
+    preferences = await preferencesRepository.create(user.id, {});
+  }
+
   const token = createToken(user, rememberMe);
 
   return {
     message: 'Te has logueado correctamente',
     user: user.toJSON(),
+    preferences: preferences.toJSON(),
     token
   };
 };
-
-exports.forgotPassword = async (email) => {
-  if (!email) throw new Error('Debe proporcionar un email');
-
-  const user = await userRepository.findByEmail(email);
-  if (!user) {
-    // Para no revelar qué emails están registrados, no lanzamos error
-    return { message: 'Si el correo existe, se enviará un código' };
-  }
-
-  // Generar código numérico de 6 dígitos
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
-  await userRepository.createResetCode(user.id, code);
-
-  // TODO: Integrar envío de email (e.g. Nodemailer/SendGrid)
-  console.log(`[SIMULACIÓN] Código de recuperación para ${email}: ${code}`);
-
-  return { message: 'Si el correo existe, se enviará un código' };
+exports.getUserById = async (id) => {
+  const user = await userRepository.findById(id);
+  if (!user) throw new Error('No existe el usuario');
+  return user;
 };
 
-exports.resetPassword = async (data) => {
-  const { email, code, newPassword } = data;
+exports.updateProfile = async (userId, data) => {
+  const { username, profile_image, currentPassword, newPassword } = data;
 
-  if (!email || !code || !newPassword) {
-    throw new Error('Faltan datos (email, codigo, nueva_contrasena)');
+  // 1. Validar contraseña si se quiere cambiar
+  if (newPassword) {
+    if (!currentPassword) {
+      throw new Error('Debe proporcionar la contraseña actual para cambiarla');
+    }
+    const user = await userRepository.findById(userId);
+    const isMatch = bcrypt.compareSync(currentPassword, user.password_hash);
+    if (!isMatch) {
+      throw new Error('La contraseña actual es incorrecta');
+    }
+    const newHash = bcrypt.hashSync(newPassword, 10);
+    await userRepository.updatePassword(userId, newHash);
   }
 
-  const resetRecord = await userRepository.verifyResetCode(email, code);
-  if (!resetRecord) {
-    throw new Error('Código inválido o expirado');
-  }
+  // 2. Actualizar otros campos
+  const updatedUser = await userRepository.updateProfile(userId, {
+    username,
+    profile_image: data.profile_image,
+    profile_image_blob: data.profile_image_blob
+  });
 
-  const password_hash = bcrypt.hashSync(newPassword, 10);
-  await userRepository.updatePassword(resetRecord.user_id, password_hash);
-  await userRepository.markResetCodeAsUsed(resetRecord.id);
+  return updatedUser;
+};
 
-  return { message: 'Contraseña actualizada correctamente' };
+exports.getPublicProfile = async (username) => {
+  const user = await userRepository.findByUsername(username);
+  if (!user) throw new Error('No existe el usuario');
+
+  // Stats from observations
+  const statsQuery = `
+    SELECT 
+      COUNT(o.id) as total_observations,
+      COUNT(DISTINCT p.top_class) as total_species
+    FROM observations.observations o
+    LEFT JOIN ai.predictions p ON p.observation_id = o.id
+    WHERE o.user_id = $1
+  `;
+  const pool = require('../config/database');
+  const statsRes = await pool.query(statsQuery, [user.id]);
+  const stats = statsRes.rows[0];
+
+  return {
+    user: user.toJSON(),
+    stats: {
+      observations: parseInt(stats.total_observations),
+      species: parseInt(stats.total_species),
+      identifications: parseInt(stats.total_observations), // For now same as observations
+      followers: 0,
+      joined: user.created_at,
+      last_activity: user.updated_at || user.created_at
+    }
+  };
 };

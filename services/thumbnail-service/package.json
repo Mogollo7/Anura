@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "anura-thumbnail-service",
   "version": "1.0.0",
   "main": "src/index.js",
@@ -6,6 +6,9 @@
   "dependencies": {
     "express": "^4.18.2",
     "sharp": "^0.33.2",
-    "minio": "^7.1.3"
+    "minio": "^7.1.3",
+    "redis": "^4.6.10",
+    "pg": "^8.11.3",
+    "uuid": "^9.0.1"
   }
 }

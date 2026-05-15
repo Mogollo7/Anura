@@ -1,4 +1,5 @@
 const authService = require('../services/authService');
+const { uploadProfileImage } = require('../services/minioUpload');
 
 exports.registrar = async (req, res) => {
   try {
@@ -34,29 +35,47 @@ exports.login = async (req, res) => {
     res.status(500).send({ message: 'Error al realizar el login' });
   }
 };
-
-exports.forgotPassword = async (req, res) => {
+exports.getMe = async (req, res) => {
   try {
-    const result = await authService.forgotPassword(req.body.email);
-    res.status(200).send(result);
+    const user = await authService.getUserById(req.user.id);
+    res.status(200).json({ user: user.toJSON() });
   } catch (err) {
-    if (err.message === 'Debe proporcionar un email') {
-      return res.status(400).send({ message: err.message });
-    }
-    console.error(err);
-    res.status(500).send({ message: 'Error al procesar recuperación' });
+    res.status(500).json({ message: err.message });
   }
 };
 
-exports.resetPassword = async (req, res) => {
+exports.updateProfile = async (req, res) => {
   try {
-    const result = await authService.resetPassword(req.body);
-    res.status(200).send(result);
-  } catch (err) {
-    if (err.message.includes('Faltan datos') || err.message === 'Código inválido o expirado') {
-      return res.status(400).send({ message: err.message });
+    const data = { ...req.body };
+    if (req.file) {
+      const fs = require('fs');
+      data.profile_image = `/uploads/profiles/${req.file.filename}`;
+      data.profile_image_blob = fs.readFileSync(req.file.path);
+      try {
+        await uploadProfileImage(req.file.path, req.file.filename);
+      } catch (minioErr) {
+        console.warn('[minio] Perfil no replicado al bucket:', minioErr.message);
+      }
     }
-    console.error(err);
-    res.status(500).send({ message: 'Error al reiniciar contraseña' });
+    const updatedUser = await authService.updateProfile(req.user.id, data);
+    res.status(200).json({ 
+      message: 'Perfil actualizado correctamente', 
+      user: updatedUser.toJSON() 
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.getPublicProfile = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const profile = await authService.getPublicProfile(username);
+    res.status(200).json(profile);
+  } catch (err) {
+    if (err.message === 'No existe el usuario') {
+      return res.status(404).json({ message: err.message });
+    }
+    res.status(500).json({ message: err.message });
   }
 };

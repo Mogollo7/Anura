@@ -1,0 +1,65 @@
+.main-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  padding: 0.5rem 0 max(0.5rem, env(safe-area-inset-bottom));
+  z-index: 1000;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='dark'] .main-navbar {
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-around;
+  max-width: 600px;
+  margin: 0 auto;
+  gap: 0.35rem;
+  padding-inline: 0.5rem;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.5rem;
+  border-radius: 14px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color 0.2s, background 0.2s, transform 0.2s;
+  flex: 1;
+}
+
+.nav-item:hover {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 9%, transparent);
+}
+
+.nav-item.active {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 13%, transparent);
+}
+
+.nav-icon {
+  display: inline-flex;
+  font-size: var(--text-xl);
+}
+
+.nav-text {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
+
+@media (min-width: 860px) {
+  .main-navbar {
+    display: none;
+  }
+}

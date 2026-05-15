@@ -83,7 +83,7 @@ header {
 h1 {
     font-family: var(--font-heading);
     font-weight: 800;
-    font-size: 3rem;
+    font-size: var(--text-3xl);
     margin-bottom: 0.5rem;
 }
 
@@ -95,7 +95,7 @@ h1 span {
 
 p.subtitle, header p {
     color: var(--text-muted);
-    font-size: 1.1rem;
+    font-size: var(--text-lg);
 }
 
 a {
@@ -124,7 +124,7 @@ h2 {
     font-family: var(--font-heading);
     font-weight: 600;
     margin-bottom: 1.5rem;
-    font-size: 1.5rem;
+    font-size: var(--text-xl);
 }
 
 /* Upload Area */
@@ -147,7 +147,7 @@ h2 {
 
 .drop-zone__prompt {
     font-weight: 500;
-    font-size: 1.1rem;
+    font-size: var(--text-lg);
     color: var(--text-muted);
 }
 
@@ -172,7 +172,7 @@ textarea {
     border-radius: 0.5rem;
     padding: 1rem;
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: var(--text-base);
     resize: vertical;
     margin-top: 1rem;
     margin-bottom: 1.5rem;
@@ -195,7 +195,7 @@ button {
     color: #000;
     border: none;
     padding: 0.8rem 2rem;
-    font-size: 1.1rem;
+    font-size: var(--text-lg);
     font-weight: 600;
     font-family: var(--font-heading);
     border-radius: 0.5rem;

@@ -61,29 +61,47 @@ services:
     networks:
       - anura-net
 
+
+
   minio:
-    image: quay.io/minio/aistor/minio:latest
-    container_name: aistor-server
-    command: server /mnt/data --console-address ":9001" --license /minio.license
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    volumes:
-      - minio_data:/mnt/data
-      - ./infrastructure/minio/minio.license:/minio.license
-      - ./infrastructure/minio/certs:/etc/minio/certs
+    image: minio/minio:latest
+    container_name: anura_minio
+    restart: unless-stopped
     ports:
       - "9000:9000"
       - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change_me}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
     networks:
       - anura-net
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: anura_minio_init
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change_me}
+      MINIO_BUCKET: ${MINIO_BUCKET:-anura-images}
+    volumes:
+      - ./infrastructure/minio/ensure-bucket.sh:/ensure-bucket.sh:ro
+    entrypoint: ["/bin/sh", "/ensure-bucket.sh"]
+    networks:
+      - anura-net
+    restart: "no"
 
   # ── Application Services ───────────────────────────────────────────
   frontend:
     build: ./frontend
     container_name: anura_frontend
     restart: unless-stopped
-    # No direct ports: NPM handles it on port 80
+    volumes:
+      - uploads_data:/usr/share/nginx/html/uploads
     networks:
       - anura-net
 
@@ -91,6 +109,8 @@ services:
     build: ./services/auth-service
     container_name: anura_auth
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
@@ -98,10 +118,23 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
-
+      FRONTEND_URL: ${FRONTEND_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio}
+      MINIO_PORT: ${MINIO_PORT:-9000}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change_me}
+      MINIO_BUCKET: ${MINIO_BUCKET:-anura-images}
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
     networks:
       - anura-net
 
@@ -111,11 +144,28 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: ${DATABASE_URL}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
-      MINIO_PORT: ${MINIO_PORT}
+      AI_SERVICE_URL: ${AI_SERVICE_URL}
+      GEO_SERVICE_URL: ${GEO_SERVICE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      REDIS_URL: ${REDIS_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio}
+      MINIO_PORT: ${MINIO_PORT:-9000}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change_me}
+      MINIO_BUCKET: ${MINIO_BUCKET:-anura-images}
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
-      - postgres
-      - minio
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      geo-service:
+        condition: service_started
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
     networks:
       - anura-net
 
@@ -148,18 +198,10 @@ services:
     build: ./services/geo-service
     container_name: anura_geo
     restart: unless-stopped
-    networks:
-      - anura-net
-
-  thumbnail-service:
-    build: ./services/thumbnail-service
-    container_name: anura_thumbnails
-    restart: unless-stopped
     environment:
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
-      MINIO_PORT: ${MINIO_PORT}
+      DATABASE_URL: ${DATABASE_URL}
     depends_on:
-      - minio
+      - postgres
     networks:
       - anura-net
 
@@ -170,8 +212,10 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       GEO_SERVICE_URL: ${GEO_SERVICE_URL}
+      JWT_SECRET: ${JWT_SECRET}
     depends_on:
       - postgres
+      - geo-service
     networks:
       - anura-net
 
@@ -199,6 +243,32 @@ services:
     networks:
       - anura-net
 
+  thumbnail-service:
+    build: ./services/thumbnail-service
+    container_name: anura_thumbnails
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio}
+      MINIO_PORT: ${MINIO_PORT:-9000}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change_me}
+      MINIO_BUCKET: ${MINIO_BUCKET:-anura-images}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+    networks:
+      - anura-net
+
 networks:
   anura-net:
     driver: bridge
@@ -207,3 +277,4 @@ volumes:
   postgres_data:
   minio_data:
   hf_cache:
+  uploads_data:

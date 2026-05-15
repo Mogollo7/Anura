@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS auth.users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE auth.users ADD COLUMN IF NOT EXISTS profile_image_blob BYTEA;
+
 -- USER PREFERENCES
 CREATE TABLE IF NOT EXISTS auth.user_preferences (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -48,6 +50,7 @@ CREATE TABLE IF NOT EXISTS auth.user_preferences (
     push_notifications BOOLEAN DEFAULT TRUE,
     exact_location_enabled BOOLEAN DEFAULT FALSE,
     public_profile BOOLEAN DEFAULT TRUE,
+    preferences_completed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -63,25 +66,9 @@ CREATE TABLE IF NOT EXISTS auth.oauth_accounts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- PASSWORD RESET CODES
-CREATE TABLE IF NOT EXISTS auth.password_reset_codes (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-    code VARCHAR(10) NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    used BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
+-- PASSWORD RESET CODES (Eliminado - no se usa recuperación de contraseña)
 -- EMAIL VERIFICATION CODES
-CREATE TABLE IF NOT EXISTS auth.email_verification_codes (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-    code VARCHAR(10) NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    used BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+
 
 -- USER SESSIONS
 CREATE TABLE IF NOT EXISTS auth.user_sessions (
@@ -122,7 +109,8 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON auth.users(email);
 CREATE INDEX IF NOT EXISTS idx_users_username ON auth.users(username);
 CREATE INDEX IF NOT EXISTS idx_oauth_user ON auth.oauth_accounts(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON auth.user_sessions(user_id);
-CREATE INDEX IF NOT EXISTS idx_reset_user ON auth.password_reset_codes(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_preferences ON auth.user_preferences(user_id);
+-- INDEX for password_reset_codes removed (table eliminated)
 
 -- ================================================================
 -- SCHEMA: species

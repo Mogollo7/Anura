@@ -1,0 +1,462 @@
+.obs-detail-view {
+  min-height: 100vh;
+  background: var(--bg, #f4f6f0);
+  font-family: var(--font-main, 'Inter', sans-serif);
+}
+
+.detail-header {
+  background: var(--surface);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.detail-header h1 {
+  font-size: var(--text-xl);
+  margin: 0;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.detail-user-link {
+  cursor: pointer;
+  color: var(--primary, #74ac00);
+}
+
+.detail-user-link:hover {
+  text-decoration: underline;
+}
+
+.detail-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.detail-main-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+}
+
+.detail-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.detail-image-wrapper {
+  width: 100%;
+  height: 500px;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+.detail-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(20px);
+  transform: scale(1.1);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+.detail-thumb-placeholder.hidden {
+  opacity: 0;
+}
+
+.detail-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  transition: opacity 0.5s ease-in, filter 0.5s ease-in;
+}
+
+.detail-hero-img.loading {
+  opacity: 0;
+  filter: grayscale(1);
+}
+
+.detail-hero-img.loaded {
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+.img-loader-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  margin-left: -20px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-left-color: #74AC00;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 2;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.detail-info-section {
+  padding: 2rem;
+}
+
+.detail-label {
+  text-transform: uppercase;
+  font-size: var(--text-2xs);
+  font-weight: 800;
+  color: #74AC00;
+  letter-spacing: 0;
+  margin-bottom: 0.5rem;
+}
+
+.detail-common-name {
+  font-size: var(--text-2xl);
+  margin: 0;
+  color: var(--text, #1a2e0a);
+}
+
+.detail-scientific-name {
+  font-size: var(--text-lg);
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.taxonomical-hierarchy {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background: rgba(116, 172, 0, 0.05);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.tax-item span {
+  display: block;
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 0.2rem;
+}
+
+.tax-item strong {
+  font-size: var(--text-base);
+  color: var(--text, #333);
+}
+
+.detail-user-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-top: 1px solid #eee;
+  padding-top: 1.5rem;
+}
+
+.user-avatar-detail {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #eee;
+}
+
+.user-avatar-detail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.username-detail {
+  margin: 0;
+  font-size: var(--text-base);
+}
+
+.date-detail {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: #888;
+}
+
+.detail-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.detail-map-wrapper {
+  height: 300px;
+  width: 100%;
+  background: var(--surface-2, #eee);
+}
+
+.geo-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: var(--surface-2, #fdfdfd);
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat span {
+  display: block;
+  font-size: var(--text-2xs);
+  color: #999;
+}
+
+.stat strong {
+  font-size: var(--text-base);
+  color: var(--text, #1b300a);
+}
+
+.notes-card {
+  padding: 1.5rem;
+}
+
+.notes-card h3 {
+  margin-top: 0;
+  font-size: var(--text-lg);
+  color: var(--text, #1b300a);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.map-card-detail h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.obs-notes-text {
+  color: var(--muted, #555);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* ── Mode-specific identification (educational / scientific) ───────────── */
+.detail-mode-block {
+  margin-top: 1.25rem;
+  padding-top: 1.0rem;
+  border-top: 1px dashed rgba(116, 172, 0, 0.35);
+}
+
+.detail-mode-title {
+  margin: 0 0 0.75rem 0;
+  font-weight: 900;
+  color: var(--primary, #74AC00);
+  text-transform: none;
+}
+
+.detail-mode-text {
+  color: var(--muted, #555);
+  line-height: 1.6;
+  margin-top: -0.25rem;
+}
+
+.detail-steps {
+  margin: 0.75rem 0 0 1.15rem;
+  padding: 0;
+}
+
+.detail-steps li {
+  margin: 0.85rem 0;
+}
+
+.detail-step-sub {
+  color: var(--muted, #555);
+  line-height: 1.55;
+  margin-top: 0.25rem;
+}
+
+.detail-curiosity {
+  margin-top: 1rem;
+}
+
+.detail-alert {
+  background: rgba(255, 165, 0, 0.14);
+  border: 1px solid rgba(255, 165, 0, 0.35);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  margin: 0.75rem 0 1.0rem 0;
+  color: var(--text, #1a2e0a);
+  font-weight: 700;
+}
+
+.scientific-tax-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  background: rgba(0, 0, 0, 0.02);
+  padding: 0.9rem;
+  border-radius: 12px;
+}
+
+.scientific-row {
+  display: flex;
+  flex-direction: column;
+  padding: 0.25rem 0.35rem;
+}
+
+.scientific-row span {
+  font-size: var(--text-2xs);
+  color: #888;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.scientific-row strong {
+  font-size: var(--text-base);
+  color: var(--text, #333);
+}
+
+/* ── Standard mode (name, status, location, actions) ─────────────── */
+.detail-standard-block {
+  margin-top: 1.25rem;
+  padding-top: 1.0rem;
+  border-top: 1px solid rgba(116, 172, 0, 0.25);
+}
+
+.detail-standard-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.detail-standard-label {
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  font-weight: 800;
+  color: #888;
+}
+
+.detail-standard-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+/* Re-usable small action buttons */
+.btn-small {
+  width: auto;
+  flex: unset;
+  padding: 0.6rem 0.9rem;
+  font-size: var(--text-sm);
+}
+
+.btn-secondary {
+  flex: unset;
+  width: auto;
+  padding: 0.6rem 0.9rem;
+  background: var(--surface, #ffffff);
+  color: var(--muted, #5c6b4a);
+  border: 1.5px solid var(--border, #dde6cc);
+  border-radius: 10px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+
+.btn-secondary:hover {
+  background: rgba(116, 172, 0, 0.05);
+  border-color: #74AC00;
+  color: #74AC00;
+}
+
+.detail-scientific-template {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  background: rgba(116, 172, 0, 0.05);
+  border: 1px solid rgba(116, 172, 0, 0.18);
+  border-radius: 12px;
+}
+
+.detail-scientific-text {
+  color: var(--muted, #555);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.detail-loading, .detail-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 1rem;
+  color: #666;
+}
+
+[data-theme='dark'] .detail-card,
+[data-theme='dark'] .geo-stats {
+  background: var(--surface);
+  color: var(--text);
+}
+
+[data-theme='dark'] .detail-scientific-name,
+[data-theme='dark'] .date-detail,
+[data-theme='dark'] .stat span {
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .detail-main-grid {
+    grid-template-columns: 1fr;
+  }
+  .detail-image-wrapper {
+    height: 400px;
+  }
+}
+
+@media (max-width: 560px) {
+  .detail-header {
+    padding: 1rem;
+    gap: 0.9rem;
+  }
+
+  .detail-header h1 {
+    font-size: var(--text-lg);
+  }
+
+  .detail-container {
+    padding: 1rem;
+  }
+
+  .detail-info-section {
+    padding: 1.25rem;
+  }
+
+  .detail-common-name {
+    font-size: var(--text-xl);
+  }
+
+  .geo-stats {
+    grid-template-columns: 1fr;
+  }
+}
