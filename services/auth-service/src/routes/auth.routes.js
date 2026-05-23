@@ -11,10 +11,7 @@ const { v4: uuidv4 } = require('uuid');
 const uploadDir = path.join(__dirname, '../../uploads/profiles');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, `profile_${uuidv4()}${path.extname(file.originalname)}`)
-});
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // POST /api/auth/register
@@ -33,6 +30,10 @@ router.get('/public/:username', authController.getPublicProfile);
 // Now supports optional file upload
 router.put('/profile', authMiddleware, upload.single('image'), authController.updateProfile);
 
+// Follows
+router.post('/follow/:username', authMiddleware, authController.toggleFollow);
+router.get('/follow/:username/status', authMiddleware, authController.getFollowStatus);
+
 // GET /api/auth/google
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
@@ -45,7 +46,7 @@ router.get('/google/callback', passport.authenticate('google', { session: false,
   const config = require('../core/config');
   
   const token = jwt.sign(
-    { id: req.user.id, email: req.user.email, role: req.user.role },
+    { id: req.user.id, email: req.user.email, username: req.user.username, role: req.user.role },
     config.jwtSecret || process.env.JWT_SECRET || 'fallback_secret',
     { expiresIn: '1d' }
   );

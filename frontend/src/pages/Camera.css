@@ -461,3 +461,106 @@
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ── Details card (notes & privacy) ────────────────────────────── */
+.details-card {
+  border-left: 4px solid var(--inat-green);
+}
+
+.details-card h3 {
+  font-size: var(--text-base);
+  color: var(--text, var(--inat-text));
+  margin-bottom: 1.25rem;
+  font-weight: 700;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text, var(--inat-text));
+}
+
+.form-group textarea {
+  padding: 0.75rem 1rem;
+  background: var(--bg, var(--inat-bg));
+  border: 1.5px solid var(--border, var(--inat-border));
+  border-radius: 8px;
+  color: var(--text, var(--inat-text));
+  font-size: var(--text-sm);
+  font-family: inherit;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--inat-green);
+  box-shadow: 0 0 0 3px rgba(116, 172, 0, 0.15);
+}
+
+.visibility-options {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--bg, var(--inat-bg));
+  padding: 0.25rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--border, var(--inat-border));
+}
+
+.btn-toggle {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--muted, var(--inat-muted));
+  font-weight: 600;
+  font-size: var(--text-sm);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle:hover:not(.active) {
+  background: rgba(116, 172, 0, 0.05);
+  color: var(--inat-green);
+}
+
+.btn-toggle.active {
+  background: var(--inat-green);
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(116, 172, 0, 0.25);
+}
+
+.help-text {
+  font-size: var(--text-xs);
+  color: var(--muted, var(--inat-muted));
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+/* Dark theme additions for details card */
+[data-theme="dark"] .btn-toggle:hover:not(.active) {
+  background: rgba(145, 215, 29, 0.1);
+  color: var(--inat-green-light);
+}
+[data-theme="dark"] .form-group textarea {
+  background: #182508;
+  color: #e0ebb0;
+  border-color: #2d4a18;
+}
+[data-theme="dark"] .visibility-options {
+  background: #182508;
+  border-color: #2d4a18;
+}

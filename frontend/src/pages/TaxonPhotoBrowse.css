@@ -1,0 +1,199 @@
+/* ═══════════════════════════════════════════════════════
+   TaxonPhotoBrowse.css — Photo grid with hover tooltip
+═══════════════════════════════════════════════════════ */
+
+.browse-view {
+  min-height: 100vh;
+  background: var(--bg);
+  padding-bottom: 3rem;
+}
+
+/* ── Header ── */
+.browse-header {
+  padding: 1rem 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.browse-header .header-flex {
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.browse-header .btn-back {
+  margin-right: 1rem;
+}
+
+.browse-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.browse-header .btn-back {
+  margin-right: 0.75rem;
+}
+
+.browse-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+}
+
+.browse-title svg {
+  font-size: 1.2rem;
+}
+
+.browse-subtitle {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin: 0.2rem 0 0;
+}
+
+/* ── Empty state ── */
+.browse-empty,
+.browse-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 6rem 2rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.browse-empty svg,
+.browse-error svg {
+  font-size: 3rem;
+  opacity: 0.25;
+}
+
+.browse-error svg {
+  color: var(--danger);
+  opacity: 1;
+}
+
+/* ════════════════════════════════════
+   PHOTO GRID
+════════════════════════════════════ */
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 4px;
+  padding: 4px;
+}
+
+/* ── Photo card ── */
+.photo-card {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--surface-2);
+}
+
+.photo-card-img-wrap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.photo-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+/* Hover tooltip overlay — hidden by default */
+.photo-card-tooltip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 0.85rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.18) 55%, transparent 100%);
+
+  /* Hidden state */
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+/* Show on card hover */
+.photo-card:hover .photo-card-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.photo-card:hover .photo-card-img {
+  transform: scale(1.05);
+}
+
+.tooltip-common {
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.tooltip-sci {
+  color: rgba(255,255,255,0.78);
+  font-size: var(--text-xs);
+  margin: 0.2rem 0 0;
+  line-height: 1.3;
+}
+
+/* ════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════ */
+@media (max-width: 768px) {
+  .browse-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 3px;
+    padding: 3px;
+  }
+}
+
+@media (max-width: 600px) {
+  .browse-header .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  .browse-header {
+    padding: 0.75rem 0 !important;
+  }
+
+  .browse-title {
+    font-size: var(--text-base) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .browse-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 2px;
+  }
+}

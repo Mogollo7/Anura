@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fa6';
 import './People.css';
 import './PeopleObservations.css';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -104,7 +105,7 @@ export default function PeopleFavorites() {
       (obs.place_guess || '').toLowerCase().includes(q);
   });
 
-  if (profileLoading) return <div className="people-loading">Cargando favoritos de {username}…</div>;
+  if (profileLoading) return <LoadingSpinner text={`Cargando favoritos de ${username}…`} />;
   if (profileError) return (
     <div className="people-error">
       <p><FaTriangleExclamation aria-hidden /> {profileError}</p>
@@ -213,7 +214,7 @@ export default function PeopleFavorites() {
 
       <div className="po-content container">
         {obsLoading ? (
-          <div className="po-loading"><FaFrog className="po-loading-icon" /><p>Cargando favoritos…</p></div>
+          <LoadingSpinner text="Cargando favoritos…" />
         ) : filtered.length === 0 ? (
           <div className="po-empty"><FaHeart className="po-empty-icon" /><p>{search ? `Sin resultados para "${search}"` : `${username} no tiene favoritos públicos.`}</p></div>
         ) : subview === 'grid' ? (

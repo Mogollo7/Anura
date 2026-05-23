@@ -1,6 +1,8 @@
 const express = require('express');
 const axios = require('axios');
 const { Pool } = require('pg');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'anura_secret';
 
 const app = express();
 app.use(express.json());
@@ -15,11 +17,21 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'explorer-ser
 app.get('/api/explorer/feed', async (req, res) => {
   const { username } = req.query;
   try {
+    const header = req.headers.authorization;
+    let loggedInUsername = null;
+    if (header && header.startsWith('Bearer ')) {
+      try {
+        const token = header.slice(7);
+        const decoded = jwt.verify(token, JWT_SECRET);
+        loggedInUsername = decoded.username;
+      } catch (err) {}
+    }
+
     let query = `
-      SELECT o.id, o.image_key, o.thumbnail_key, o.lat, o.lon, o.place_guess, o.notes, o.created_at,
+      SELECT o.id, o.image_key, o.thumbnail_key, o.lat, o.lon, o.place_guess, o.notes, o.is_private, o.created_at,
              u.username, u.profile_image,
              p.top_class as ai_class, p.top_probability as ai_prob,
-             t.class_name, t.order_name, t.family, t.genus, t.species, t.common_name
+             t.id as taxon_id, t.class_name, t.order_name, t.family, t.genus, t.species, t.common_name
       FROM observations.observations o
       JOIN auth.users u ON o.user_id = u.id
       LEFT JOIN ai.predictions p ON p.observation_id = o.id
@@ -27,8 +39,14 @@ app.get('/api/explorer/feed', async (req, res) => {
     `;
     const params = [];
     if (username) {
-      query += ` WHERE u.username = $1`;
+      if (loggedInUsername && loggedInUsername.toLowerCase() === username.toLowerCase()) {
+        query += ` WHERE u.username = $1`;
+      } else {
+        query += ` WHERE u.username = $1 AND (o.is_private = FALSE OR o.is_private IS NOT TRUE)`;
+      }
       params.push(username);
+    } else {
+      query += ` WHERE (o.is_private = FALSE OR o.is_private IS NOT TRUE)`;
     }
     query += ` ORDER BY o.created_at DESC LIMIT 100`;
     const result = await pool.query(query, params);
@@ -40,8 +58,7 @@ app.get('/api/explorer/feed', async (req, res) => {
 });
 
 // ── Favorites ────────────────────────────────────────────────────────
-const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'anura_secret';
+// jwt and JWT_SECRET are defined at the top of the file
 
 // Ensure favorites table exists
 pool.query(`
@@ -184,7 +201,8 @@ app.get('/api/explorer/species', async (req, res) => {
       SELECT 
         s.*,
         o.thumbnail_key,
-        t.common_name
+        t.common_name,
+        t.id as taxon_id
       FROM SpeciesStats s
       JOIN observations.observations o ON s.last_obs = o.created_at
       LEFT JOIN species.taxonomy t ON s.scientific_name = CONCAT(t.genus, ' ', t.species) OR s.scientific_name = t.species
@@ -223,15 +241,33 @@ app.get('/api/explorer/observers', async (req, res) => {
 app.get('/api/explorer/observation/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const header = req.headers.authorization;
+    let loggedInUserId = null;
+    if (header && header.startsWith('Bearer ')) {
+      try {
+        const decoded = jwt.verify(header.slice(7), JWT_SECRET);
+        loggedInUserId = decoded.id;
+      } catch (err) {}
+    }
+
     const query = `
-      SELECT o.id, o.image_key, o.thumbnail_key, o.lat, o.lon, o.place_guess, o.altitude_m, o.notes, o.created_at,
-             u.username, u.profile_image,
+      SELECT o.id, o.image_key, o.thumbnail_key, o.lat, o.lon, o.place_guess, o.altitude_m, o.notes, o.is_private, o.created_at,
+             u.username, u.profile_image, o.user_id,
+             (SELECT COUNT(*) FROM observations.observations WHERE user_id = u.id)::int as user_obs_count,
              p.top_class as ai_class, p.top_probability as ai_prob,
-             t.class_name, t.order_name, t.family, t.genus, t.species, t.common_name
+             t.id as taxon_id,
+             COALESCE(t.class_name, CASE WHEN p.top_class ~* 'achatinus' THEN 'Amphibia' ELSE NULL END) as class_name,
+             COALESCE(t.order_name, CASE WHEN p.top_class ~* 'achatinus' THEN 'Anura' ELSE NULL END) as order_name,
+             COALESCE(t.family, CASE WHEN p.top_class ~* 'achatinus' THEN 'Craugastoridae' ELSE NULL END) as family,
+             COALESCE(t.genus, CASE WHEN p.top_class ~* 'achatinus' THEN 'Pristimantis' ELSE NULL END) as genus,
+             COALESCE(t.species, CASE WHEN p.top_class ~* 'achatinus' THEN 'achatinus' ELSE NULL END) as species,
+             COALESCE(t.common_name, CASE WHEN p.top_class ~* 'achatinus' THEN 'Pristimantis achatinus' ELSE NULL END) as common_name
       FROM observations.observations o
       JOIN auth.users u ON o.user_id = u.id
       LEFT JOIN ai.predictions p ON p.observation_id = o.id
-      LEFT JOIN species.taxonomy t ON p.top_class = CONCAT(t.genus, ' ', t.species) OR p.top_class = t.species
+      LEFT JOIN species.taxonomy t ON REPLACE(p.top_class, '_', ' ') = CONCAT(t.genus, ' ', t.species) 
+                                   OR p.top_class = t.species
+                                   OR p.top_class = CONCAT(t.genus, ' ', t.species)
       WHERE o.id = $1
     `;
     const result = await pool.query(query, [id]);
@@ -240,6 +276,9 @@ app.get('/api/explorer/observation/:id', async (req, res) => {
     }
 
     let row = result.rows[0];
+    if (row.is_private && row.user_id !== loggedInUserId) {
+      return res.status(403).json({ message: 'Esta observación es privada' });
+    }
     const needsAlt =
       (row.altitude_m === null || row.altitude_m === undefined) &&
       row.lat != null &&
@@ -292,6 +331,168 @@ app.get('/api/explorer/observation/:id', async (req, res) => {
   }
 });
 
+// ── Global Search: Suggest (for TopBar autocomplete) ─────────────────────
+// GET /api/explorer/suggest?q=query  — returns taxa and users suggestions (partial match)
+app.get('/api/explorer/suggest', async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (q.length < 2) return res.json([]);
+  try {
+    const taxaResult = await pool.query(
+      `SELECT id, genus, species, common_name, family, order_name
+       FROM species.taxonomy
+       WHERE common_name ILIKE $1
+          OR CONCAT(genus, ' ', species) ILIKE $1
+          OR genus ILIKE $1
+          OR family ILIKE $1
+          OR species ILIKE $1
+       ORDER BY
+         CASE WHEN LOWER(CONCAT(genus, ' ', species)) = LOWER($2) THEN 0
+              WHEN CONCAT(genus, ' ', species) ILIKE $3 THEN 1
+              ELSE 2 END,
+         genus, species
+       LIMIT 6`,
+      [`%${q}%`, q, `${q}%`]
+    );
+    
+    const usersResult = await pool.query(
+      `SELECT username, profile_image
+       FROM auth.users
+       WHERE username ILIKE $1
+       ORDER BY
+         CASE WHEN LOWER(username) = LOWER($2) THEN 0 ELSE 1 END,
+         username
+       LIMIT 4`,
+      [`%${q}%`, q]
+    );
+
+    const suggestions = [
+      ...taxaResult.rows.map(r => ({
+        type: 'taxon',
+        id: r.id,
+        scientific_name: `${r.genus} ${r.species}`,
+        common_name: r.common_name,
+        family: r.family,
+        order_name: r.order_name,
+        slug: `${r.id}-${r.genus}-${r.species}`.replace(/\s+/g, '-')
+      })),
+      ...usersResult.rows.map(r => ({
+        type: 'user',
+        username: r.username,
+        profile_image: r.profile_image
+      }))
+    ];
+
+    res.json(suggestions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Global Search: Full results (for /search page) ────────────────────────
+// GET /api/explorer/search?q=query  — returns { taxa: [...], users: [...] }
+app.get('/api/explorer/search', async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q) return res.json({ taxa: [], users: [] });
+  try {
+    // Taxones: partial match
+    const taxaResult = await pool.query(
+      `SELECT t.id, t.genus, t.species, t.common_name, t.family, t.order_name, t.class_name,
+              (SELECT o.thumbnail_key FROM observations.observations o
+               JOIN ai.predictions p ON p.observation_id = o.id
+               WHERE REPLACE(p.top_class, '_', ' ') = CONCAT(t.genus, ' ', t.species)
+                  OR p.top_class = CONCAT(t.genus, ' ', t.species)
+               ORDER BY o.created_at DESC LIMIT 1) as thumbnail_key,
+              COUNT(DISTINCT obs.id) as obs_count
+       FROM species.taxonomy t
+       LEFT JOIN ai.predictions pred ON REPLACE(pred.top_class,'_',' ') = CONCAT(t.genus,' ',t.species)
+                                     OR pred.top_class = CONCAT(t.genus,' ',t.species)
+       LEFT JOIN observations.observations obs ON obs.id = pred.observation_id
+       WHERE t.common_name ILIKE $1
+          OR CONCAT(t.genus, ' ', t.species) ILIKE $1
+          OR t.genus ILIKE $1
+          OR t.family ILIKE $1
+          OR t.species ILIKE $1
+       GROUP BY t.id, t.genus, t.species, t.common_name, t.family, t.order_name, t.class_name
+       ORDER BY
+         CASE WHEN LOWER(CONCAT(t.genus,' ',t.species)) = LOWER($2) THEN 0
+              WHEN CONCAT(t.genus,' ',t.species) ILIKE $3 THEN 1 ELSE 2 END,
+         obs_count DESC
+       LIMIT 30`,
+      [`%${q}%`, q, `${q}%`]
+    );
+
+    // Usuarios: partial match by username
+    const usersResult = await pool.query(
+      `SELECT u.username, u.profile_image, u.created_at,
+              COUNT(o.id) as obs_count
+       FROM auth.users u
+       LEFT JOIN observations.observations o ON o.user_id = u.id
+       WHERE u.username ILIKE $1
+       GROUP BY u.username, u.profile_image, u.created_at
+       ORDER BY
+         CASE WHEN LOWER(u.username) = LOWER($2) THEN 0
+              WHEN u.username ILIKE $3 THEN 1
+              ELSE 2 END,
+         obs_count DESC, u.username`,
+      [`%${q}%`, q, `${q}%`]
+    );
+
+    res.json({
+      taxa: taxaResult.rows.map(r => ({
+        id: r.id,
+        scientific_name: `${r.genus} ${r.species}`,
+        common_name: r.common_name,
+        family: r.family,
+        order_name: r.order_name,
+        class_name: r.class_name,
+        thumbnail_key: r.thumbnail_key,
+        obs_count: parseInt(r.obs_count) || 0,
+        slug: `${r.id}-${r.genus}-${r.species}`.replace(/\s+/g, '-')
+      })),
+      users: usersResult.rows.map(r => ({
+        username: r.username,
+        profile_image: r.profile_image,
+        created_at: r.created_at,
+        obs_count: parseInt(r.obs_count) || 0
+      }))
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Observers ranked by species observations ──────────────────────────────
+// GET /api/explorer/observers/by-species?q=query
+// Returns users ordered by how many observations they have of the searched species/genus/family
+app.get('/api/explorer/observers/by-species', async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q) return res.json([]);
+  try {
+    const result = await pool.query(
+      `SELECT u.username, u.profile_image,
+              COUNT(o.id) as species_obs_count,
+              COUNT(DISTINCT p.top_class) as species_count
+       FROM auth.users u
+       JOIN observations.observations o ON o.user_id = u.id
+       JOIN ai.predictions p ON p.observation_id = o.id
+       JOIN species.taxonomy t ON REPLACE(p.top_class,'_',' ') = CONCAT(t.genus,' ',t.species)
+                               OR p.top_class = CONCAT(t.genus,' ',t.species)
+       WHERE t.common_name ILIKE $1
+          OR CONCAT(t.genus, ' ', t.species) ILIKE $1
+          OR t.genus ILIKE $1
+          OR t.family ILIKE $1
+          OR t.species ILIKE $1
+       GROUP BY u.username, u.profile_image
+       ORDER BY species_obs_count DESC
+       LIMIT 50`,
+      [`%${q}%`]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Búsqueda avanzada y filtros ecológicos
 // Proxy to Thumbnail Service
 app.get('/api/explorer/thumbnail/:size/:filename', async (req, res) => {
@@ -311,4 +512,3 @@ app.get('/api/explorer/thumbnail/:size/:filename', async (req, res) => {
 
 const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => console.log(`explorer-service running on :${PORT}`));
-

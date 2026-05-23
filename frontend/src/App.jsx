@@ -11,6 +11,9 @@ import ObservationDetail from './pages/ObservationDetail'
 import People from './pages/People'
 import PeopleObservations from './pages/PeopleObservations'
 import PeopleFavorites from './pages/PeopleFavorites'
+import TaxonDetail from './pages/TaxonDetail'
+import TaxonPhotoBrowse from './pages/TaxonPhotoBrowse'
+import Search from './pages/Search'
 import AuthenticatedLayout from './layouts/AuthenticatedLayout'
 import { usePreferencesStore } from './store/preferencesStore'
 import { obsIdKey } from './lib/observationIds'
@@ -131,6 +134,7 @@ function Register({ setToken, onContinueAsGuest }) {
   const [username, setUsername] = useState('')
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
+  const [biography, setBiography] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError]       = useState(null)
   const [loading, setLoading]   = useState(false)
@@ -149,7 +153,7 @@ function Register({ setToken, onContinueAsGuest }) {
       const res  = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, email, password, biography }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Error al registrar')
@@ -199,6 +203,7 @@ function Register({ setToken, onContinueAsGuest }) {
         <form onSubmit={handleRegister} className="auth-form">
           <input type="text"     placeholder="Nombre de usuario (opcional)" value={username} onChange={e => setUsername(e.target.value)} />
           <input type="email"    placeholder="Correo electrónico" required   value={email}    onChange={e => setEmail(e.target.value)} />
+          <textarea              placeholder="Biografía (opcional)" value={biography} onChange={e => setBiography(e.target.value)} />
           <div className="password-input-wrapper">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -384,7 +389,7 @@ export default function App() {
                   : <Navigate to="/home/camara" replace />
               }
             />
-            <Route path="/preferences" element={!sessionActive ? <Navigate to="/login" replace /> : guest && !token ? guestBlock : <Preferences />} />
+            <Route path="/preferences" element={!sessionActive ? <Navigate to="/login" replace /> : guest && !token ? guestBlock : <Navigate to="/home/profile?new=true" replace />} />
             <Route path="/home/camara" element={!sessionActive ? <Navigate to="/login" replace /> : <Camera />} />
             <Route path="/home/profile" element={!sessionActive ? <Navigate to="/login" replace /> : <Profile />} />
             <Route path="/explorer" element={!sessionActive ? <Navigate to="/login" replace /> : <Explorer />} />
@@ -392,6 +397,9 @@ export default function App() {
             <Route path="/people/:username" element={<People />} />
             <Route path="/people/:username/observaciones" element={<PeopleObservations />} />
             <Route path="/people/:username/favoritos" element={<PeopleFavorites />} />
+            <Route path="/taxa/:taxonIdSlug" element={<TaxonDetail />} />
+            <Route path="/taxa/:taxonIdSlug/browse_photos" element={<TaxonPhotoBrowse />} />
+            <Route path="/search" element={<Search />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />

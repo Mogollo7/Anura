@@ -101,12 +101,12 @@ app.get('/api/thumbnail/:size/:filename', async (req, res) => {
 
     const thumbBuffer = await sharp(sourceBuffer)
       .resize(targetWidth, targetWidth, { fit: 'cover' })
-      .jpeg({ quality: 80 })
+      .webp({ quality: 80 })
       .toBuffer();
 
     fs.writeFileSync(localThumbPath, thumbBuffer);
 
-    res.set('Content-Type', 'image/jpeg');
+    res.set('Content-Type', 'image/webp');
     res.send(thumbBuffer);
   } catch (err) {
     console.error('Thumbnail Processing Error:', err);

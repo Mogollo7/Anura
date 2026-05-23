@@ -6,6 +6,13 @@ import torch
 import asyncio
 from PIL import Image
 
+try:
+    from rembg import remove as rembg_remove
+    REMBG_AVAILABLE = True
+except ImportError:
+    REMBG_AVAILABLE = False
+    print("[AVISO] rembg no instalado. La segmentación previa al modelo estará desactivada.")
+
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -38,9 +45,19 @@ model, _, preprocess_val = open_clip.create_model_and_transforms(
     "hf-hub:imageomics/bioclip-2.5-vith14"
 )
 model.to(device).eval()
+if device.type == "cuda":
+    model = model.half()  # Convertir a Float16 permanente para mayor velocidad y menor memoria
+    if hasattr(torch, 'compile'):
+        try:
+            model = torch.compile(model, mode="reduce-overhead")
+            print("BioCLIP compilado con torch.compile()")
+        except Exception as e:
+            print(f"Aviso: torch.compile falló ({e}). Continuando sin compilación.")
 
-with torch.no_grad():
+with torch.no_grad(), torch.autocast(device_type=device.type):
     _dummy = torch.zeros(1, 3, 224, 224).to(device)
+    if device.type == "cuda":
+        _dummy = _dummy.half()
     model.encode_image(_dummy)
 print(f"BioCLIP listo en {device}.")
 
@@ -53,7 +70,7 @@ with torch.no_grad():
     txt_feats /= txt_feats.norm(dim=-1, keepdim=True)
     anura_text_feat = txt_feats[0:1] # Primer vector: "Anura"
 
-TAXONOMIC_THRESHOLD = 0.18 # Umbral de similitud para descartar no-ranas
+TAXONOMIC_THRESHOLD = 0.10 # Umbral de similitud para descartar no-ranas
 
 # ─── CARGA DEL CLASIFICADOR ──────────────────────────────────────────────────
 CUSTOM_MODEL_PATH = os.path.join(WEIGHTS_DIR, "custom_model.pkl")
@@ -77,8 +94,46 @@ except Exception as e:
     print("    Ejecuta primero: python training/train_finetune.py")
 
 NO_FROG_LABEL = "no_frog"
-prediction_lock = asyncio.Lock()
+prediction_semaphore = asyncio.Semaphore(2)  # Permite 2 requests concurrentes en lugar de bloquear todo
 
+
+# ─── SEGMENTACIÓN ────────────────────────────────────────────────────────────
+def segment_and_crop(img: Image.Image) -> Image.Image:
+    """
+    Aplica rembg para quitar el fondo de la imagen.
+    Usa la máscara binaria (canal alpha > 50) para aislar el sujeto:
+    los píxeles con máscara=0 se ponen en negro, los de máscara=1 se conservan.
+    Devuelve una imagen RGB lista para BioCLIP.
+    Si rembg no está disponible o falla, devuelve la imagen original.
+    """
+    if not REMBG_AVAILABLE:
+        return img
+    try:
+        img_sin_fondo = rembg_remove(img)          # → RGBA con alpha=0 en fondo
+        img_array     = np.array(img_sin_fondo)
+        canal_alpha   = img_array[:, :, 3]          # canal alpha
+        mascara       = (canal_alpha > 50)           # True = sujeto, False = fondo
+
+        # Aplicar máscara: poner en negro los píxeles de fondo
+        img_rgb = img_array[:, :, :3].copy()
+        img_rgb[~mascara] = 0                        # fondo → negro
+
+        return Image.fromarray(img_rgb, 'RGB')
+    except Exception as e:
+        print(f"[AVISO] Segmentación falló, usando imagen original: {e}")
+        return img
+
+
+MAX_DIM_FOR_REMBG = 1024
+
+def smart_resize(img: Image.Image, max_dim: int = MAX_DIM_FOR_REMBG) -> Image.Image:
+    """Reduce la imagen antes de rembg para acelerar la segmentación."""
+    w, h = img.size
+    if max(w, h) <= max_dim:
+        return img
+    ratio = max_dim / max(w, h)
+    new_size = (int(w * ratio), int(h * ratio))
+    return img.resize(new_size, Image.LANCZOS)
 
 # ─── HELPERS ─────────────────────────────────────────────────────────────────
 def get_location_score(species: str, lat: float, lon: float) -> float:
@@ -105,6 +160,21 @@ def build_feature_vector(emb: np.ndarray, loc: np.ndarray) -> np.ndarray:
 
 
 # ─── RUTAS ───────────────────────────────────────────────────────────────────
+@app.on_event("startup")
+async def warmup():
+    print("Iniciando warm-up de modelos...")
+    dummy = torch.zeros(1, 3, 224, 224).to(device)
+    if device.type == "cuda":
+        dummy = dummy.half()
+    with torch.no_grad(), torch.autocast(device_type=device.type):
+        model.encode_image(dummy)
+    
+    if REMBG_AVAILABLE:
+        dummy_img = Image.new("RGB", (256, 256), (128, 128, 128))
+        segment_and_crop(dummy_img)
+    print("✅ Warm-up completo: BioCLIP + rembg listos")
+
+
 @app.get("/health")
 def health():
     """Health check endpoint."""
@@ -131,9 +201,21 @@ async def predict(
         )
 
     try:
-        async with prediction_lock:
+        async with prediction_semaphore:
             contents = await image.read()
-            img = Image.open(io.BytesIO(contents)).convert("RGB")
+            img_original = Image.open(io.BytesIO(contents)).convert("RGB")
+
+            # ── Redimensionar antes de segmentar para acelerar rembg ──────
+            img_resized = smart_resize(img_original)
+
+            # ── Segmentación previa: quitar fondo para mejorar análisis ──────
+            # La imagen recortada va al modelo; la original se guarda en la BD
+            img = segment_and_crop(img_resized)
+            if REMBG_AVAILABLE:
+                print("DEBUG: Utilizando la imagen segmentada (sin fondo) para la predicción de la IA.")
+            else:
+                print("DEBUG: rembg no disponible. Utilizando imagen original (con fondo) para la predicción.")
+
             inp = preprocess_val(img).unsqueeze(0).to(device)
 
             with torch.no_grad(), torch.autocast(device_type=device.type):

@@ -95,7 +95,7 @@ services:
       - anura-net
     restart: "no"
 
-  # ── Application Services ───────────────────────────────────────────
+  # ── Aqpplication Services ───────────────────────────────────────────
   frontend:
     build: ./frontend
     container_name: anura_frontend

@@ -17,3 +17,7 @@ mlflow>=2.10.0
 requests>=2.31.0
 matplotlib>=3.8.0
 polars>=0.19.0
+
+# Segmentación / background removal
+rembg>=2.0.50
+onnxruntime>=1.16.0

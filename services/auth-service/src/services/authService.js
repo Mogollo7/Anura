@@ -7,14 +7,14 @@ const config = require('../core/config');
 const createToken = (user, rememberMe = false) => {
   const expiresIn = rememberMe ? '30d' : '1d';
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: user.id, email: user.email, username: user.username, role: user.role },
     config.jwtSecret || process.env.JWT_SECRET || 'fallback_secret',
     { expiresIn }
   );
 };
 
 exports.registrar = async (data) => {
-  let { username, email, password, role } = data;
+  let { username, email, password, biography, role } = data;
 
   if (!email || !password) {
     throw new Error('Debe enviar email y password');
@@ -42,6 +42,7 @@ exports.registrar = async (data) => {
     email,
     password_hash,
     auth_provider: 'email',
+    biography,
     role
   });
 
@@ -90,7 +91,7 @@ exports.getUserById = async (id) => {
 };
 
 exports.updateProfile = async (userId, data) => {
-  const { username, profile_image, currentPassword, newPassword } = data;
+  const { username, biography, profile_image, currentPassword, newPassword } = data;
 
   // 1. Validar contraseña si se quiere cambiar
   if (newPassword) {
@@ -109,6 +110,7 @@ exports.updateProfile = async (userId, data) => {
   // 2. Actualizar otros campos
   const updatedUser = await userRepository.updateProfile(userId, {
     username,
+    biography,
     profile_image: data.profile_image,
     profile_image_blob: data.profile_image_blob
   });
@@ -133,15 +135,60 @@ exports.getPublicProfile = async (username) => {
   const statsRes = await pool.query(statsQuery, [user.id]);
   const stats = statsRes.rows[0];
 
+  // Follower count
+  const followRes = await pool.query('SELECT COUNT(*) as followers FROM auth.follows WHERE following_id = $1', [user.id]);
+  const followersCount = parseInt(followRes.rows[0].followers);
+
+  // Following count
+  const followingRes = await pool.query('SELECT COUNT(*) as following FROM auth.follows WHERE follower_id = $1', [user.id]);
+  const followingCount = parseInt(followingRes.rows[0].following);
+
   return {
     user: user.toJSON(),
     stats: {
       observations: parseInt(stats.total_observations),
       species: parseInt(stats.total_species),
-      identifications: parseInt(stats.total_observations), // For now same as observations
-      followers: 0,
+      followers: followersCount,
+      following: followingCount,
       joined: user.created_at,
       last_activity: user.updated_at || user.created_at
     }
   };
+};
+
+exports.toggleFollow = async (followerId, usernameToFollow) => {
+  const userRepository = require('../repositories/userRepository');
+  const pool = require('../config/database');
+
+  const followingUser = await userRepository.findByUsername(usernameToFollow);
+  if (!followingUser) throw new Error('Usuario no encontrado');
+
+  if (followerId === followingUser.id) throw new Error('No puedes seguirte a ti mismo');
+
+  // Check if following
+  const checkQuery = 'SELECT id FROM auth.follows WHERE follower_id = $1 AND following_id = $2';
+  const checkRes = await pool.query(checkQuery, [followerId, followingUser.id]);
+
+  if (checkRes.rows.length > 0) {
+    // Unfollow
+    await pool.query('DELETE FROM auth.follows WHERE follower_id = $1 AND following_id = $2', [followerId, followingUser.id]);
+    return { following: false };
+  } else {
+    // Follow
+    await pool.query('INSERT INTO auth.follows (follower_id, following_id) VALUES ($1, $2)', [followerId, followingUser.id]);
+    return { following: true };
+  }
+};
+
+exports.getFollowStatus = async (followerId, usernameToCheck) => {
+  const userRepository = require('../repositories/userRepository');
+  const pool = require('../config/database');
+
+  const targetUser = await userRepository.findByUsername(usernameToCheck);
+  if (!targetUser) return { following: false };
+
+  const checkQuery = 'SELECT id FROM auth.follows WHERE follower_id = $1 AND following_id = $2';
+  const checkRes = await pool.query(checkQuery, [followerId, targetUser.id]);
+
+  return { following: checkRes.rows.length > 0 };
 };

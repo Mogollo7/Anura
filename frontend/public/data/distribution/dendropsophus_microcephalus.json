@@ -1,0 +1,2102 @@
+[
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.746491,
+        "decimalLongitude": -76.709745,
+        "eventDate": "2026-01-20T15:34:21",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.996085,
+        "decimalLongitude": -76.636829,
+        "eventDate": "2026-01-29T13:05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.93528,
+        "decimalLongitude": -76.713737,
+        "eventDate": "2026-01-24",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.050386,
+        "decimalLongitude": -74.262208,
+        "eventDate": "2026-02-20T21:51:56",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.084705,
+        "decimalLongitude": -76.718537,
+        "eventDate": "2026-02-17T19:16:18",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.901012,
+        "decimalLongitude": -76.609458,
+        "eventDate": "2026-03-05T21:08:33",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.275943,
+        "decimalLongitude": -76.563755,
+        "eventDate": "2026-03-06T16:21",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.459132,
+        "decimalLongitude": -76.689615,
+        "eventDate": "2026-03-12T22:21",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.074928,
+        "decimalLongitude": -76.718291,
+        "eventDate": "2026-03-17T09:39",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.875609,
+        "decimalLongitude": -75.707951,
+        "eventDate": "2026-04-01T09:01",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.978111,
+        "decimalLongitude": -75.132863,
+        "eventDate": "2025-01-09",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.973589,
+        "decimalLongitude": -75.118264,
+        "eventDate": "2025-01-12",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.963173,
+        "decimalLongitude": -75.153822,
+        "eventDate": "2025-01-10",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.965743,
+        "decimalLongitude": -75.12693,
+        "eventDate": "2025-01-11",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.958517,
+        "decimalLongitude": -75.152097,
+        "eventDate": "2025-01-13",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.664477,
+        "decimalLongitude": -73.462229,
+        "eventDate": "2025-01-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.661024,
+        "decimalLongitude": -73.462683,
+        "eventDate": "2025-01-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.712973,
+        "decimalLongitude": -73.455879,
+        "eventDate": "2025-01-14",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.707952,
+        "decimalLongitude": -73.487792,
+        "eventDate": "2025-01-15",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.701379,
+        "decimalLongitude": -73.435459,
+        "eventDate": "2025-01-16",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.60255,
+        "decimalLongitude": -73.268576,
+        "eventDate": "2025-01-31",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.578663,
+        "decimalLongitude": -73.262718,
+        "eventDate": "2025-01-24",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.583105,
+        "decimalLongitude": -73.269097,
+        "eventDate": "2025-01-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.572748,
+        "decimalLongitude": -73.270622,
+        "eventDate": "2025-01-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 10.510983,
+        "decimalLongitude": -75.468023,
+        "eventDate": "2025-01-23T16:56:34",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.787383,
+        "decimalLongitude": -73.820955,
+        "eventDate": "2025-02-27T21:10",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 10.332551,
+        "decimalLongitude": -75.381206,
+        "eventDate": "2025-02-23T23:47",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394965,
+        "decimalLongitude": -74.732966,
+        "eventDate": "2025-02-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.393702,
+        "decimalLongitude": -74.734214,
+        "eventDate": "2025-02-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.37982,
+        "decimalLongitude": -74.718675,
+        "eventDate": "2025-02-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.37982,
+        "decimalLongitude": -74.718675,
+        "eventDate": "2025-02-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.37982,
+        "decimalLongitude": -74.718675,
+        "eventDate": "2025-02-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.37982,
+        "decimalLongitude": -74.718675,
+        "eventDate": "2025-02-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.37982,
+        "decimalLongitude": -74.718675,
+        "eventDate": "2025-02-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.37982,
+        "decimalLongitude": -74.718675,
+        "eventDate": "2025-02-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.37982,
+        "decimalLongitude": -74.718675,
+        "eventDate": "2025-02-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.37982,
+        "decimalLongitude": -74.718675,
+        "eventDate": "2025-02-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.37982,
+        "decimalLongitude": -74.718675,
+        "eventDate": "2025-02-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.37982,
+        "decimalLongitude": -74.718675,
+        "eventDate": "2025-02-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.5648,
+        "decimalLongitude": -75.1977,
+        "eventDate": "2025-03-03",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.5648,
+        "decimalLongitude": -75.1977,
+        "eventDate": "2025-03-03",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.973588,
+        "decimalLongitude": -75.118263,
+        "eventDate": "2025-04-24",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.958517,
+        "decimalLongitude": -75.152096,
+        "eventDate": "2025-04-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.963172,
+        "decimalLongitude": -75.153821,
+        "eventDate": "2025-04-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.965743,
+        "decimalLongitude": -75.126929,
+        "eventDate": "2025-04-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.961204,
+        "decimalLongitude": -75.147972,
+        "eventDate": "2025-04-21",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 10.758603,
+        "decimalLongitude": -75.089466,
+        "eventDate": "2025-04-16T00:04",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.932588,
+        "decimalLongitude": -76.729153,
+        "eventDate": "2025-04-02",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.932603,
+        "decimalLongitude": -76.726158,
+        "eventDate": "2025-04-04",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.932897,
+        "decimalLongitude": -76.726572,
+        "eventDate": "2025-04-04",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.94086,
+        "decimalLongitude": -76.730862,
+        "eventDate": "2025-04-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.933418,
+        "decimalLongitude": -76.724978,
+        "eventDate": "2025-04-02",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.94086,
+        "decimalLongitude": -76.730862,
+        "eventDate": "2025-04-02",
+        "basisOfRecord": "MACHINE_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.92676,
+        "decimalLongitude": -76.742487,
+        "eventDate": "2025-04-08",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.927458,
+        "decimalLongitude": -76.742862,
+        "eventDate": "2025-04-07",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.927416,
+        "decimalLongitude": -76.741076,
+        "eventDate": "2025-04-07",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.925513,
+        "decimalLongitude": -76.731244,
+        "eventDate": "2025-04-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.93259,
+        "decimalLongitude": -76.729153,
+        "eventDate": "2025-04-02",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.930627,
+        "decimalLongitude": -76.729417,
+        "eventDate": "2025-04-03",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.925116,
+        "decimalLongitude": -76.730053,
+        "eventDate": "2025-04-04",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.933418,
+        "decimalLongitude": -76.724978,
+        "eventDate": "2025-04-02",
+        "basisOfRecord": "MACHINE_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.93259,
+        "decimalLongitude": -76.729153,
+        "eventDate": "2025-04-02",
+        "basisOfRecord": "MACHINE_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.925116,
+        "decimalLongitude": -76.730053,
+        "eventDate": "2025-04-02",
+        "basisOfRecord": "MACHINE_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.927458,
+        "decimalLongitude": -76.742862,
+        "eventDate": "2025-04-02",
+        "basisOfRecord": "MACHINE_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.927416,
+        "decimalLongitude": -76.741076,
+        "eventDate": "2025-04-02",
+        "basisOfRecord": "MACHINE_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.92676,
+        "decimalLongitude": -76.742487,
+        "eventDate": "2025-04-02",
+        "basisOfRecord": "MACHINE_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 4.436491,
+        "decimalLongitude": -75.501733,
+        "eventDate": "2025-05-13",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.206567,
+        "decimalLongitude": -72.444952,
+        "eventDate": "2025-05-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.049329,
+        "decimalLongitude": -72.188817,
+        "eventDate": "2025-05-31",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.050386,
+        "decimalLongitude": -74.262208,
+        "eventDate": "2025-06-09T22:40",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.046525,
+        "decimalLongitude": -72.204254,
+        "eventDate": "2025-06-02",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.056312,
+        "decimalLongitude": -72.2255,
+        "eventDate": "2025-06-03",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.697812,
+        "decimalLongitude": -73.892022,
+        "eventDate": "2025-06-10T20:12",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.661305,
+        "decimalLongitude": -73.501976,
+        "eventDate": "2025-06-24",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.648278,
+        "decimalLongitude": -73.514065,
+        "eventDate": "2025-06-17",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.635184,
+        "decimalLongitude": -73.482966,
+        "eventDate": "2025-06-13",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.023403,
+        "decimalLongitude": -74.554643,
+        "eventDate": "2025-07-04T19:31",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.55759,
+        "decimalLongitude": -73.28724,
+        "eventDate": "2025-07-11",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.04754,
+        "decimalLongitude": -74.26328,
+        "eventDate": "2025-07-18T10:08",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.872987,
+        "decimalLongitude": -76.621415,
+        "eventDate": "2025-08-14T11:22",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.397033,
+        "decimalLongitude": -74.735875,
+        "eventDate": "2025-08-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394574,
+        "decimalLongitude": -74.733522,
+        "eventDate": "2025-08-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394477,
+        "decimalLongitude": -74.735859,
+        "eventDate": "2025-08-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394477,
+        "decimalLongitude": -74.735859,
+        "eventDate": "2025-08-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394477,
+        "decimalLongitude": -74.735859,
+        "eventDate": "2025-08-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.381413,
+        "decimalLongitude": -74.72077,
+        "eventDate": "2025-08-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.381413,
+        "decimalLongitude": -74.72077,
+        "eventDate": "2025-08-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394477,
+        "decimalLongitude": -74.735859,
+        "eventDate": "2025-08-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394477,
+        "decimalLongitude": -74.735859,
+        "eventDate": "2025-08-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394477,
+        "decimalLongitude": -74.735859,
+        "eventDate": "2025-08-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394477,
+        "decimalLongitude": -74.735859,
+        "eventDate": "2025-08-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394477,
+        "decimalLongitude": -74.735859,
+        "eventDate": "2025-08-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.394477,
+        "decimalLongitude": -74.735859,
+        "eventDate": "2025-08-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 10.51404,
+        "decimalLongitude": -74.99264,
+        "eventDate": "2025-08-24",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 10.510247,
+        "decimalLongitude": -74.989103,
+        "eventDate": "2025-08-26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.793758,
+        "decimalLongitude": -75.862992,
+        "eventDate": "2025-09-17T20:28:48",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.793709,
+        "decimalLongitude": -75.862994,
+        "eventDate": "2025-09-17",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.794352,
+        "decimalLongitude": -75.862226,
+        "eventDate": "2025-09-17T20:59:19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.712651,
+        "decimalLongitude": -75.677732,
+        "eventDate": "2025-09-26T21:26:25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.787464,
+        "decimalLongitude": -76.779536,
+        "eventDate": "2025-09-21T10:47:56",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.787688,
+        "decimalLongitude": -74.793945,
+        "eventDate": "2025-11-05T19:34:03",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.385434,
+        "decimalLongitude": -74.72466,
+        "eventDate": "2024-01-29",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.163999,
+        "decimalLongitude": -75.052834,
+        "eventDate": "2024-02-10T21:45",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 3.435043,
+        "decimalLongitude": -72.282313,
+        "eventDate": "2024-02-29",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 3.449746,
+        "decimalLongitude": -72.286796,
+        "eventDate": "2024-02-03",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.621794,
+        "decimalLongitude": -73.545876,
+        "eventDate": "2024-03-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.39856,
+        "decimalLongitude": -74.090718,
+        "eventDate": "2024-04-26T21:26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.39856,
+        "decimalLongitude": -74.090718,
+        "eventDate": "2024-04-26T21:26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.39856,
+        "decimalLongitude": -74.090718,
+        "eventDate": "2024-04-26T21:26",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.478435,
+        "decimalLongitude": -74.334982,
+        "eventDate": "2024-04-18T18:24",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 11.387756,
+        "decimalLongitude": -72.318982,
+        "eventDate": "2024-05-30T22:45",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.216851,
+        "decimalLongitude": -75.407424,
+        "eventDate": "2024-05-08",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.215849,
+        "decimalLongitude": -75.408644,
+        "eventDate": "2024-05-09",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.217311,
+        "decimalLongitude": -75.406614,
+        "eventDate": "2024-05-07",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.885045,
+        "decimalLongitude": -74.786637,
+        "eventDate": "2024-06-13T09:29:16",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 10.922582,
+        "decimalLongitude": -74.942962,
+        "eventDate": "2024-06-16T00:31",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.56147,
+        "decimalLongitude": -75.19612,
+        "eventDate": "2024-06-30",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.778135,
+        "decimalLongitude": -76.874191,
+        "eventDate": "2024-07-05T07:38",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.473042,
+        "decimalLongitude": -74.25048,
+        "eventDate": "2024-07-04T19:37",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 4.11663,
+        "decimalLongitude": -73.43905,
+        "eventDate": "2024-07-03",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 3.435168,
+        "decimalLongitude": -72.399223,
+        "eventDate": "2024-07-14",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.605505,
+        "decimalLongitude": -73.559068,
+        "eventDate": "2024-07-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.686836,
+        "decimalLongitude": -73.521935,
+        "eventDate": "2024-07-12",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 11.251253,
+        "decimalLongitude": -73.55548,
+        "eventDate": "2024-08-11T20:02:07",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.81276,
+        "decimalLongitude": -76.61827,
+        "eventDate": "2024-08-25T22:08",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.924947,
+        "decimalLongitude": -76.730504,
+        "eventDate": "2024-09-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.924947,
+        "decimalLongitude": -76.730504,
+        "eventDate": "2024-09-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.924947,
+        "decimalLongitude": -76.730504,
+        "eventDate": "2024-09-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.924947,
+        "decimalLongitude": -76.730504,
+        "eventDate": "2024-09-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.933751,
+        "decimalLongitude": -76.725072,
+        "eventDate": "2024-09-18",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.930645,
+        "decimalLongitude": -76.72955,
+        "eventDate": "2024-09-18",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.930645,
+        "decimalLongitude": -76.72955,
+        "eventDate": "2024-09-18",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.94053,
+        "decimalLongitude": -76.729356,
+        "eventDate": "2024-09-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.94053,
+        "decimalLongitude": -76.729356,
+        "eventDate": "2024-09-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.94053,
+        "decimalLongitude": -76.729356,
+        "eventDate": "2024-09-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.94053,
+        "decimalLongitude": -76.729356,
+        "eventDate": "2024-09-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.94053,
+        "decimalLongitude": -76.729356,
+        "eventDate": "2024-09-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.04558,
+        "decimalLongitude": -75.3839,
+        "eventDate": "2024-09-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.045367,
+        "decimalLongitude": -75.37574,
+        "eventDate": "2024-09-24",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.04558,
+        "decimalLongitude": -75.3839,
+        "eventDate": "2024-09-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.686338,
+        "decimalLongitude": -74.7406,
+        "eventDate": "2024-10-13T21:32:22",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.049925,
+        "decimalLongitude": -74.261364,
+        "eventDate": "2024-10-08T07:31",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 11.111667,
+        "decimalLongitude": -72.4675,
+        "eventDate": "2024-10-26T22:14",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 10.90257,
+        "decimalLongitude": -74.64733,
+        "eventDate": "2024-10-21",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.56488,
+        "decimalLongitude": -73.455051,
+        "eventDate": "2024-10-30",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.533182,
+        "decimalLongitude": -73.461426,
+        "eventDate": "2024-10-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.608837,
+        "decimalLongitude": -73.520694,
+        "eventDate": "2024-10-29",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.600399,
+        "decimalLongitude": -73.516406,
+        "eventDate": "2024-10-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.554127,
+        "decimalLongitude": -73.454381,
+        "eventDate": "2024-10-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.564207,
+        "decimalLongitude": -73.455043,
+        "eventDate": "2024-10-30",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.574878,
+        "decimalLongitude": -73.452398,
+        "eventDate": "2024-10-31",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.70367,
+        "decimalLongitude": -73.435444,
+        "eventDate": "2024-10-30",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.660526,
+        "decimalLongitude": -73.224034,
+        "eventDate": "2024-10-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.660526,
+        "decimalLongitude": -73.224034,
+        "eventDate": "2024-10-25",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.645704,
+        "decimalLongitude": -75.382195,
+        "eventDate": "2024-11-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.645458,
+        "decimalLongitude": -75.38113,
+        "eventDate": "2024-11-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.645458,
+        "decimalLongitude": -75.38113,
+        "eventDate": "2024-11-28",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.631268,
+        "decimalLongitude": -75.37152,
+        "eventDate": "2024-11-30",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.63102,
+        "decimalLongitude": -75.372236,
+        "eventDate": "2024-11-30",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.631092,
+        "decimalLongitude": -75.372255,
+        "eventDate": "2024-11-30",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.753715,
+        "decimalLongitude": -73.584591,
+        "eventDate": "2024-11-09",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.715058,
+        "decimalLongitude": -73.595985,
+        "eventDate": "2024-11-08",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.715736,
+        "decimalLongitude": -73.601912,
+        "eventDate": "2024-11-08",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.71754,
+        "decimalLongitude": -73.605257,
+        "eventDate": "2024-11-07",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.715168,
+        "decimalLongitude": -73.595786,
+        "eventDate": "2024-11-06",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.717224,
+        "decimalLongitude": -73.60622,
+        "eventDate": "2024-11-07",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.512602,
+        "decimalLongitude": -73.521942,
+        "eventDate": "2024-11-01",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.518384,
+        "decimalLongitude": -73.519373,
+        "eventDate": "2024-11-02",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.49532,
+        "decimalLongitude": -73.519367,
+        "eventDate": "2024-11-03",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.496224,
+        "decimalLongitude": -73.518933,
+        "eventDate": "2024-11-03",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.480349,
+        "decimalLongitude": -73.504621,
+        "eventDate": "2024-11-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.644124,
+        "decimalLongitude": -73.49516,
+        "eventDate": "2024-11-01",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.663053,
+        "decimalLongitude": -73.462323,
+        "eventDate": "2024-11-04",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.658452,
+        "decimalLongitude": -73.464072,
+        "eventDate": "2024-11-04",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.640828,
+        "decimalLongitude": -73.47008,
+        "eventDate": "2024-11-06",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.665845,
+        "decimalLongitude": -73.483183,
+        "eventDate": "2024-11-07",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 11.051797,
+        "decimalLongitude": -74.229846,
+        "eventDate": "2024-11-27",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.581937,
+        "decimalLongitude": -73.268373,
+        "eventDate": "2024-11-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.583354,
+        "decimalLongitude": -73.268966,
+        "eventDate": "2024-11-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.574338,
+        "decimalLongitude": -73.270807,
+        "eventDate": "2024-11-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.562668,
+        "decimalLongitude": -73.283823,
+        "eventDate": "2024-11-21",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.587147,
+        "decimalLongitude": -73.308387,
+        "eventDate": "2024-11-09",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.58169,
+        "decimalLongitude": -73.262886,
+        "eventDate": "2024-11-18",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.576105,
+        "decimalLongitude": -73.305953,
+        "eventDate": "2024-11-23",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.592735,
+        "decimalLongitude": -73.286689,
+        "eventDate": "2024-11-12",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.562725,
+        "decimalLongitude": -73.302515,
+        "eventDate": "2024-11-13",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.609222,
+        "decimalLongitude": -73.260415,
+        "eventDate": "2024-11-14",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.607879,
+        "decimalLongitude": -73.263662,
+        "eventDate": "2024-11-14",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.604703,
+        "decimalLongitude": -73.268966,
+        "eventDate": "2024-11-15",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 6.699419,
+        "decimalLongitude": -73.890536,
+        "eventDate": "2024-11-29T19:37",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.126758,
+        "decimalLongitude": -73.8513,
+        "eventDate": "2024-12-01T11:30:52",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 5.835545,
+        "decimalLongitude": -74.832489,
+        "eventDate": "2024-12-12T19:16",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.4324,
+        "decimalLongitude": -75.3263,
+        "eventDate": "2024-12-06",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.4326,
+        "decimalLongitude": -75.3264,
+        "eventDate": "2024-12-06",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.217311,
+        "decimalLongitude": -75.406613,
+        "eventDate": "2024-12-13",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.215848,
+        "decimalLongitude": -75.408643,
+        "eventDate": "2024-12-15",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.216851,
+        "decimalLongitude": -75.407423,
+        "eventDate": "2024-12-14",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.89746,
+        "decimalLongitude": -75.191066,
+        "eventDate": "2024-12-07",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.926709,
+        "decimalLongitude": -75.158192,
+        "eventDate": "2024-12-09",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.677417,
+        "decimalLongitude": -75.336136,
+        "eventDate": "2024-12-01",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.677895,
+        "decimalLongitude": -75.337756,
+        "eventDate": "2024-12-01",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.62504,
+        "decimalLongitude": -75.417723,
+        "eventDate": "2024-12-04",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.689259,
+        "decimalLongitude": -75.416198,
+        "eventDate": "2024-12-08",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.628243,
+        "decimalLongitude": -75.338567,
+        "eventDate": "2024-12-09",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.624922,
+        "decimalLongitude": -75.42062,
+        "eventDate": "2024-12-02",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.623903,
+        "decimalLongitude": -75.420232,
+        "eventDate": "2024-12-02",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.899929,
+        "decimalLongitude": -75.219694,
+        "eventDate": "2024-12-14",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.888337,
+        "decimalLongitude": -75.204458,
+        "eventDate": "2024-12-16",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.895887,
+        "decimalLongitude": -75.222771,
+        "eventDate": "2024-12-14",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.895887,
+        "decimalLongitude": -75.222771,
+        "eventDate": "2024-12-14",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.887904,
+        "decimalLongitude": -75.204229,
+        "eventDate": "2024-12-16",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.722504,
+        "decimalLongitude": -75.245976,
+        "eventDate": "2024-12-06",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.740204,
+        "decimalLongitude": -75.256525,
+        "eventDate": "2024-12-02",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.73917,
+        "decimalLongitude": -75.257064,
+        "eventDate": "2024-12-02",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.8363,
+        "decimalLongitude": -75.222922,
+        "eventDate": "2024-12-04",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.837507,
+        "decimalLongitude": -75.222238,
+        "eventDate": "2024-12-04",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.837507,
+        "decimalLongitude": -75.222238,
+        "eventDate": "2024-12-04",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.869627,
+        "decimalLongitude": -75.257289,
+        "eventDate": "2024-12-13",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.774423,
+        "decimalLongitude": -75.266909,
+        "eventDate": "2024-12-09",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.805254,
+        "decimalLongitude": -75.293227,
+        "eventDate": "2024-12-10",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.723609,
+        "decimalLongitude": -75.246014,
+        "eventDate": "2024-12-06",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.72181,
+        "decimalLongitude": -75.246495,
+        "eventDate": "2024-12-06",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.53791,
+        "decimalLongitude": -75.452756,
+        "eventDate": "2024-12-22",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.542765,
+        "decimalLongitude": -75.452029,
+        "eventDate": "2024-12-19",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.537748,
+        "decimalLongitude": -75.441825,
+        "eventDate": "2024-12-15",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 8.532145,
+        "decimalLongitude": -75.448342,
+        "eventDate": "2024-12-15",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.164006,
+        "decimalLongitude": -75.052841,
+        "eventDate": "2023-01-11T19:13",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.164009,
+        "decimalLongitude": -75.052799,
+        "eventDate": "2023-01-05T22:03",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 10.748948,
+        "decimalLongitude": -75.02656,
+        "eventDate": "2023-01-11T17:34",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.918664,
+        "decimalLongitude": -76.740643,
+        "eventDate": "2023-01-14/2023-01-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.91872,
+        "decimalLongitude": -76.740472,
+        "eventDate": "2023-01-14/2023-01-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.918664,
+        "decimalLongitude": -76.740643,
+        "eventDate": "2023-01-14/2023-01-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.9592,
+        "decimalLongitude": -75.151986,
+        "eventDate": "2023-01-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 2.848417,
+        "decimalLongitude": -75.358611,
+        "eventDate": "2023-01-14T22:07",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.163959,
+        "decimalLongitude": -75.052821,
+        "eventDate": "2023-02-18T21:33",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.96137,
+        "decimalLongitude": -75.148211,
+        "eventDate": "2023-02-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 9.96137,
+        "decimalLongitude": -75.148211,
+        "eventDate": "2023-02-05",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.099643,
+        "decimalLongitude": -73.359332,
+        "eventDate": "2023-02-21",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    },
+    {
+        "scientificName": "Dendropsophus microcephalus (Cope, 1886)",
+        "decimalLatitude": 7.089578,
+        "decimalLongitude": -73.358941,
+        "eventDate": "2023-02-20",
+        "basisOfRecord": "HUMAN_OBSERVATION"
+    }
+]

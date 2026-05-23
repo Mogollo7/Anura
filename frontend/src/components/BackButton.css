@@ -1,0 +1,38 @@
+.back-button-wrapper {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-left: max(clamp(1.25rem, 7vw, 6.5rem), env(safe-area-inset-left));
+  padding-right: max(clamp(1.25rem, 7vw, 6.5rem), env(safe-area-inset-right));
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+  box-sizing: border-box;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 2.5rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+  background: var(--surface-2);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateX(-4px);
+}
+
+.btn-back svg {
+  font-size: 1.1rem;
+}

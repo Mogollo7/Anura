@@ -28,6 +28,8 @@ export default function Camera() {
   const [coords, setCoords]           = useState({ lat: '', lon: '' })
   const [cameraActive, setCameraActive] = useState(false)
   const [cameraStream, setCameraStream] = useState(null)
+  const [notes, setNotes]             = useState('')
+  const [isPrivate, setIsPrivate]     = useState(false)
 
   const fileRef  = useRef()
   const videoRef = useRef()
@@ -56,12 +58,46 @@ export default function Camera() {
   }, [cameraStream])
 
   // ── Image handlers ────────────────────────────────────────────
-  const handleFile = (e) => {
+  const compressImage = (file, maxWidth = 800) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = (e) => {
+        const img = new Image()
+        img.src = e.target.result
+        img.onload = () => {
+          let width = img.width
+          let height = img.height
+          if (width > maxWidth || height > maxWidth) {
+            if (width > height) {
+              height = Math.round((height * maxWidth) / width)
+              width = maxWidth
+            } else {
+              width = Math.round((width * maxWidth) / height)
+              height = maxWidth
+            }
+          }
+          const canvas = document.createElement('canvas')
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0, width, height)
+          canvas.toBlob((blob) => {
+            resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", { type: 'image/webp' }))
+          }, 'image/webp', 0.8)
+        }
+      }
+    })
+  }
+
+  const handleFile = async (e) => {
     const file = e.target.files[0]
     if (!file) return
     setPreview(URL.createObjectURL(file))
     setResult(null)
     setError(null)
+    setNotes('')
+    setIsPrivate(false)
   }
 
   // ── GPS ───────────────────────────────────────────────────────
@@ -79,8 +115,11 @@ export default function Camera() {
     setError(null)
     setResult(null)
     try {
+      const originalFile = fileRef.current.files[0]
+      const thumbnailFile = await compressImage(originalFile, 800) // Preprocesar a miniatura para la IA
+
       const form = new FormData()
-      form.append('image', fileRef.current.files[0])
+      form.append('image', thumbnailFile)
       if (coords.lat) form.append('lat', coords.lat)
       if (coords.lon) form.append('lon', coords.lon)
 
@@ -127,11 +166,15 @@ export default function Camera() {
 
       setLoading(true)
       try {
+        const originalFile = fileRef.current?.files[0]
+        const thumbnailFile = await compressImage(originalFile, 1200) // Comprimir antes de subir
+
         const form = new FormData()
-        form.append('image', file)
+        form.append('image', thumbnailFile)
         form.append('lat', coords.lat)
         form.append('lon', coords.lon)
-        form.append('notes', '') // Guests usually don't have a notes field yet, but we send it empty
+        form.append('notes', notes)
+        form.append('is_private', isPrivate ? 'true' : 'false')
         form.append('ai_top_class', result.best_class)
         form.append('ai_top_prob', result.best_prob)
         form.append('ai_location_used', result.location_used)
@@ -156,11 +199,15 @@ export default function Camera() {
     setLoading(true)
     setError(null)
     try {
+      const originalFile = fileRef.current.files[0]
+      const thumbnailFile = await compressImage(originalFile, 1200)
+
       const form = new FormData()
-      form.append('image', fileRef.current.files[0])
+      form.append('image', thumbnailFile)
       if (coords.lat) form.append('lat', coords.lat)
       if (coords.lon) form.append('lon', coords.lon)
-      form.append('notes', '')
+      form.append('notes', notes)
+      form.append('is_private', isPrivate ? 'true' : 'false')
       form.append('ai_top_class', result.best_class)
       form.append('ai_top_prob', result.best_prob)
       form.append('ai_location_used', result.location_used)
@@ -174,7 +221,14 @@ export default function Camera() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Error al guardar observación')
       alert('Observación guardada correctamente')
-      navigate('/explorer')
+      setPreview(null)
+      setResult(null)
+      setNotes('')
+      setIsPrivate(false)
+      setCoords({ lat: '', lon: '' })
+      if (fileRef.current) {
+        fileRef.current.value = ''
+      }
     } catch (e) {
       setError(e.message)
     } finally {
@@ -225,6 +279,45 @@ export default function Camera() {
                 <button onClick={useGPS} className="btn-gps"><FaLocationCrosshairs aria-hidden /> GPS</button>
               </div>
             </div>
+            {result && result.is_frog && (
+              <div className="card details-card">
+                <h3>Detalles de la observación</h3>
+                <div className="form-group">
+                  <label>Visibilidad</label>
+                  <div className="visibility-options">
+                    <button
+                      type="button"
+                      className={`btn-toggle ${!isPrivate ? 'active' : ''}`}
+                      onClick={() => setIsPrivate(false)}
+                    >
+                      Pública
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn-toggle ${isPrivate ? 'active' : ''}`}
+                      onClick={() => setIsPrivate(true)}
+                    >
+                      Privada
+                    </button>
+                  </div>
+                  <p className="help-text">
+                    {!isPrivate 
+                      ? 'Las observaciones públicas pueden ser vistas por cualquier usuario y aparecerán en el feed global.' 
+                      : 'Las observaciones privadas solo son visibles para ti en tu perfil.'}
+                  </p>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="obs-notes">Notas del usuario</label>
+                  <textarea
+                    id="obs-notes"
+                    placeholder="Añade detalles sobre el hábitat, comportamiento, clima u otras observaciones..."
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                    maxLength={1000}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="action-buttons" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
               <button onClick={handlePredict} disabled={loading || !preview} className="btn-predict" style={{ flex: 1 }}>

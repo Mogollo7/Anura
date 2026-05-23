@@ -14,8 +14,8 @@
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding-left: clamp(1rem, 7vw, 6.5rem);
-  padding-right: clamp(1rem, 7vw, 6.5rem);
+  padding-left: clamp(1.25rem, 7vw, 6.5rem);
+  padding-right: clamp(1.25rem, 7vw, 6.5rem);
 }
 
 .hide-mobile {
@@ -466,6 +466,9 @@
 .obs-list-pro {
   margin-top: 2rem;
   overflow-x: auto;
+  padding-left: 1.5rem; /* 24px default side padding */
+  padding-right: 1.5rem;
+  transition: padding 200ms ease;
 }
 
 .obs-table-full {
@@ -1002,8 +1005,17 @@
   }
 }
 
+/* Fluid padding between 450px and 401px (don't touch <=400px rules) */
+@media (min-width: 401px) and (max-width: 450px) {
+  .obs-list-pro {
+    /* interpolate padding from 24px @450px down to ~8px @401px */
+    padding-left: clamp(8px, calc(32vw - 120px), 24px);
+    padding-right: clamp(8px, calc(32vw - 120px), 24px);
+  }
+}
+
 /* ── Mobile Optimizations (390px and below) ── */
-@media (max-width: 390px) {
+@media (max-width: 400px) {
   .container {
     padding-left: 0 !important;
     padding-right: 0 !important;
@@ -1031,9 +1043,16 @@
   }
 
   /* Center content in cards */
-  .name-stack, .user-stack, .species-info {
+  .name-stack, .user-stack {
     text-align: center !important;
     align-items: center !important;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .species-info {
+    text-align: left !important;
+    align-items: flex-start !important;
     width: 100%;
     overflow: hidden;
   }

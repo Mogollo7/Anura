@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS auth.users (
 );
 
 ALTER TABLE auth.users ADD COLUMN IF NOT EXISTS profile_image_blob BYTEA;
+ALTER TABLE auth.users ADD COLUMN IF NOT EXISTS biography TEXT;
 
 -- USER PREFERENCES
 CREATE TABLE IF NOT EXISTS auth.user_preferences (
@@ -155,6 +156,7 @@ CREATE TABLE IF NOT EXISTS observations.observations (
   recorded_at     TIMESTAMPTZ,
   notes           TEXT,
   status          TEXT        NOT NULL DEFAULT 'pending',
+  is_private      BOOLEAN     DEFAULT FALSE,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

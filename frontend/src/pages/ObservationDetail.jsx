@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { FaArrowLeft, FaLocationDot, FaNoteSticky, FaTriangleExclamation, FaUser, FaHeart, FaRegHeart, FaCircleNotch } from 'react-icons/fa6';
+import { FaArrowLeft, FaLocationDot, FaNoteSticky, FaTriangleExclamation, FaUser, FaHeart, FaRegHeart, FaCircleNotch, FaLock } from 'react-icons/fa6';
+import { FaSearch, FaPalette } from 'react-icons/fa';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { usePreferencesStore } from '../store/preferencesStore';
 import { obsIdKey } from '../lib/observationIds';
 import './ObservationDetail.css';
+import LoadingSpinner from '../components/LoadingSpinner';
+import BackButton from '../components/BackButton';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -47,21 +50,32 @@ const SPECIES_FALLBACK = {
   },
   'pristimantis achatinus': {
     scientificName: 'Pristimantis achatinus (Cope, 1868)',
-    commonName: 'Pristimantis achatinus',
+    commonName: 'Cutín Común de Occidente',
     className: 'Amphibia',
     orderName: 'Anura',
-    family: 'Strabomantidae',
+    family: 'Craugastoridae',
     genus: 'Pristimantis',
     speciesEpithet: 'achatinus',
     iucn: 'LC',
-    altitudeTypicalRange: { min: 0, max: 2200 },
+    altitudeTypicalRange: { min: 10, max: 1900 },
+  },
+  'pristimantis acanthinus': {
+    scientificName: 'Pristimantis achatinus (Cope, 1868)',
+    commonName: 'Cutín Común de Occidente',
+    className: 'Amphibia',
+    orderName: 'Anura',
+    family: 'Craugastoridae',
+    genus: 'Pristimantis',
+    speciesEpithet: 'achatinus',
+    iucn: 'LC',
+    altitudeTypicalRange: { min: 10, max: 1900 },
   },
   'pristimantis paisa': {
     scientificName: 'Pristimantis paisa (Lynch & Duellman, 1997)',
     commonName: 'Pristimantis paisa',
     className: 'Amphibia',
     orderName: 'Anura',
-    family: 'Strabomantidae',
+    family: 'Craugastoridae',
     genus: 'Pristimantis',
     speciesEpithet: 'paisa',
     iucn: 'VU',
@@ -72,7 +86,7 @@ const SPECIES_FALLBACK = {
     commonName: 'Pristimantis penelopus',
     className: 'Amphibia',
     orderName: 'Anura',
-    family: 'Strabomantidae',
+    family: 'Craugastoridae',
     genus: 'Pristimantis',
     speciesEpithet: 'penelopus',
     iucn: 'LC',
@@ -178,23 +192,29 @@ const EDUCATION_CONTENT = {
   },
   'pristimantis achatinus': {
     whatIs:
-      'Esta ranita de lluvia se reproduce sin pasar por renacuajo: sus huevos eclosionan directamente como ranitas pequeñas. Se encuentra en bosques andinos y es muy común en jardines y cultivos.',
+      'La Pristimantis achatinus es un pequeño y fascinante anfibio neotropical. A diferencia de otras ranas, no pasa por la etapa de renacuajo en el agua; sus huevos tienen desarrollo directo, lo que significa que de ellos nacen directamente ranitas completamente formadas. Es una especie muy adaptable que habita desde bosques hasta cultivos de café y plátano.',
     steps: [
       {
-        title: 'Desarrollo directo (sin renacuajo)',
-        sub: 'En el grupo, los huevos eclosionan directamente como ranitas pequeñas; eso guía la expectativa de microhábitat terrestre.',
+        title: <><FaSearch style={{marginRight: '8px'}} />Características Físicas</>,
+        sub: 'El tamaño importa: Es una rana de tamaño mediano-pequeño. Los machos miden entre 30 y 40 mm, mientras que las hembras son notablemente más grandes, alcanzando entre 48 y 64 mm.\nLa textura de la piel: Su espalda (dorso) es lisa o moderadamente rugosa, pero la clave está en su vientre, que es completamente liso (a diferencia de otras primas del género que lo tienen granulado o areolado).\nSin pliegues: No posee tubérculos (pequeños "cuernos") en los párpados ni en los talones.\nSus manos: El primer dedo de su mano es más largo que el segundo, y las puntas de sus dedos tienen discos expandidos para aferrarse a la vegetación.',
       },
       {
-        title: 'Dedos con discos adhesivos pequeños',
-        sub: 'Busca dedos con discos adhesivos pequeños (adaptación para moverse en microhábitats).',
-      },
-      {
-        title: 'Canto nocturno repetitivo y dorso café variable',
-        sub: 'El canto nocturno puede ser repetitivo; el dorso suele ser café con patrón variable.',
-      },
+        title: <><FaPalette style={{marginRight: '8px'}} />El "Engaño" del Color (Patrón Variable)</>,
+        sub: 'Esta especie es un reto porque es "polimórfica" (cambia mucho de color entre individuos). Enséñale a tus usuarios a buscar estos rasgos constantes:\nEl Fondo: Puede ser de color amarillo, gris, café rojizo o café oscuro.\nLas Piernas: La parte posterior de sus muslos es amarilla o gris azulada, siempre decorada con manchas o barras negras bien definidas.\nLos Ojos: Su iris es de color amarillo pálido con finas manchas negras y una franja horizontal roja que lo cruza por el medio.',
+      }
     ],
     curiosity:
-      'La ausencia de fase larvaria acuática reduce la dependencia de agua abierta durante la reproducción.',
+      '¿Sabías que...? Los machos de esta especie cantan activamente durante la noche desde la vegetación baja (a menos de un metro del suelo) para atraer a las hembras, especialmente en los bordes de riachuelos húmedos.',
+    table: [
+      { label: 'Nombre Científico', value: 'Pristimantis achatinus' },
+      { label: 'Nombres Comunes', value: 'Cutín Común de Occidente, Rana de pastizal, Rana ladrona de Cachabí' },
+      { label: 'Distribución', value: 'Desde el este de Panamá, cruzando por Colombia, hasta el occidente de Ecuador. Altitud general: 225-900 msnm.' },
+      { label: 'Rango Altitudinal', value: '10 - 1900 msnm (Fuente: Listado de especies de fauna silvestre, en la jurisdicción de los 80 municipios de Corantioquia)' },
+      { label: 'Hábitat', value: 'Bosques tropicales, bordes de caminos, potreros y plantaciones (café, cacao, banano).' },
+      { label: 'Comportamiento', value: 'Es principalmente terrestre y de actividad nocturna. Durante el día se esconde bajo rocas o troncos húmedos.' },
+      { label: 'Estado de Conservación', value: 'Preocupación Menor (LC). Es una especie común y de poblaciones estables.' },
+    ],
+    images: ['/pristimantis_achatinus_guide.png']
   },
   'pristimantis paisa': {
     whatIs:
@@ -341,43 +361,43 @@ const EDUCATION_CONTENT = {
 const SCIENTIFIC_CONTENT = {
   'rhinella alata': {
     text:
-      'Amphibia · Anura · Bufonidae · Rhinella alata (Cope, 1868). Rango altitudinal 0–900 msnm. Distribución: tierras bajas del Pacífico y región Caribe colombiana. Parámetros de validación: presencia de cresta cefálica reducida, diferenciación morfológica con R. horribilis por tamaño parotoideas y patrón dorsal.',
+      'Rhinella alata es un sapo pequeño de hábitos terrestres perteneciente a la familia Bufonidae. Se caracteriza por su cuerpo robusto, coloración café o marrón con patrones oscuros y una distintiva cresta o “ala” sobre la cabeza. Habita bosques húmedos tropicales de Centroamérica y parte del norte de Sudamérica, donde suele encontrarse entre la hojarasca alimentándose de pequeños invertebrados.',
   },
   'rhinella horribilis': {
     text:
-      'Amphibia · Anura · Bufonidae · Rhinella horribilis (Cope, 1862). sinónimo Bufo marinus / Bufo horribilis. Rango 0–1500 msnm. Alerta si el registro supera el rango típico documentado (1500 msnm). Diferenciación obligatoria con R. alata por tamaño y con R. marina por distribución geográfica.',
+      'El sapo de caña mesoamericano (Rhinella horribilis) es una de las especies de anfibios que componen el género Rhinella, que se incluye en la familia de los bufónidos. Este anuro es de tamaño grande y de hábitos terrestres. Se distribuye de manera nativa desde el extremo sur de Estados Unidos por el norte, hasta el extremo norte del Perú por el sur. Durante décadas fue considerado un sinónimo más moderno del sapo de caña amazónico (R. marina), hasta que en 2016 se lo rehabilitó como especie plena.',
   },
   'pristimantis achatinus': {
     text:
-      'Amphibia · Anura · Strabomantidae · Pristimantis achatinus (Cope, 1868). Desarrollo directo, sin estadio larvario acuático. Rango 0–2200 msnm. Alta variabilidad morfológica intraespecífica; validación requiere cotejo con series de referencia o análisis molecular para evitar confusión con especies crípticas del complejo achatinus.',
+      'Pristimantis achatinus es una especie de anfibio anuro de la familia Craugastoridae. Se encuentra en Colombia, Ecuador y Panamá. Su hábitat natural son los bosques húmedos subtropicales o tropicales de tierras bajas, bosques húmedos de montañas tropicales o subtropicales, plantaciones, gardens rurales, áreas urbanas y zonas previamente boscosas ahora muy degradadas.',
   },
   'pristimantis paisa': {
     text:
-      'Amphibia · Anura · Strabomantidae · Pristimantis paisa (Lynch & Duellman, 1997). Estado IUCN: VU. Endémica de la cordillera Central de Antioquia. Rango 1500–2400 msnm. Prioridad para validación morfológica: confirmar patrón de la región gular, presencia de tubérculo metatarsal interno, y localidad dentro del rango conocido. Registro fuera del rango altitudinal o geográfico requiere revisión experta.',
+      'Pristimantis paisa es una especie de anfibio anuro endémica del departamento de Antioquia, Colombia, perteneciente a la familia Craugastoridae. Habita bosques montanos húmedos entre los 1800 y 3100 metros de altitud, donde presenta hábitos nocturnos. Esta rana cumple un papel importante en el equilibrio ecológico de los ecosistemas andinos, aunque actualmente enfrenta amenazas debido a la pérdida y degradación de su hábitat natural.',
   },
   'pristimantis penelopus': {
     text:
-      'Amphibia · Anura · Strabomantidae · Pristimantis penelopus (Lynch, 1980). Rango 1200–2600 msnm. Distribución en cordilleras Central y Occidental de Colombia. Alta similitud con P. achatinus en zonas de simpatría; validación requiere revisión del patrón de la membrana timpánica, relación ancho/diámetro del tímpano, y preferiblemente bioacústica comparativa.',
+      'Pristimantis penelopus es una especie de anfibio anuro de la familia Craugastoridae. Esta especie es endémica de la ladera oriental de la Cordillera Central en Colombia. Habita en los departamentos de Antioquia, Tolima y Caldas entre 1 180 y 1 500 m de altitud.',
   },
   'dendrobates truncatus': {
     text:
-      'Amphibia · Anura · Dendrobatidae · Dendrobates truncatus (Cope, 1861). Aposematismo obligatorio; coloración amarillo-naranja con negro. Rango 0–1200 msnm. Distribución: región Caribe y valles interandinos bajos de Colombia. Alcaloides cutáneos (pumiliotoxinas) de origen dietario. Validación: confirmar localidad dentro del rango conocido; registros sobre 1200 msnm o fuera del Caribe / valle del Magdalena requieren revisión. Diferenciación con D. auratus y otras congéneres por patrón cromático y distribución geográfica.',
+      'Dendrobates truncatus es una rana pequeña de colores llamativos perteneciente a la familia Dendrobatidae. Presenta tonalidades negras con líneas o manchas amarillas, verdes o azuladas que advierten sobre su toxicidad. Habita bosques húmedos tropicales, especialmente en Colombia, donde vive cerca del suelo entre la hojarasca y zonas húmedas. Se alimenta principalmente de pequeños insectos y otros artrópodos.',
   },
   'leucostethus fraterdanieli': {
     text:
-      'Amphibia · Anura · Dendrobatidae · Leucostethus fraterdanieli (Myers & Daly, 1976). Estado IUCN: EN. Endémica de Antioquia, distribución muy restringida. Todo registro es de alto valor científico. Validación obligatoria: fotografía del patrón dorsal completo, coordenadas precisas, altitud. Rango conocido 400–1100 msnm. Morfología diferencial con Allobates y otros dendrobátidos simpátricos por presencia de glándulas femorales y patrón cromático.',
+      'Leucostethus fraterdanieli es una rana pequeña de la familia Dendrobatidae, caracterizada por su coloración discreta en tonos marrones y líneas claras a lo largo del cuerpo. Habita bosques húmedos tropicales de Colombia, generalmente cerca de quebradas y zonas con abundante hojarasca. Es una especie diurna que se alimenta de pequeños invertebrados y cumple un papel importante en el equilibrio ecológico de los ecosistemas donde vive.',
   },
   'dendropsophus bogerti': {
     text:
-      'Amphibia · Anura · Hylidae · Dendropsophus bogerti (Cochran & Goin, 1961). Rango 0–1000 msnm. Distribución: región Caribe y valles bajos colombianos. Validación: diferenciación de D. microcephalus por tamaño de la cabeza relativo al cuerpo, patrón del canto (frecuencia dominante y duración de nota), y localidad geográfica. Uso de bioacústica recomendado para confirmación en zona de simpatría.',
+      'Dendropsophus bogerti es una especie de anfibios de la familia Hylidae. Es endémica de Colombia. Sus hábitats naturales incluyen montanos secos, marismas de agua dulce, corrientes intermitentes de agua, tierra arable, pastos, plantaciones, jardines rurales, áreas urbanas, zonas previamente boscosas ahora muy degradadas, estanques y tierras de irrigación.',
   },
   'dendropsophus microcephalus': {
     text:
-      'Amphibia · Anura · Hylidae · Dendropsophus microcephalus (Cope, 1886). Rango 0–1200 msnm. Distribución amplia desde México hasta Argentina; en Colombia en todas las tierras bajas. Especie indicadora de humedales intervenidos. Validación: cabeza pequeña como carácter diagnóstico principal; confirmar ausencia de patrón reticulado en flancos que caracteriza a D. bogerti. Bioacústica: pulsos de canto más rápidos que D. bogerti.',
+      'La ranita mísera (Dendropsophus microcephalus) es una especie de anfibio de la familia Hylidae.[2] La cabeza es plana y el hocico es redondeado y corto. Los ojos tienen pupilas elípticas dispuestas horizontalmente. Las fosas nasales están dirigidas lateralmente y el área entre las fosas nasales es algo cóncava. Esta especie puede someterse a un cambio de color. Durante la noche, el dorso es de color amarillo claro con varias marcas de color marrón o marrón claro. Durante el día, el dorso es de color tostado, amarillo o marrón claro con manchas más oscuras marrones o rojas. Esta rana tiene uniformemente muslos amarillos con una línea marrón, a menudo rodeadas de una estrecha línea blanca que se extiende desde la fosa nasal para la ventilación.',
   },
   'hyloscirtus palmeri': {
     text:
-      'Amphibia · Anura · Hylidae · Hyloscirtus palmeri (Boulenger, 1908). Estado IUCN: NT. Rango 500–2000 msnm. Distribución: cordilleras Occidental y Central de Colombia y Ecuador. Especie estrictamente asociada a ríos y quebradas de corriente rápida; bioindicadora de calidad hídrica. Validación: confirmar microhábitat torrenticola, patrón cromático verde con reticulado oscuro, y localidad dentro del rango conocido. Registros fuera de contexto ribereño o por encima de 2000 msnm requieren documentación fotográfica detallada.',
+      'La rana torrente de Palmer o rana arborícola de Palmer (Hyloscirtus palmeri) es una especie de anfibios de la familia Hylidae.[1] Habita en Colombia, Costa Rica, Ecuador y Panamá. Sus hábitats naturales incluyen bosques tropicales o subtropicales secos y a baja altitud, montanos secos y ríos. Está amenazada por la destrucción de su hábitat natural.',
   },
 }
 
@@ -435,6 +455,8 @@ export default function ObservationDetail() {
   const [avatarLoadError, setAvatarLoadError] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   const token = localStorage.getItem('anura_token');
   const isLoggedIn = !!token && token !== 'null' && token !== 'undefined';
@@ -453,20 +475,81 @@ export default function ObservationDetail() {
     obs?.ai_class?.replace(/_/g, ' ') ||
     'Sin identificar'
 
+  const isAchatinus = (obs?.ai_class || '').toLowerCase().includes('achatinus') || 
+                      (obs?.species || '').toLowerCase().includes('achatinus') ||
+                      (obs?.ai_class || '').toLowerCase().includes('acanthinus') || 
+                      (obs?.species || '').toLowerCase().includes('acanthinus');
+
   const taxonomy = {
-    className: obs?.class_name || fallbackSpecies?.className || '-',
-    orderName: obs?.order_name || fallbackSpecies?.orderName || '-',
-    family: obs?.family || fallbackSpecies?.family || '-',
-    genus: obs?.genus || fallbackSpecies?.genus || '-',
-    speciesEpithet: fallbackSpecies?.speciesEpithet || '',
+    className: obs?.class_name || fallbackSpecies?.className || 'Amphibia',
+    orderName: obs?.order_name || fallbackSpecies?.orderName || 'Anura',
+    family: obs?.family || fallbackSpecies?.family || (isAchatinus ? 'Craugastoridae' : '-'),
+    genus: obs?.genus || fallbackSpecies?.genus || (isAchatinus ? 'Pristimantis' : '-'),
+    speciesEpithet: fallbackSpecies?.speciesEpithet || (isAchatinus ? 'achatinus' : ''),
     synonym: fallbackSpecies?.synonym,
     iucn: fallbackSpecies?.iucn,
     altitudeTypicalRange: fallbackSpecies?.altitudeTypicalRange,
   }
 
-  const educationKey = normalizeSpeciesKey(`${taxonomy.genus} ${taxonomy.speciesEpithet}`)
-  const educationContent = EDUCATION_CONTENT[educationKey]
+  let educationKey = normalizeSpeciesKey(`${taxonomy.genus} ${taxonomy.speciesEpithet}`.trim())
+  if (educationKey === 'pristimantis acanthinus') educationKey = 'pristimantis achatinus';
+  let educationContent = EDUCATION_CONTENT[educationKey]
+  if (educationContent && taxonomy.genus && taxonomy.speciesEpithet && taxonomy.genus !== 'Indeterminado') {
+    educationContent = { 
+      ...educationContent, 
+      images: [`/${taxonomy.genus} ${taxonomy.speciesEpithet}.webp`] 
+    };
+  }
   const scientificContent = SCIENTIFIC_CONTENT[educationKey]
+
+  useEffect(() => {
+    if (isLoggedIn && obs?.username) {
+      fetchFollowStatus(obs.username);
+    }
+  }, [obs?.username, isLoggedIn]);
+
+  const fetchFollowStatus = async (username) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/follow/${username}/status`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIsFollowing(data.following);
+      }
+    } catch (e) { console.error('Error fetching follow status:', e); }
+  };
+
+  const handleFollow = async () => {
+    if (!isLoggedIn) {
+      alert('Inicia sesión para seguir a otros exploradores');
+      return;
+    }
+    setFollowLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/follow/${obs.username}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIsFollowing(data.following);
+      }
+    } catch (e) {
+      console.error('Error toggling follow:', e);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  const getTaxonSlug = (taxonId, sciName) => {
+    if (!sciName || sciName === 'Sin identificar') return null;
+    const id = taxonId || 0;
+    const nameSlug = sciName.replace(/\s*\(.*\)\s*$/, '').trim().replace(/\s+/g, '-');
+    return `/taxa/${id}-${nameSlug}`;
+  };
+
+  const taxonLink = getTaxonSlug(obs?.taxon_id, scientificName);
 
   const scrollToMap = () => {
     const el = document.getElementById('obs-map-card')
@@ -541,12 +624,20 @@ export default function ObservationDetail() {
 
   const fetchObservation = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/explorer/observation/${id}`);
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const res = await fetch(`${API_BASE}/api/explorer/observation/${id}`, { headers });
       if (res.ok) {
         const data = await res.json();
         setObs(data);
       } else {
-        setError('No se pudo encontrar la observación');
+        if (res.status === 403) {
+          setError('Esta observación es privada');
+        } else {
+          setError('No se pudo encontrar la observación');
+        }
       }
     } catch (err) {
       setError('Error al conectar con el servidor');
@@ -555,7 +646,7 @@ export default function ObservationDetail() {
     }
   };
 
-  if (loading) return <div className="detail-loading">Cargando detalles del hallazgo...</div>;
+  if (loading) return <LoadingSpinner text="Cargando detalles del hallazgo..." />;
   if (error) return (
     <div className="detail-error">
       <p><FaTriangleExclamation aria-hidden /> {error}</p>
@@ -566,8 +657,33 @@ export default function ObservationDetail() {
   return (
     <div className="obs-detail-view theme-aware">
       <header className="detail-header">
-        <button className="btn-back" onClick={() => navigate('/explorer')}><FaArrowLeft aria-hidden /> Volver al Explorador</button>
-        <h1>Detalle de Observación #{id}</h1>
+        <div className="container header-flex-row">
+          <BackButton to="/explorer" noWrapper className="header-back-inline" />
+          <div className="detail-header-titles">
+            {taxonLink ? (
+              <Link to={taxonLink} className="detail-title-link">
+                <h1 className="detail-main-title">
+                  {commonName}
+                  {obs?.is_private && <FaLock className="title-private-icon" title="Observación privada" style={{ marginLeft: '8px', fontSize: '0.8em', color: '#e67e22', verticalAlign: 'middle' }} />}
+                </h1>
+                <span className="detail-subtitle">({scientificName})</span>
+              </Link>
+            ) : (
+              <>
+                <h1 className="detail-main-title">
+                  {commonName}
+                  {obs?.is_private && <FaLock className="title-private-icon" title="Observación privada" style={{ marginLeft: '8px', fontSize: '0.8em', color: '#e67e22', verticalAlign: 'middle' }} />}
+                </h1>
+                <span className="detail-subtitle">({scientificName})</span>
+              </>
+            )}
+          </div>
+          <div className="header-actions">
+            <button type="button" className={`btn-secondary btn-icon heart-header-btn ${isLiked ? 'liked' : ''}`} onClick={handleHeart} disabled={likeLoading} aria-label="Favorito">
+              {likeLoading ? <FaCircleNotch className="fa-spin" /> : (isLiked ? <FaHeart /> : <FaRegHeart />)}
+            </button>
+          </div>
+        </div>
       </header>
 
       <div className="detail-container container">
@@ -598,8 +714,16 @@ export default function ObservationDetail() {
             <div className="detail-info-section">
               <div className="detail-taxonomy">
                 <p className="detail-label">Identificación</p>
-                <h2 className="detail-common-name">{commonName}</h2>
-                <p className="detail-scientific-name"><i>{scientificName}</i></p>
+                <h2 className="detail-common-name">
+                  {taxonLink ? (
+                    <Link to={taxonLink} className="taxon-link-hover">{commonName}</Link>
+                  ) : commonName}
+                </h2>
+                <p className="detail-scientific-name">
+                  {taxonLink ? (
+                    <Link to={taxonLink} className="taxon-link-hover"><i>{scientificName}</i></Link>
+                  ) : <i>{scientificName}</i>}
+                </p>
                 
                 <div className="taxonomical-hierarchy">
                   <div className="tax-item"><span>Clase</span><strong>{taxonomy.className}</strong></div>
@@ -610,38 +734,16 @@ export default function ObservationDetail() {
 
                 {mode === 'standard' && (
                   <div className="detail-standard-block">
-                    <div className="detail-standard-row">
-                      <span className="detail-standard-label">Familia</span>
-                      <strong>{taxonomy.family}</strong>
-                      <span className="detail-standard-label">Estado IUCN</span>
-                      <strong>{taxonomy.iucn || 'N/D'}</strong>
-                    </div>
-
-                    <div className="detail-standard-row">
-                      <span className="detail-standard-label">Latitud</span>
-                      <strong>{obs?.lat != null ? obs.lat.toFixed(4) : 'N/A'}</strong>
-                      <span className="detail-standard-label">Longitud</span>
-                      <strong>{obs?.lon != null ? obs.lon.toFixed(4) : 'N/A'}</strong>
-                      <span className="detail-standard-label">Altitud</span>
-                      <strong>
-                        {obs?.altitude_m != null && obs?.altitude_m !== ''
-                          ? `${Number(obs.altitude_m).toFixed(0)} m`
-                          : 'Sin dato'}
-                      </strong>
-                    </div>
-
-                    <div className="detail-standard-actions">
-                      <button type="button" className={`btn-secondary btn-small heart-detail-btn ${isLiked ? 'liked' : ''}`} onClick={handleHeart} disabled={likeLoading}>
-                        {likeLoading ? <FaCircleNotch className="fa-spin" /> : (isLiked ? <FaHeart /> : <FaRegHeart />)}
-                        {isLiked ? ' Quitar de favoritos' : ' Favorito'}
-                      </button>
-                      <button type="button" className="btn-secondary btn-small" onClick={scrollToMap}>
-                        Ver mapa
-                      </button>
-                      <button type="button" className="btn-secondary btn-small" onClick={handleShare}>
-                        Compartir
-                      </button>
-                    </div>
+                    {scientificContent ? (
+                      <p className="detail-scientific-text-standard">
+                        {scientificContent.text}
+                        {taxonLink && (
+                          <Link to={taxonLink} className="read-more-link"> Leer más...</Link>
+                        )}
+                      </p>
+                    ) : (
+                      <p className="detail-scientific-text-standard">No hay información descriptiva disponible para esta especie.</p>
+                    )}
                   </div>
                 )}
 
@@ -654,19 +756,52 @@ export default function ObservationDetail() {
                         <p className="detail-mode-text">{educationContent.whatIs}</p>
 
                         <h3>Como aprender a identificarla</h3>
-                        <ol className="detail-steps">
+                        <div className="detail-accordions">
                           {educationContent.steps.map((s, idx) => (
-                            <li key={idx}>
-                              <strong>{s.title}</strong>
-                              <div className="detail-step-sub">{s.sub}</div>
-                            </li>
+                            <details key={idx} className="educational-accordion">
+                              <summary className="accordion-summary"><strong>{s.title}</strong></summary>
+                              <div className="accordion-content">
+                                {s.sub.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+                              </div>
+                            </details>
                           ))}
-                        </ol>
-
-                        <div className="detail-curiosity">
-                          <strong>Dato curioso</strong>
-                          <div className="detail-step-sub">{educationContent.curiosity}</div>
                         </div>
+
+                        {educationContent.table && (
+                          <>
+                            <h3>Datos de un Vistazo (Ficha Técnica)</h3>
+                            <div className="educational-table-wrapper">
+                              <table className="educational-table">
+                                <tbody>
+                                  {educationContent.table.map((row, idx) => (
+                                    <tr key={idx}>
+                                      <th>{row.label}</th>
+                                      <td>{row.value}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </>
+                        )}
+
+                        {educationContent.curiosity && (
+                          <div className="detail-curiosity">
+                            <strong>Dato curioso</strong>
+                            <div className="detail-step-sub">{educationContent.curiosity}</div>
+                          </div>
+                        )}
+
+                        {educationContent.images && (
+                          <>
+                            <h3>Galería de Variación e Identificación</h3>
+                            <div className="educational-gallery">
+                              {educationContent.images.map((imgSrc, idx) => (
+                                <img key={idx} src={imgSrc} alt={`Guía visual ${idx+1}`} className="educational-img" />
+                              ))}
+                            </div>
+                          </>
+                        )}
                       </>
                     ) : (
                       <>
@@ -755,7 +890,14 @@ export default function ObservationDetail() {
                 )}
               </div>
 
-              <div className="detail-user-card">
+            </div>
+          </div>
+
+          {/* Columna Derecha: Mapa y Contexto */}
+          <div className="detail-side-column">
+            {/* User info at the top of the sidebar */}
+            <div className="detail-card card glassmorphism user-sidebar-card">
+              <div className="user-sidebar-flex">
                 <div className="user-avatar-detail" onClick={() => navigate(`/people/${obs.username}`)} style={{ cursor: 'pointer' }}>
                   {obs.profile_image && !avatarLoadError ? (
                     <img
@@ -768,19 +910,23 @@ export default function ObservationDetail() {
                   )}
                 </div>
                 <div className="user-meta-detail">
-                  <p className="username-detail">
-                    Subido por <strong onClick={() => navigate(`/people/${obs.username}`)} className="detail-user-link">{obs.username}</strong>
-                  </p>
-                  <p className="date-detail">Fecha: {new Date(obs.created_at).toLocaleString()}</p>
+                  <strong onClick={() => navigate(`/people/${obs.username}`)} className="detail-user-link">{obs.username}</strong>
+                  <p className="user-obs-count">{obs.user_obs_count || 0} observaciones</p>
                 </div>
+                <button 
+                  className={`btn-secondary btn-small follow-btn-sidebar ${isFollowing ? 'following' : ''}`} 
+                  onClick={handleFollow}
+                  disabled={followLoading}
+                >
+                  {followLoading ? 'Cargando...' : (isFollowing ? 'Siguiendo' : 'Seguir')}
+                </button>
+              </div>
+              <div className="obs-date-row">
+                <span className="date-detail">Observado el {new Date(obs.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
               </div>
             </div>
-          </div>
 
-          {/* Columna Derecha: Mapa y Contexto */}
-          <div className="detail-side-column">
             <div className="detail-card card glassmorphism map-card-detail" id="obs-map-card">
-              <h3><FaLocationDot aria-hidden /> Ubicación y Geo-contexto</h3>
               <div className="detail-map-wrapper">
                 {obs.lat && obs.lon ? (
                   <MapContainer center={[obs.lat, obs.lon]} zoom={13} style={{ height: '100%', width: '100%' }}>

@@ -520,7 +520,7 @@
   }
 }
 
-@media (max-width: 390px) {
+@media (max-width: 400px) {
   .people-view .po-controls.container {
     flex-direction: column;
     align-items: stretch;

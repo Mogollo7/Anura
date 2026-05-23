@@ -9,6 +9,7 @@ import { CiHeart } from 'react-icons/ci';
 import './People.css';
 import './PeopleObservations.css';
 import { obsIdKey } from '../lib/observationIds';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -76,7 +77,9 @@ export default function PeopleObservations() {
   const fetchObservations = async () => {
     setObsLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/explorer/feed?username=${encodeURIComponent(username)}`);
+      const headers = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const res = await fetch(`${API_BASE}/api/explorer/feed?username=${encodeURIComponent(username)}`, { headers });
       if (res.ok) setObservations(await res.json());
     } catch (e) { console.error(e); }
     finally { setObsLoading(false); }
@@ -144,7 +147,7 @@ export default function PeopleObservations() {
       (obs.place_guess || '').toLowerCase().includes(q);
   });
 
-  if (profileLoading) return <div className="people-loading">Cargando perfil de {username}…</div>;
+  if (profileLoading) return <LoadingSpinner text={`Cargando perfil de ${username}…`} />;
   if (profileError) return (
     <div className="people-error">
       <p><FaTriangleExclamation aria-hidden /> {profileError}</p>
@@ -256,10 +259,7 @@ export default function PeopleObservations() {
       {/* Content */}
       <div className="po-content container">
         {obsLoading ? (
-          <div className="po-loading">
-            <FaFrog aria-hidden className="po-loading-icon" />
-            <p>Cargando observaciones…</p>
-          </div>
+          <LoadingSpinner text="Cargando observaciones…" />
         ) : filtered.length === 0 ? (
           <div className="po-empty">
             <FaFrog aria-hidden className="po-empty-icon" />

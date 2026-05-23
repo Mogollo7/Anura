@@ -49,10 +49,20 @@ exports.updateProfile = async (req, res) => {
     const data = { ...req.body };
     if (req.file) {
       const fs = require('fs');
-      data.profile_image = `/uploads/profiles/${req.file.filename}`;
-      data.profile_image_blob = fs.readFileSync(req.file.path);
+      const path = require('path');
+      const sharp = require('sharp');
+      const { v4: uuidv4 } = require('uuid');
+
+      const filename = `profile_${uuidv4()}.webp`;
+      const filePath = path.join(__dirname, '../../uploads/profiles', filename);
+
+      const webpBuffer = await sharp(req.file.buffer).webp({ quality: 80 }).toBuffer();
+      fs.writeFileSync(filePath, webpBuffer);
+
+      data.profile_image = `/uploads/profiles/${filename}`;
+      data.profile_image_blob = webpBuffer;
       try {
-        await uploadProfileImage(req.file.path, req.file.filename);
+        await uploadProfileImage(filePath, filename);
       } catch (minioErr) {
         console.warn('[minio] Perfil no replicado al bucket:', minioErr.message);
       }
@@ -76,6 +86,26 @@ exports.getPublicProfile = async (req, res) => {
     if (err.message === 'No existe el usuario') {
       return res.status(404).json({ message: err.message });
     }
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.toggleFollow = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const result = await authService.toggleFollow(req.user.id, username);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.getFollowStatus = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const result = await authService.getFollowStatus(req.user.id, username);
+    res.status(200).json(result);
+  } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };

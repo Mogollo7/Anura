@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import { FaGear, FaList, FaMagnifyingGlass, FaMapLocationDot, FaTableCells, FaUser, FaCalendarDays, FaBinoculars, FaFrog, FaLocationDot, FaHeart, FaRegHeart, FaXmark, FaGoogle } from 'react-icons/fa6'
+import { FaList, FaMagnifyingGlass, FaMapLocationDot, FaTableCells, FaUser, FaCalendarDays, FaBinoculars, FaFrog, FaLocationDot, FaHeart, FaRegHeart, FaXmark, FaGoogle } from 'react-icons/fa6'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import './Explorer.css'
 import { obsIdKey } from '../lib/observationIds'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
@@ -16,6 +17,13 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 })
+
+const getTaxonSlug = (taxonId, sciName) => {
+  if (!sciName || sciName === 'Sin identificar') return null;
+  const id = taxonId || 0;
+  const nameSlug = sciName.replace(/\s*\(.*\)\s*$/, '').trim().replace(/\s+/g, '-');
+  return `/taxa/${id}-${nameSlug}`;
+};
 
 const getImageUrl = (key, size = 'medium') => {
   if (!key) return '';
@@ -84,7 +92,17 @@ export default function Explorer() {
   const [observers, setObservers] = useState([])
   const [stats, setStats] = useState({ observations: 0, observers: 0, species: 0 })
   const [loading, setLoading] = useState(true)
+  
+  // Search state
+  const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
+
+  const handleSearchClick = () => {
+    setSearch(searchInput)
+  }
+  const [filteredObservers, setFilteredObservers] = useState([])
+  const [searchLoading, setSearchLoading] = useState(false)
+  const debounceRef = useRef(null)
 
   const token = localStorage.getItem('anura_token');
   const isLoggedIn = !!token && token !== 'null' && token !== 'undefined';
@@ -202,6 +220,63 @@ export default function Explorer() {
     setSearchParams(newParams);
   };
 
+  // ── FILTERING LOGIC ──────────────────────────────────────────────────
+  
+  const filteredObservations = observations.filter(obs => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      (obs.common_name && obs.common_name.toLowerCase().includes(q)) ||
+      (obs.ai_class && obs.ai_class.toLowerCase().includes(q)) ||
+      (obs.genus && obs.genus.toLowerCase().includes(q)) ||
+      (obs.species && obs.species.toLowerCase().includes(q)) ||
+      (obs.family && obs.family.toLowerCase().includes(q)) ||
+      (obs.order_name && obs.order_name.toLowerCase().includes(q)) ||
+      (obs.class_name && obs.class_name.toLowerCase().includes(q)) ||
+      (obs.username && obs.username.toLowerCase().includes(q))
+    );
+  });
+
+  const filteredSpecies = species.filter(s => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      (s.common_name && s.common_name.toLowerCase().includes(q)) ||
+      (s.scientific_name && s.scientific_name.toLowerCase().includes(q)) ||
+      (s.family && s.family.toLowerCase().includes(q)) ||
+      (s.order_name && s.order_name.toLowerCase().includes(q)) ||
+      (s.class_name && s.class_name.toLowerCase().includes(q))
+    );
+  });
+
+  // Observers filter logic with backend fetch for species ranking
+  useEffect(() => {
+    if (view === 'observers' && search.trim()) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(async () => {
+        setSearchLoading(true);
+        try {
+          const res = await fetch(`${API_BASE}/api/explorer/observers/by-species?q=${encodeURIComponent(search.trim())}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.length > 0) {
+              setFilteredObservers(data);
+            } else {
+              // Fallback to basic username search if no species match
+              setFilteredObservers(observers.filter(u => u.username.toLowerCase().includes(search.toLowerCase())));
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setSearchLoading(false);
+        }
+      }, 300);
+    } else {
+      setFilteredObservers(observers);
+    }
+  }, [search, view, observers]);
+
   return (
     <div className="explorer-view theme-aware">
       {guestModal && (
@@ -226,16 +301,16 @@ export default function Explorer() {
               <span className="search-icon"><FaMagnifyingGlass aria-hidden /></span>
               <input
                 type="text"
-                placeholder="Especie"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar especies, usuarios..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSearchClick()
+                }}
               />
             </div>
-            <div className="search-input-wrapper">
-              <input type="text" placeholder="Ubicación" />
-            </div>
-            <button className="btn-search">Busca</button>
-            <button className="btn-filters"><FaGear aria-hidden /> Filtros</button>
+            <button className="btn-search" onClick={handleSearchClick}>Busca</button>
+            {/* Removed filters and location inputs per user request */}
           </div>
         </div>
       </header>
@@ -282,11 +357,9 @@ export default function Explorer() {
       <main className="explorer-main">
         <div className="container">
           {loading ? (
-            <div className="loading-state">Cargando datos...</div>
+            <LoadingSpinner text="Cargando datos..." />
           ) : (
             <>
-              {/* RENDER LOGIC BASED ON VIEW AND SUBVIEW */}
-
               {/* VIEW: OBSERVATIONS */}
               {view === 'observations' && (
                 <>
@@ -294,7 +367,7 @@ export default function Explorer() {
                     <div className="map-wrapper card">
                       <MapContainer center={[4.5709, -74.2973]} zoom={5} style={{ height: '600px', width: '100%' }}>
                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        {observations.map(obs => obs.lat && obs.lon && (
+                        {filteredObservations.map(obs => obs.lat && obs.lon && (
                           <Marker key={obs.id} position={[obs.lat, obs.lon]}>
                             <Popup className="inat-popup-wrapper">
                               <div className="inat-popup" onClick={() => navigate(`/explorer/${obs.id}`)}>
@@ -321,9 +394,6 @@ export default function Explorer() {
                                       alt="u"
                                       placeholderClassName="avatar-micro"
                                     />
-                                    <span className="popup-user-name" style={{ fontSize: '10px', display: 'block', textAlign: 'center', marginTop: '2px', color: 'var(--primary)' }}>
-                                      {obs.username}
-                                    </span>
                                   </div>
                                   <div className="time-bottom-right">
                                     <FaCalendarDays aria-hidden /> {getRelativeTime(obs.created_at)}
@@ -338,7 +408,7 @@ export default function Explorer() {
                   )}
                   {subview === 'grid' && (
                     <div className="obs-grid-pro">
-                      {observations.map(obs => (
+                      {filteredObservations.map(obs => (
                         <div key={obs.id} className="species-card card-no-border" onClick={() => navigate(`/explorer/${obs.id}`)}>
                           <div className="species-img-wrapper">
                             <img src={getImageUrl(obs.thumbnail_key, 'medium')} alt="thumb" />
@@ -368,6 +438,9 @@ export default function Explorer() {
                           </div>
                         </div>
                       ))}
+                      {filteredObservations.length === 0 && (
+                         <div className="no-results">No se encontraron observaciones que coincidan con "{search}"</div>
+                      )}
                     </div>
                   )}
                   {subview === 'list' && (
@@ -385,7 +458,7 @@ export default function Explorer() {
                           </tr>
                         </thead>
                         <tbody>
-                          {observations.map(obs => (
+                          {filteredObservations.map(obs => (
                             <tr key={obs.id} onClick={() => navigate(`/explorer/${obs.id}`)} style={{ cursor: 'pointer' }}>
                               <td data-label="Multimedia" data-mobile-type="media" className="td-media">
                                 <img src={getImageUrl(obs.thumbnail_key, 'small')} alt="thumb" />
@@ -393,7 +466,15 @@ export default function Explorer() {
                               <td data-label="Nombre" data-mobile-type="name">
                                 <div className="name-stack">
                                   <strong>{obs.common_name || 'Sin identificar'}</strong>
-                                  <small>{obs.ai_class?.replace(/_/g, ' ') || 'Sin identificar'}</small>
+                                  <small onClick={(e) => {
+                                    const slug = getTaxonSlug(obs.taxon_id, obs.ai_class?.replace(/_/g, ' '));
+                                    if (slug) {
+                                      e.stopPropagation();
+                                      navigate(slug);
+                                    }
+                                  }} className="taxon-clickable-small">
+                                    {obs.ai_class?.replace(/_/g, ' ') || 'Sin identificar'}
+                                  </small>
                                 </div>
                               </td>
                               <td data-label="Usuario" data-mobile-type="user">
@@ -421,6 +502,9 @@ export default function Explorer() {
                           ))}
                         </tbody>
                       </table>
+                      {filteredObservations.length === 0 && (
+                         <div className="no-results" style={{padding: '2rem'}}>No se encontraron observaciones que coincidan con "{search}"</div>
+                      )}
                     </div>
                   )}
                 </>
@@ -429,8 +513,11 @@ export default function Explorer() {
               {/* VIEW: SPECIES */}
               {view === 'species' && (
                 <div className="obs-grid-pro species-view-pullup">
-                  {species.map(s => (
-                    <div key={s.scientific_name} className="species-card card-no-border">
+                  {filteredSpecies.map(s => (
+                    <div key={s.scientific_name} className="species-card card-no-border" onClick={() => {
+                      const slug = getTaxonSlug(s.taxon_id, s.scientific_name);
+                      if (slug) navigate(slug);
+                    }}>
                       <div className="species-img-wrapper">
                         <img src={getImageUrl(s.thumbnail_key, 'medium')} alt={s.scientific_name} />
                         <div className="obs-overlay-bar">
@@ -443,45 +530,57 @@ export default function Explorer() {
                       </div>
                     </div>
                   ))}
+                  {filteredSpecies.length === 0 && (
+                     <div className="no-results" style={{gridColumn: '1 / -1'}}>No se encontraron especies que coincidan con "{search}"</div>
+                  )}
                 </div>
               )}
 
               {/* VIEW: OBSERVERS */}
               {view === 'observers' && (
                 <div className="observers-list card">
-                  <table className="observers-table">
-                    <thead>
-                      <tr>
-                        <th className="hide-mobile">Posición</th>
-                        <th>Usuario</th>
-                        <th className="hide-mobile">Observaciones</th>
-                        <th className="hide-mobile">Especies</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {observers.map((u, i) => (
-                        <tr key={u.username} onClick={() => navigate(`/people/${u.username}`)} style={{ cursor: 'pointer' }}>
-                          <td data-label="Posición" className="hide-mobile">{i + 1}</td>
-                          <td data-label="Usuario" className="user-td">
-                            <SafeAvatar
-                              src={u.profile_image ? mediaUrl(u.profile_image) : ''}
-                              alt="avatar"
-                              placeholderClassName="avatar-mini"
-                            />
-                            <div className="user-info-stack">
-                              <span className="username-main">{u.username}</span>
-                              <div className="user-stats-row show-mobile grid">
-                                <span className="stat-item"><FaBinoculars aria-hidden /> {parseInt(u.obs_count).toLocaleString()}</span>
-                                <span className="stat-item"><FaFrog aria-hidden /> {parseInt(u.species_count).toLocaleString()}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td data-label="Observaciones" className="hide-mobile"><FaBinoculars aria-hidden /> {parseInt(u.obs_count).toLocaleString()}</td>
-                          <td data-label="Especies" className="hide-mobile"><FaFrog aria-hidden /> {parseInt(u.species_count).toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  {searchLoading ? (
+                    <LoadingSpinner text="Buscando observadores..." />
+                  ) : (
+                    <>
+                      <table className="observers-table">
+                        <thead>
+                          <tr>
+                            <th className="hide-mobile">Posición</th>
+                            <th>Usuario</th>
+                            <th className="hide-mobile">Observaciones{search ? ' de especie' : ''}</th>
+                            <th className="hide-mobile">Especies</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredObservers.map((u, i) => (
+                            <tr key={u.username} onClick={() => navigate(`/people/${u.username}`)} style={{ cursor: 'pointer' }}>
+                              <td data-label="Posición" className="hide-mobile">{i + 1}</td>
+                              <td data-label="Usuario" className="user-td">
+                                <SafeAvatar
+                                  src={u.profile_image ? mediaUrl(u.profile_image) : ''}
+                                  alt="avatar"
+                                  placeholderClassName="avatar-mini"
+                                />
+                                <div className="user-info-stack">
+                                  <span className="username-main">{u.username}</span>
+                                  <div className="user-stats-row show-mobile grid">
+                                    <span className="stat-item"><FaBinoculars aria-hidden /> {parseInt(u.species_obs_count || u.obs_count).toLocaleString()}</span>
+                                    <span className="stat-item"><FaFrog aria-hidden /> {parseInt(u.species_count).toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td data-label="Observaciones" className="hide-mobile"><FaBinoculars aria-hidden /> {parseInt(u.species_obs_count || u.obs_count).toLocaleString()}</td>
+                              <td data-label="Especies" className="hide-mobile"><FaFrog aria-hidden /> {parseInt(u.species_count).toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      {filteredObservers.length === 0 && (
+                         <div className="no-results" style={{padding: '2rem'}}>No se encontraron observadores que coincidan con "{search}"</div>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
             </>

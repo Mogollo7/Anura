@@ -36,8 +36,8 @@ exports.createUser = async (userData) => {
 
   const query = `
     INSERT INTO auth.users
-      (username, email, password_hash, auth_provider, google_id, profile_image, role)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+      (username, email, password_hash, auth_provider, google_id, profile_image, biography, role)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     RETURNING *
   `;
   const values = [
@@ -47,6 +47,7 @@ exports.createUser = async (userData) => {
     userData.auth_provider || 'email',
     userData.google_id  || null,
     userData.profile_image || null,
+    userData.biography || null,
     userData.role || 'user',
   ];
 
