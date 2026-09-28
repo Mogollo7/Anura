@@ -171,7 +171,7 @@ router.post('/claim', authMiddleware, async (req, res) => {
     const obsQuery = `
       INSERT INTO observations.observations 
         (user_id, image_key, thumbnail_key, thumbnail_blob, lat, lon, altitude_m, place_guess, notes, status, is_private, recorded_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', $10, NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'synced', $10, NOW())
       RETURNING id
     `;
     const obsRes = await client.query(obsQuery, [
@@ -289,7 +289,7 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
     const obsQuery = `
       INSERT INTO observations.observations 
         (user_id, image_key, thumbnail_key, thumbnail_blob, lat, lon, altitude_m, place_guess, notes, status, is_private, recorded_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', $10, NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'synced', $10, NOW())
       RETURNING id
     `;
     const obsValues = [
