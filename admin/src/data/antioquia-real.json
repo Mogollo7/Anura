@@ -1,0 +1,2481 @@
+{
+ "generado": "2026-09-26",
+ "fuentes": {
+  "catalogo": "COLOMBIA_ANURA/ANTIOQUIA/catalog/catalog_v1.json",
+  "particiones": "training/manifiesto.json",
+  "altitud": "occurrences/records_v1.csv + cache SRTM90 (OpenTopoData)",
+  "subregiones": "COLOMBIA_ANURA/ANTIOQUIA/SUBREGIONS/*/subregion.json",
+  "fotos": "D:/Anura/data cleaned/<carpetaDataset>/",
+  "presenciaSubregion": "records_v1.csv → municipio DANE (point-in-polygon) → subregión; 432 registros sin municipio asignable"
+ },
+ "paqueteTelefono": {
+  "archivo": "anura-android/app/src/main/assets/packages/antioquia/package.sqlite",
+  "bytes": 9510912,
+  "info": {
+   "cell_rule": "row = rint(lat / 0.25), col = rint(lon / 0.25)  (redondeo half-even)",
+   "cell_size_degrees": "0.25",
+   "created_on": "2026-09-13",
+   "data_version": "v1",
+   "department": "ANTIOQUIA",
+   "distance": "cosine (embeddings L2-normalizados)",
+   "embedding_dim": "512",
+   "encoder_checkpoint_sha256": "98a6c54d6edb27e2b0344b8bbbaebd2ab749b1bf5136991ff73b37f66ee2c1ac",
+   "encoder_onnx_file": "encoder_anura_fp16.onnx",
+   "encoder_onnx_sha256": "219e860e6fa9a80fb30a59fc8f61911421bbd53a4537dca831803d3ab446b2ad",
+   "grid_sha256": "72cf6aafe9c561e8839afde154f92335d626f7e566ec2bcffb5b5a940e3ea2cb",
+   "k_taxa": "291",
+   "package_id": "COL_ANURA/ANTIOQUIA/base",
+   "package_version": "1.0.0",
+   "preprocessing": "RGB 224x224; mean (0.48145466, 0.4578275, 0.40821073); std (0.26862954, 0.26130258, 0.27577711)",
+   "reference_vectors": "4034",
+   "taxa_sha256": "7e98cfcb0845f0f4ee02828ad6117b962c556061f35630ef981dfdb3dc509f53",
+   "vectors_sha256": "f4777816c9fc4764aee2d5b7ffbcc8b7bdfb307c466d811c339205b5ad20c12a",
+   "visual_taxa": "30"
+  },
+  "openSet": {
+   "archivo": "openset/openset_v1.1.0_clean.bin",
+   "bytes": 2266096,
+   "metodo": "Mahalanobis Ledoit-Wolf compartida, τ 39,354",
+   "centroides": 41,
+   "permitidosAntioquia": 30
+  },
+  "decision": "k-NN k=5 coseno sobre las referencias; el prior de zona y el clima solo reordenan las alternativas mostradas"
+ },
+ "encoders": {
+  "telefono": {
+   "archivo": "encoder_anura_fp16.onnx",
+   "bytes": 173414601,
+   "sha256": "219e860e6fa9a80fb30a59fc8f61911421bbd53a4537dca831803d3ab446b2ad",
+   "base": "BioCLIP 1 · ViT-B/16 con fine-tuning",
+   "ajustado": true,
+   "checkpoint": "bioclip/checkpoints/bioclip_anura_mejor.pt",
+   "checkpointSha256": "98a6c54d6edb27e2b0344b8bbbaebd2ab749b1bf5136991ff73b37f66ee2c1ac",
+   "dimensiones": 512
+  },
+  "servidor": {
+   "repo": "imageomics/bioclip-2.5-vith14",
+   "base": "BioCLIP 2.5 · ViT-H/14",
+   "dimensiones": 1024,
+   "instalado": true,
+   "usadoPor": "services/ai-service (/api/predict + clasificador sklearn custom_model.pkl)"
+  }
+ },
+ "subregiones": [
+  {
+   "id": "01_valle_de_aburra",
+   "observaciones": 792,
+   "especiesObservadas": 33,
+   "chao1": 37.6,
+   "completitud": 0.878,
+   "municipios": 10
+  },
+  {
+   "id": "02_oriente",
+   "observaciones": 2392,
+   "especiesObservadas": 78,
+   "chao1": 90.0,
+   "completitud": 0.867,
+   "municipios": 23
+  },
+  {
+   "id": "03_suroeste",
+   "observaciones": 440,
+   "especiesObservadas": 50,
+   "chao1": 116.1,
+   "completitud": 0.431,
+   "municipios": 23
+  },
+  {
+   "id": "04_occidente",
+   "observaciones": 255,
+   "especiesObservadas": 51,
+   "chao1": 63.5,
+   "completitud": 0.803,
+   "municipios": 19
+  },
+  {
+   "id": "05_norte",
+   "observaciones": 574,
+   "especiesObservadas": 65,
+   "chao1": 74.8,
+   "completitud": 0.869,
+   "municipios": 17
+  },
+  {
+   "id": "06_nordeste",
+   "observaciones": 521,
+   "especiesObservadas": 57,
+   "chao1": 62.8,
+   "completitud": 0.908,
+   "municipios": 10
+  },
+  {
+   "id": "07_magdalena_medio",
+   "observaciones": 375,
+   "especiesObservadas": 43,
+   "chao1": 43.9,
+   "completitud": 0.98,
+   "municipios": 6
+  },
+  {
+   "id": "08_bajo_cauca",
+   "observaciones": 58,
+   "especiesObservadas": 25,
+   "chao1": 46.1,
+   "completitud": 0.542,
+   "municipios": 6
+  },
+  {
+   "id": "09_uraba_antioqueno",
+   "observaciones": 1000,
+   "especiesObservadas": 53,
+   "chao1": 102.0,
+   "completitud": 0.52,
+   "municipios": 11
+  }
+ ],
+ "especies": [
+  {
+   "taxonId": "COL_ANURA_0001",
+   "familia": "Aromobatidae",
+   "genero": "Rheobates",
+   "epiteto": "palmatus",
+   "especie": "Rheobates palmatus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 70,
+   "individuosCurados": 45,
+   "fotosReferenciaPaquete": 48,
+   "individuosReferenciaPaquete": 31,
+   "fotosVal": 12,
+   "fotosPrueba": 10,
+   "registros": {
+    "gbif": 35,
+    "inaturalist": 1
+   },
+   "altitud": {
+    "n": 36,
+    "media": 1064,
+    "desviacion": 423,
+    "min": 500,
+    "max": 1706,
+    "p05": 515,
+    "p95": 1706,
+    "fuente": {
+     "registro": 26,
+     "dem": 10
+    }
+   },
+   "subregiones": {
+    "02_oriente": 11,
+    "06_nordeste": 17,
+    "07_magdalena_medio": 7,
+    "04_occidente": 1
+   },
+   "gbifKey": 2426202,
+   "inatTaxonId": "67082",
+   "carpetaDataset": "Rheobates_palmatus"
+  },
+  {
+   "taxonId": "COL_ANURA_0002",
+   "familia": "Bufonidae",
+   "genero": "Rhinella",
+   "epiteto": "alata",
+   "especie": "Rhinella alata",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 90,
+   "individuosCurados": 55,
+   "fotosReferenciaPaquete": 62,
+   "individuosReferenciaPaquete": 38,
+   "fotosVal": 9,
+   "fotosPrueba": 19,
+   "registros": {
+    "gbif": 35,
+    "inaturalist": 267
+   },
+   "altitud": {
+    "n": 302,
+    "media": 1106,
+    "desviacion": 465,
+    "min": 2,
+    "max": 2115,
+    "p05": 118,
+    "p95": 1742,
+    "fuente": {
+     "registro": 33,
+     "dem": 269
+    }
+   },
+   "subregiones": {
+    "04_occidente": 13,
+    "02_oriente": 188,
+    "08_bajo_cauca": 4,
+    "06_nordeste": 38,
+    "09_uraba_antioqueno": 16,
+    "07_magdalena_medio": 14,
+    "01_valle_de_aburra": 10,
+    "05_norte": 13
+   },
+   "gbifKey": 5216905,
+   "inatTaxonId": "67089",
+   "carpetaDataset": "Rhinella_alata"
+  },
+  {
+   "taxonId": "COL_ANURA_0003",
+   "familia": "Bufonidae",
+   "genero": "Rhinella",
+   "epiteto": "horribilis",
+   "especie": "Rhinella horribilis",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 100,
+   "individuosCurados": 65,
+   "fotosReferenciaPaquete": 63,
+   "individuosReferenciaPaquete": 45,
+   "fotosVal": 21,
+   "fotosPrueba": 10,
+   "registros": {
+    "gbif": 459,
+    "inaturalist": 1131
+   },
+   "altitud": {
+    "n": 1590,
+    "media": 1028,
+    "desviacion": 744,
+    "min": 2,
+    "max": 2977,
+    "p05": 37,
+    "p95": 2135,
+    "fuente": {
+     "registro": 306,
+     "dem": 1284
+    }
+   },
+   "subregiones": {
+    "02_oriente": 462,
+    "03_suroeste": 104,
+    "01_valle_de_aburra": 162,
+    "08_bajo_cauca": 135,
+    "05_norte": 92,
+    "04_occidente": 117,
+    "06_nordeste": 86,
+    "09_uraba_antioqueno": 232,
+    "07_magdalena_medio": 57
+   },
+   "gbifKey": 10892611,
+   "inatTaxonId": "517119",
+   "carpetaDataset": "Rhinella_horribilis"
+  },
+  {
+   "taxonId": "COL_ANURA_0004",
+   "familia": "Bufonidae",
+   "genero": "Rhinella",
+   "epiteto": "margaritifera",
+   "especie": "Rhinella margaritifera",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 159,
+   "individuosCurados": 104,
+   "fotosReferenciaPaquete": 126,
+   "individuosReferenciaPaquete": 83,
+   "fotosVal": 15,
+   "fotosPrueba": 18,
+   "registros": {
+    "gbif": 122
+   },
+   "altitud": {
+    "n": 122,
+    "media": 635,
+    "desviacion": 529,
+    "min": 25,
+    "max": 2645,
+    "p05": 75,
+    "p95": 1732,
+    "fuente": {
+     "registro": 109,
+     "dem": 13
+    }
+   },
+   "subregiones": {
+    "09_uraba_antioqueno": 24,
+    "04_occidente": 9,
+    "02_oriente": 28,
+    "05_norte": 1,
+    "06_nordeste": 18,
+    "01_valle_de_aburra": 1,
+    "07_magdalena_medio": 20,
+    "08_bajo_cauca": 21
+   },
+   "gbifKey": 5216969,
+   "inatTaxonId": "67128",
+   "carpetaDataset": "Rhinella_margaritifera"
+  },
+  {
+   "taxonId": "COL_ANURA_0005",
+   "familia": "Centrolenidae",
+   "genero": "Sachatamia",
+   "epiteto": "electrops",
+   "especie": "Sachatamia electrops",
+   "estadoVisual": "VISUAL_EXCLUDED_REVIEW",
+   "motivoExclusion": "excluida_del_entrenamiento_por_integridad_de_datos",
+   "estadoDatos": "DATA_LIMITED",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 41,
+   "individuosCurados": 20,
+   "fotosReferenciaPaquete": 0,
+   "individuosReferenciaPaquete": 0,
+   "fotosVal": 0,
+   "fotosPrueba": 0,
+   "registros": {
+    "inaturalist": 7
+   },
+   "altitud": {
+    "n": 7,
+    "media": 1326,
+    "desviacion": 556,
+    "min": 545,
+    "max": 2002,
+    "p05": 608,
+    "p95": 2000,
+    "fuente": {
+     "dem": 7
+    }
+   },
+   "subregiones": {
+    "06_nordeste": 2,
+    "02_oriente": 5
+   },
+   "gbifKey": 10842940,
+   "inatTaxonId": "604172",
+   "carpetaDataset": "Sachatamia_electrops"
+  },
+  {
+   "taxonId": "COL_ANURA_0006",
+   "familia": "Craugastoridae",
+   "genero": "Craugastor",
+   "epiteto": "raniformis",
+   "especie": "Craugastor raniformis",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 298,
+   "individuosCurados": 175,
+   "fotosReferenciaPaquete": 267,
+   "individuosReferenciaPaquete": 154,
+   "fotosVal": 13,
+   "fotosPrueba": 18,
+   "registros": {
+    "gbif": 224,
+    "inaturalist": 77
+   },
+   "altitud": {
+    "n": 301,
+    "media": 495,
+    "desviacion": 457,
+    "min": 8,
+    "max": 2864,
+    "p05": 40,
+    "p95": 1314,
+    "fuente": {
+     "registro": 188,
+     "dem": 113
+    }
+   },
+   "subregiones": {
+    "04_occidente": 22,
+    "05_norte": 46,
+    "07_magdalena_medio": 21,
+    "09_uraba_antioqueno": 72,
+    "02_oriente": 40,
+    "06_nordeste": 24,
+    "08_bajo_cauca": 71,
+    "03_suroeste": 5
+   },
+   "gbifKey": 2430739,
+   "inatTaxonId": "65285",
+   "carpetaDataset": "Craugastor_raniformis"
+  },
+  {
+   "taxonId": "COL_ANURA_0007",
+   "familia": "Craugastoridae",
+   "genero": "Pristimantis",
+   "epiteto": "achatinus",
+   "especie": "Pristimantis achatinus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 1902,
+   "individuosCurados": 967,
+   "fotosReferenciaPaquete": 300,
+   "individuosReferenciaPaquete": 300,
+   "fotosVal": 18,
+   "fotosPrueba": 32,
+   "registros": {
+    "gbif": 354,
+    "inaturalist": 252
+   },
+   "altitud": {
+    "n": 605,
+    "media": 1731,
+    "desviacion": 298,
+    "min": 157,
+    "max": 2577,
+    "p05": 1284,
+    "p95": 2222,
+    "fuente": {
+     "registro": 341,
+     "dem": 264
+    }
+   },
+   "subregiones": {
+    "04_occidente": 16,
+    "03_suroeste": 127,
+    "01_valle_de_aburra": 410,
+    "02_oriente": 38,
+    "06_nordeste": 3,
+    "09_uraba_antioqueno": 1
+   },
+   "gbifKey": 2425166,
+   "inatTaxonId": "66531",
+   "carpetaDataset": "Pristimantis_achatinus"
+  },
+  {
+   "taxonId": "COL_ANURA_0008",
+   "familia": "Craugastoridae",
+   "genero": "Pristimantis",
+   "epiteto": "bogotensis",
+   "especie": "Pristimantis bogotensis",
+   "estadoVisual": "VISUAL_EXCLUDED_REVIEW",
+   "motivoExclusion": "presencia_dudosa_en_departamento",
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_MARGINAL",
+   "fotosCuradas": 143,
+   "individuosCurados": 55,
+   "fotosReferenciaPaquete": 0,
+   "individuosReferenciaPaquete": 0,
+   "fotosVal": 0,
+   "fotosPrueba": 0,
+   "registros": {
+    "gbif": 1
+   },
+   "altitud": {
+    "n": 1,
+    "media": 2377,
+    "desviacion": 0,
+    "min": 2377,
+    "max": 2377,
+    "p05": 2377,
+    "p95": 2377,
+    "fuente": {
+     "dem": 1
+    }
+   },
+   "subregiones": {
+    "02_oriente": 1
+   },
+   "gbifKey": 2425020,
+   "inatTaxonId": "66578",
+   "carpetaDataset": "Pristimantis_bogotensis"
+  },
+  {
+   "taxonId": "COL_ANURA_0009",
+   "familia": "Craugastoridae",
+   "genero": "Pristimantis",
+   "epiteto": "erythropleura",
+   "especie": "Pristimantis erythropleura",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 136,
+   "individuosCurados": 86,
+   "fotosReferenciaPaquete": 95,
+   "individuosReferenciaPaquete": 65,
+   "fotosVal": 22,
+   "fotosPrueba": 19,
+   "registros": {
+    "gbif": 155,
+    "inaturalist": 37
+   },
+   "altitud": {
+    "n": 192,
+    "media": 2099,
+    "desviacion": 403,
+    "min": 500,
+    "max": 3590,
+    "p05": 1540,
+    "p95": 2590,
+    "fuente": {
+     "registro": 149,
+     "dem": 43
+    }
+   },
+   "subregiones": {
+    "03_suroeste": 161,
+    "04_occidente": 17,
+    "02_oriente": 5,
+    "06_nordeste": 2,
+    "05_norte": 4
+   },
+   "gbifKey": 2425144,
+   "inatTaxonId": "66657",
+   "carpetaDataset": "Pristimantis_erythropleura"
+  },
+  {
+   "taxonId": "COL_ANURA_0010",
+   "familia": "Craugastoridae",
+   "genero": "Pristimantis",
+   "epiteto": "gaigei",
+   "especie": "Pristimantis gaigei",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 89,
+   "individuosCurados": 54,
+   "fotosReferenciaPaquete": 65,
+   "individuosReferenciaPaquete": 38,
+   "fotosVal": 13,
+   "fotosPrueba": 11,
+   "registros": {
+    "gbif": 75,
+    "inaturalist": 135
+   },
+   "altitud": {
+    "n": 210,
+    "media": 768,
+    "desviacion": 385,
+    "min": 89,
+    "max": 1937,
+    "p05": 414,
+    "p95": 1532,
+    "fuente": {
+     "registro": 66,
+     "dem": 144
+    }
+   },
+   "subregiones": {
+    "07_magdalena_medio": 18,
+    "02_oriente": 132,
+    "04_occidente": 6,
+    "03_suroeste": 7,
+    "01_valle_de_aburra": 3,
+    "05_norte": 15,
+    "06_nordeste": 28
+   },
+   "gbifKey": 2425649,
+   "inatTaxonId": "66673",
+   "carpetaDataset": "Pristimantis_gaigei"
+  },
+  {
+   "taxonId": "COL_ANURA_0011",
+   "familia": "Craugastoridae",
+   "genero": "Pristimantis",
+   "epiteto": "paisa",
+   "especie": "Pristimantis paisa",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 170,
+   "individuosCurados": 103,
+   "fotosReferenciaPaquete": 134,
+   "individuosReferenciaPaquete": 82,
+   "fotosVal": 15,
+   "fotosPrueba": 21,
+   "registros": {
+    "gbif": 236,
+    "inaturalist": 148
+   },
+   "altitud": {
+    "n": 384,
+    "media": 2033,
+    "desviacion": 360,
+    "min": 854,
+    "max": 2960,
+    "p05": 1441,
+    "p95": 2650,
+    "fuente": {
+     "registro": 171,
+     "dem": 213
+    }
+   },
+   "subregiones": {
+    "02_oriente": 115,
+    "01_valle_de_aburra": 172,
+    "05_norte": 9,
+    "06_nordeste": 66,
+    "03_suroeste": 3,
+    "04_occidente": 2
+   },
+   "gbifKey": 2425047,
+   "inatTaxonId": "66785",
+   "carpetaDataset": "Pristimantis_paisa"
+  },
+  {
+   "taxonId": "COL_ANURA_0012",
+   "familia": "Craugastoridae",
+   "genero": "Pristimantis",
+   "epiteto": "palmeri",
+   "especie": "Pristimantis palmeri",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 100,
+   "individuosCurados": 57,
+   "fotosReferenciaPaquete": 72,
+   "individuosReferenciaPaquete": 40,
+   "fotosVal": 9,
+   "fotosPrueba": 19,
+   "registros": {
+    "gbif": 7,
+    "inaturalist": 2
+   },
+   "altitud": {
+    "n": 9,
+    "media": 1775,
+    "desviacion": 200,
+    "min": 1288,
+    "max": 2070,
+    "p05": 1429,
+    "p95": 1974,
+    "fuente": {
+     "registro": 7,
+     "dem": 2
+    }
+   },
+   "subregiones": {
+    "03_suroeste": 7,
+    "04_occidente": 1,
+    "06_nordeste": 1
+   },
+   "gbifKey": 2425033,
+   "inatTaxonId": "66786",
+   "carpetaDataset": "Pristimantis_palmeri"
+  },
+  {
+   "taxonId": "COL_ANURA_0013",
+   "familia": "Craugastoridae",
+   "genero": "Pristimantis",
+   "epiteto": "penelopus",
+   "especie": "Pristimantis penelopus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 156,
+   "individuosCurados": 80,
+   "fotosReferenciaPaquete": 107,
+   "individuosReferenciaPaquete": 59,
+   "fotosVal": 21,
+   "fotosPrueba": 28,
+   "registros": {
+    "gbif": 143,
+    "inaturalist": 60
+   },
+   "altitud": {
+    "n": 203,
+    "media": 1478,
+    "desviacion": 346,
+    "min": 533,
+    "max": 2642,
+    "p05": 878,
+    "p95": 1980,
+    "fuente": {
+     "registro": 110,
+     "dem": 93
+    }
+   },
+   "subregiones": {
+    "02_oriente": 21,
+    "06_nordeste": 121,
+    "01_valle_de_aburra": 14,
+    "05_norte": 14,
+    "03_suroeste": 4,
+    "04_occidente": 6,
+    "07_magdalena_medio": 3
+   },
+   "gbifKey": 2425662,
+   "inatTaxonId": "66797",
+   "carpetaDataset": "Pristimantis_penelopus"
+  },
+  {
+   "taxonId": "COL_ANURA_0014",
+   "familia": "Craugastoridae",
+   "genero": "Pristimantis",
+   "epiteto": "permixtus",
+   "especie": "Pristimantis permixtus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 111,
+   "individuosCurados": 60,
+   "fotosReferenciaPaquete": 74,
+   "individuosReferenciaPaquete": 42,
+   "fotosVal": 12,
+   "fotosPrueba": 25,
+   "registros": {
+    "gbif": 304,
+    "inaturalist": 61
+   },
+   "altitud": {
+    "n": 365,
+    "media": 2689,
+    "desviacion": 326,
+    "min": 929,
+    "max": 3200,
+    "p05": 2029,
+    "p95": 3043,
+    "fuente": {
+     "registro": 288,
+     "dem": 77
+    }
+   },
+   "subregiones": {
+    "03_suroeste": 7,
+    "02_oriente": 67,
+    "01_valle_de_aburra": 48,
+    "04_occidente": 11,
+    "05_norte": 208,
+    "06_nordeste": 4
+   },
+   "gbifKey": 2425577,
+   "inatTaxonId": "66801",
+   "carpetaDataset": "Pristimantis_permixtus"
+  },
+  {
+   "taxonId": "COL_ANURA_0015",
+   "familia": "Craugastoridae",
+   "genero": "Pristimantis",
+   "epiteto": "taeniatus",
+   "especie": "Pristimantis taeniatus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 160,
+   "individuosCurados": 105,
+   "fotosReferenciaPaquete": 119,
+   "individuosReferenciaPaquete": 84,
+   "fotosVal": 26,
+   "fotosPrueba": 15,
+   "registros": {
+    "gbif": 209,
+    "inaturalist": 40
+   },
+   "altitud": {
+    "n": 249,
+    "media": 1284,
+    "desviacion": 522,
+    "min": 94,
+    "max": 2904,
+    "p05": 639,
+    "p95": 2066,
+    "fuente": {
+     "registro": 179,
+     "dem": 70
+    }
+   },
+   "subregiones": {
+    "03_suroeste": 2,
+    "05_norte": 11,
+    "02_oriente": 92,
+    "06_nordeste": 79,
+    "04_occidente": 10,
+    "01_valle_de_aburra": 7,
+    "07_magdalena_medio": 8,
+    "09_uraba_antioqueno": 2
+   },
+   "gbifKey": 2425333,
+   "inatTaxonId": "66893",
+   "carpetaDataset": "Pristimantis_taeniatus"
+  },
+  {
+   "taxonId": "COL_ANURA_0016",
+   "familia": "Craugastoridae",
+   "genero": "Pristimantis",
+   "epiteto": "thectopternus",
+   "especie": "Pristimantis thectopternus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 80,
+   "individuosCurados": 56,
+   "fotosReferenciaPaquete": 56,
+   "individuosReferenciaPaquete": 39,
+   "fotosVal": 11,
+   "fotosPrueba": 13,
+   "registros": {
+    "gbif": 31,
+    "inaturalist": 1
+   },
+   "altitud": {
+    "n": 32,
+    "media": 1529,
+    "desviacion": 1125,
+    "min": 35,
+    "max": 3124,
+    "p05": 37,
+    "p95": 3124,
+    "fuente": {
+     "registro": 20,
+     "dem": 12
+    }
+   },
+   "subregiones": {
+    "03_suroeste": 21,
+    "08_bajo_cauca": 11
+   },
+   "gbifKey": 2425150,
+   "inatTaxonId": "66901",
+   "carpetaDataset": "Pristimantis_thectopternus"
+  },
+  {
+   "taxonId": "COL_ANURA_0018",
+   "familia": "Dendrobatidae",
+   "genero": "Dendrobates",
+   "epiteto": "truncatus",
+   "especie": "Dendrobates truncatus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 1809,
+   "individuosCurados": 984,
+   "fotosReferenciaPaquete": 300,
+   "individuosReferenciaPaquete": 300,
+   "fotosVal": 12,
+   "fotosPrueba": 23,
+   "registros": {
+    "gbif": 430,
+    "inaturalist": 327
+   },
+   "altitud": {
+    "n": 757,
+    "media": 482,
+    "desviacion": 376,
+    "min": 4,
+    "max": 1927,
+    "p05": 40,
+    "p95": 1164,
+    "fuente": {
+     "registro": 373,
+     "dem": 384
+    }
+   },
+   "subregiones": {
+    "09_uraba_antioqueno": 89,
+    "02_oriente": 169,
+    "05_norte": 175,
+    "04_occidente": 53,
+    "07_magdalena_medio": 105,
+    "06_nordeste": 46,
+    "08_bajo_cauca": 109,
+    "01_valle_de_aburra": 2
+   },
+   "gbifKey": 5218029,
+   "inatTaxonId": "21116",
+   "carpetaDataset": "Dendrobates_truncatus"
+  },
+  {
+   "taxonId": "COL_ANURA_0020",
+   "familia": "Hylidae",
+   "genero": "Boana",
+   "epiteto": "boans",
+   "especie": "Boana boans",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 145,
+   "individuosCurados": 84,
+   "fotosReferenciaPaquete": 118,
+   "individuosReferenciaPaquete": 63,
+   "fotosVal": 13,
+   "fotosPrueba": 14,
+   "registros": {
+    "gbif": 101,
+    "inaturalist": 126
+   },
+   "altitud": {
+    "n": 227,
+    "media": 565,
+    "desviacion": 441,
+    "min": 13,
+    "max": 2018,
+    "p05": 37,
+    "p95": 1233,
+    "fuente": {
+     "registro": 57,
+     "dem": 170
+    }
+   },
+   "subregiones": {
+    "04_occidente": 9,
+    "02_oriente": 98,
+    "06_nordeste": 10,
+    "09_uraba_antioqueno": 30,
+    "08_bajo_cauca": 41,
+    "05_norte": 26,
+    "07_magdalena_medio": 12,
+    "01_valle_de_aburra": 1
+   },
+   "gbifKey": 9911852,
+   "inatTaxonId": "555086",
+   "carpetaDataset": "Boana_boans"
+  },
+  {
+   "taxonId": "COL_ANURA_0023",
+   "familia": "Hylidae",
+   "genero": "Boana",
+   "epiteto": "platanera",
+   "especie": "Boana platanera",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 150,
+   "individuosCurados": 80,
+   "fotosReferenciaPaquete": 116,
+   "individuosReferenciaPaquete": 59,
+   "fotosVal": 19,
+   "fotosPrueba": 15,
+   "registros": {
+    "gbif": 1,
+    "inaturalist": 121
+   },
+   "altitud": {
+    "n": 121,
+    "media": 1024,
+    "desviacion": 511,
+    "min": 22,
+    "max": 2435,
+    "p05": 92,
+    "p95": 1675,
+    "fuente": {
+     "dem": 121
+    }
+   },
+   "subregiones": {
+    "02_oriente": 64,
+    "03_suroeste": 20,
+    "04_occidente": 3,
+    "06_nordeste": 13,
+    "07_magdalena_medio": 9,
+    "01_valle_de_aburra": 1,
+    "09_uraba_antioqueno": 8,
+    "08_bajo_cauca": 3
+   },
+   "gbifKey": 11203160,
+   "inatTaxonId": "1251425",
+   "carpetaDataset": "Boana_platanera"
+  },
+  {
+   "taxonId": "COL_ANURA_0024",
+   "familia": "Hylidae",
+   "genero": "Boana",
+   "epiteto": "pugnax",
+   "especie": "Boana pugnax",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 148,
+   "individuosCurados": 75,
+   "fotosReferenciaPaquete": 113,
+   "individuosReferenciaPaquete": 54,
+   "fotosVal": 16,
+   "fotosPrueba": 19,
+   "registros": {
+    "gbif": 208,
+    "inaturalist": 203
+   },
+   "altitud": {
+    "n": 410,
+    "media": 465,
+    "desviacion": 496,
+    "min": 1,
+    "max": 2527,
+    "p05": 11,
+    "p95": 1436,
+    "fuente": {
+     "registro": 138,
+     "dem": 272
+    }
+   },
+   "subregiones": {
+    "09_uraba_antioqueno": 109,
+    "07_magdalena_medio": 36,
+    "03_suroeste": 88,
+    "06_nordeste": 17,
+    "08_bajo_cauca": 70,
+    "01_valle_de_aburra": 24,
+    "04_occidente": 21,
+    "05_norte": 17,
+    "02_oriente": 19
+   },
+   "gbifKey": 10820559,
+   "inatTaxonId": "555142",
+   "carpetaDataset": "Boana_pugnax"
+  },
+  {
+   "taxonId": "COL_ANURA_0026",
+   "familia": "Hylidae",
+   "genero": "Boana",
+   "epiteto": "rosenbergi",
+   "especie": "Boana rosenbergi",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 148,
+   "individuosCurados": 65,
+   "fotosReferenciaPaquete": 101,
+   "individuosReferenciaPaquete": 46,
+   "fotosVal": 27,
+   "fotosPrueba": 20,
+   "registros": {
+    "gbif": 12,
+    "inaturalist": 19
+   },
+   "altitud": {
+    "n": 31,
+    "media": 416,
+    "desviacion": 249,
+    "min": 25,
+    "max": 975,
+    "p05": 60,
+    "p95": 884,
+    "fuente": {
+     "registro": 10,
+     "dem": 21
+    }
+   },
+   "subregiones": {
+    "09_uraba_antioqueno": 15,
+    "07_magdalena_medio": 7,
+    "06_nordeste": 7,
+    "08_bajo_cauca": 1,
+    "04_occidente": 1
+   },
+   "gbifKey": 10826642,
+   "inatTaxonId": "555150",
+   "carpetaDataset": "Boana_rosenbergi"
+  },
+  {
+   "taxonId": "COL_ANURA_0027",
+   "familia": "Hylidae",
+   "genero": "Boana",
+   "epiteto": "xerophylla",
+   "especie": "Boana xerophylla",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 100,
+   "individuosCurados": 55,
+   "fotosReferenciaPaquete": 68,
+   "individuosReferenciaPaquete": 38,
+   "fotosVal": 12,
+   "fotosPrueba": 20,
+   "registros": {
+    "gbif": 169
+   },
+   "altitud": {
+    "n": 169,
+    "media": 496,
+    "desviacion": 158,
+    "min": 399,
+    "max": 1107,
+    "p05": 405,
+    "p95": 1065,
+    "fuente": {
+     "registro": 168,
+     "dem": 1
+    }
+   },
+   "subregiones": {
+    "02_oriente": 10,
+    "04_occidente": 150,
+    "05_norte": 2,
+    "03_suroeste": 6,
+    "06_nordeste": 1
+   },
+   "gbifKey": 10493617,
+   "inatTaxonId": "555164",
+   "carpetaDataset": "Boana_xerophylla"
+  },
+  {
+   "taxonId": "COL_ANURA_0028",
+   "familia": "Hylidae",
+   "genero": "Dendropsophus",
+   "epiteto": "bogerti",
+   "especie": "Dendropsophus bogerti",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 948,
+   "individuosCurados": 484,
+   "fotosReferenciaPaquete": 300,
+   "individuosReferenciaPaquete": 300,
+   "fotosVal": 25,
+   "fotosPrueba": 21,
+   "registros": {
+    "gbif": 252,
+    "inaturalist": 408
+   },
+   "altitud": {
+    "n": 660,
+    "media": 1964,
+    "desviacion": 354,
+    "min": 684,
+    "max": 2904,
+    "p05": 1513,
+    "p95": 2577,
+    "fuente": {
+     "registro": 229,
+     "dem": 431
+    }
+   },
+   "subregiones": {
+    "05_norte": 75,
+    "04_occidente": 2,
+    "02_oriente": 139,
+    "03_suroeste": 31,
+    "01_valle_de_aburra": 386,
+    "06_nordeste": 4
+   },
+   "gbifKey": 2428491,
+   "inatTaxonId": "65336",
+   "carpetaDataset": "Dendropsophus_bogerti"
+  },
+  {
+   "taxonId": "COL_ANURA_0029",
+   "familia": "Hylidae",
+   "genero": "Dendropsophus",
+   "epiteto": "columbianus",
+   "especie": "Dendropsophus columbianus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 146,
+   "individuosCurados": 76,
+   "fotosReferenciaPaquete": 108,
+   "individuosReferenciaPaquete": 55,
+   "fotosVal": 21,
+   "fotosPrueba": 17,
+   "registros": {
+    "gbif": 51,
+    "inaturalist": 35
+   },
+   "altitud": {
+    "n": 86,
+    "media": 1577,
+    "desviacion": 506,
+    "min": 605,
+    "max": 2627,
+    "p05": 1060,
+    "p95": 2458,
+    "fuente": {
+     "registro": 47,
+     "dem": 39
+    }
+   },
+   "subregiones": {
+    "03_suroeste": 54,
+    "05_norte": 6,
+    "02_oriente": 21,
+    "06_nordeste": 1,
+    "04_occidente": 3
+   },
+   "gbifKey": 2428577,
+   "inatTaxonId": "65344",
+   "carpetaDataset": "Dendropsophus_columbianus"
+  },
+  {
+   "taxonId": "COL_ANURA_0030",
+   "familia": "Hylidae",
+   "genero": "Dendropsophus",
+   "epiteto": "ebraccatus",
+   "especie": "Dendropsophus ebraccatus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 148,
+   "individuosCurados": 74,
+   "fotosReferenciaPaquete": 112,
+   "individuosReferenciaPaquete": 53,
+   "fotosVal": 18,
+   "fotosPrueba": 18,
+   "registros": {
+    "gbif": 43,
+    "inaturalist": 94
+   },
+   "altitud": {
+    "n": 137,
+    "media": 442,
+    "desviacion": 436,
+    "min": 1,
+    "max": 1969,
+    "p05": 4,
+    "p95": 1188,
+    "fuente": {
+     "registro": 41,
+     "dem": 96
+    }
+   },
+   "subregiones": {
+    "07_magdalena_medio": 49,
+    "09_uraba_antioqueno": 49,
+    "06_nordeste": 8,
+    "03_suroeste": 1,
+    "02_oriente": 14,
+    "08_bajo_cauca": 5,
+    "05_norte": 11
+   },
+   "gbifKey": 2428420,
+   "inatTaxonId": "65349",
+   "carpetaDataset": "Dendropsophus_ebraccatus"
+  },
+  {
+   "taxonId": "COL_ANURA_0032",
+   "familia": "Hylidae",
+   "genero": "Dendropsophus",
+   "epiteto": "microcephalus",
+   "especie": "Dendropsophus microcephalus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 713,
+   "individuosCurados": 426,
+   "fotosReferenciaPaquete": 300,
+   "individuosReferenciaPaquete": 300,
+   "fotosVal": 17,
+   "fotosPrueba": 14,
+   "registros": {
+    "gbif": 187,
+    "inaturalist": 58
+   },
+   "altitud": {
+    "n": 245,
+    "media": 351,
+    "desviacion": 382,
+    "min": 3,
+    "max": 1472,
+    "p05": 4,
+    "p95": 1188,
+    "fuente": {
+     "registro": 142,
+     "dem": 103
+    }
+   },
+   "subregiones": {
+    "09_uraba_antioqueno": 48,
+    "02_oriente": 19,
+    "07_magdalena_medio": 112,
+    "06_nordeste": 21,
+    "01_valle_de_aburra": 11,
+    "08_bajo_cauca": 19,
+    "03_suroeste": 8,
+    "05_norte": 6
+   },
+   "gbifKey": 2428504,
+   "inatTaxonId": "65373",
+   "carpetaDataset": "Dendropsophus_microcephalus"
+  },
+  {
+   "taxonId": "COL_ANURA_0033",
+   "familia": "Hylidae",
+   "genero": "Dendropsophus",
+   "epiteto": "molitor",
+   "especie": "Dendropsophus molitor",
+   "estadoVisual": "VISUAL_EXCLUDED_REVIEW",
+   "motivoExclusion": "presencia_dudosa_en_departamento",
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_MARGINAL",
+   "fotosCuradas": 150,
+   "individuosCurados": 96,
+   "fotosReferenciaPaquete": 0,
+   "individuosReferenciaPaquete": 0,
+   "fotosVal": 0,
+   "fotosPrueba": 0,
+   "registros": {
+    "gbif": 1
+   },
+   "altitud": {
+    "n": 1,
+    "media": 2160,
+    "desviacion": 0,
+    "min": 2160,
+    "max": 2160,
+    "p05": 2160,
+    "p95": 2160,
+    "fuente": {
+     "dem": 1
+    }
+   },
+   "subregiones": {
+    "03_suroeste": 1
+   },
+   "gbifKey": 10704158,
+   "inatTaxonId": "1595931",
+   "carpetaDataset": "Dendropsophus_molitor"
+  },
+  {
+   "taxonId": "COL_ANURA_0034",
+   "familia": "Hylidae",
+   "genero": "Dendropsophus",
+   "epiteto": "norandinus",
+   "especie": "Dendropsophus norandinus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_LIMITED",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 26,
+   "individuosCurados": 11,
+   "fotosReferenciaPaquete": 17,
+   "individuosReferenciaPaquete": 8,
+   "fotosVal": 2,
+   "fotosPrueba": 7,
+   "registros": {
+    "gbif": 24,
+    "inaturalist": 9
+   },
+   "altitud": {
+    "n": 33,
+    "media": 1660,
+    "desviacion": 239,
+    "min": 1031,
+    "max": 2384,
+    "p05": 1140,
+    "p95": 1945,
+    "fuente": {
+     "registro": 5,
+     "dem": 28
+    }
+   },
+   "subregiones": {
+    "02_oriente": 13,
+    "03_suroeste": 1,
+    "06_nordeste": 19
+   },
+   "gbifKey": 8632705,
+   "inatTaxonId": "199727",
+   "carpetaDataset": "Dendropsophus_norandinus"
+  },
+  {
+   "taxonId": "COL_ANURA_0037",
+   "familia": "Hylidae",
+   "genero": "Hyloscirtus",
+   "epiteto": "palmeri",
+   "especie": "Hyloscirtus palmeri",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 178,
+   "individuosCurados": 94,
+   "fotosReferenciaPaquete": 127,
+   "individuosReferenciaPaquete": 73,
+   "fotosVal": 22,
+   "fotosPrueba": 29,
+   "registros": {
+    "gbif": 45,
+    "inaturalist": 57
+   },
+   "altitud": {
+    "n": 102,
+    "media": 964,
+    "desviacion": 432,
+    "min": 117,
+    "max": 2921,
+    "p05": 367,
+    "p95": 1644,
+    "fuente": {
+     "registro": 43,
+     "dem": 59
+    }
+   },
+   "subregiones": {
+    "04_occidente": 12,
+    "02_oriente": 64,
+    "05_norte": 11,
+    "07_magdalena_medio": 3,
+    "08_bajo_cauca": 2,
+    "06_nordeste": 6,
+    "09_uraba_antioqueno": 2,
+    "03_suroeste": 2
+   },
+   "gbifKey": 2428325,
+   "inatTaxonId": "65660",
+   "carpetaDataset": "Hyloscirtus_palmeri"
+  },
+  {
+   "taxonId": "COL_ANURA_0038",
+   "familia": "Hylidae",
+   "genero": "Scinax",
+   "epiteto": "ruber",
+   "especie": "Scinax ruber",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 125,
+   "individuosCurados": 95,
+   "fotosReferenciaPaquete": 100,
+   "individuosReferenciaPaquete": 74,
+   "fotosVal": 13,
+   "fotosPrueba": 12,
+   "registros": {
+    "gbif": 60,
+    "inaturalist": 10
+   },
+   "altitud": {
+    "n": 70,
+    "media": 712,
+    "desviacion": 561,
+    "min": 4,
+    "max": 2218,
+    "p05": 25,
+    "p95": 1835,
+    "fuente": {
+     "registro": 50,
+     "dem": 20
+    }
+   },
+   "subregiones": {
+    "09_uraba_antioqueno": 6,
+    "03_suroeste": 10,
+    "06_nordeste": 7,
+    "02_oriente": 17,
+    "01_valle_de_aburra": 8,
+    "07_magdalena_medio": 11,
+    "08_bajo_cauca": 10
+   },
+   "gbifKey": 5217952,
+   "inatTaxonId": "24322",
+   "carpetaDataset": "Scinax_ruber"
+  },
+  {
+   "taxonId": "COL_ANURA_0039",
+   "familia": "Leptodactylidae",
+   "genero": "Engystomops",
+   "epiteto": "pustulosus",
+   "especie": "Engystomops pustulosus",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 1718,
+   "individuosCurados": 979,
+   "fotosReferenciaPaquete": 300,
+   "individuosReferenciaPaquete": 300,
+   "fotosVal": 17,
+   "fotosPrueba": 14,
+   "registros": {
+    "gbif": 258,
+    "inaturalist": 182
+   },
+   "altitud": {
+    "n": 440,
+    "media": 395,
+    "desviacion": 349,
+    "min": 12,
+    "max": 2247,
+    "p05": 35,
+    "p95": 1107,
+    "fuente": {
+     "registro": 194,
+     "dem": 246
+    }
+   },
+   "subregiones": {
+    "09_uraba_antioqueno": 81,
+    "07_magdalena_medio": 85,
+    "02_oriente": 77,
+    "06_nordeste": 37,
+    "05_norte": 36,
+    "04_occidente": 50,
+    "08_bajo_cauca": 71
+   },
+   "gbifKey": 2423497,
+   "inatTaxonId": "65448",
+   "carpetaDataset": "Engystomops_pustulosus"
+  },
+  {
+   "taxonId": "COL_ANURA_0040",
+   "familia": "Leptodactylidae",
+   "genero": "Leptodactylus",
+   "epiteto": "colombiensis",
+   "especie": "Leptodactylus colombiensis",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 206,
+   "individuosCurados": 95,
+   "fotosReferenciaPaquete": 159,
+   "individuosReferenciaPaquete": 74,
+   "fotosVal": 22,
+   "fotosPrueba": 25,
+   "registros": {
+    "gbif": 111,
+    "inaturalist": 25
+   },
+   "altitud": {
+    "n": 136,
+    "media": 843,
+    "desviacion": 681,
+    "min": 2,
+    "max": 2062,
+    "p05": 3,
+    "p95": 1759,
+    "fuente": {
+     "registro": 71,
+     "dem": 65
+    }
+   },
+   "subregiones": {
+    "06_nordeste": 34,
+    "03_suroeste": 1,
+    "01_valle_de_aburra": 27,
+    "05_norte": 4,
+    "09_uraba_antioqueno": 48,
+    "02_oriente": 16,
+    "04_occidente": 2,
+    "07_magdalena_medio": 1
+   },
+   "gbifKey": 5217567,
+   "inatTaxonId": "22939",
+   "carpetaDataset": "Leptodactylus_colombiensis"
+  },
+  {
+   "taxonId": "COL_ANURA_0041",
+   "familia": "Phyllomedusidae",
+   "genero": "Phyllomedusa",
+   "epiteto": "tarsius",
+   "especie": "Phyllomedusa tarsius",
+   "estadoVisual": "VISUAL_EXCLUDED_REVIEW",
+   "motivoExclusion": "presencia_dudosa_en_departamento",
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_PROBABLE",
+   "fotosCuradas": 97,
+   "individuosCurados": 45,
+   "fotosReferenciaPaquete": 0,
+   "individuosReferenciaPaquete": 0,
+   "fotosVal": 0,
+   "fotosPrueba": 0,
+   "registros": {
+    "gbif": 2
+   },
+   "altitud": {
+    "n": 2,
+    "media": 1700,
+    "desviacion": 600,
+    "min": 1100,
+    "max": 2300,
+    "p05": 1160,
+    "p95": 2240,
+    "fuente": {
+     "registro": 2
+    }
+   },
+   "subregiones": {
+    "05_norte": 2
+   },
+   "gbifKey": 2427983,
+   "inatTaxonId": "23740",
+   "carpetaDataset": "Phyllomedusa_tarsius"
+  },
+  {
+   "taxonId": "COL_ANURA_0042",
+   "familia": "Phyllomedusidae",
+   "genero": "Phyllomedusa",
+   "epiteto": "venusta",
+   "especie": "Phyllomedusa venusta",
+   "estadoVisual": "VISUAL_ENABLED",
+   "motivoExclusion": null,
+   "estadoDatos": "DATA_SUFFICIENT",
+   "evidencia": "OCCURRENCE_CONFIRMED",
+   "fotosCuradas": 150,
+   "individuosCurados": 79,
+   "fotosReferenciaPaquete": 101,
+   "individuosReferenciaPaquete": 58,
+   "fotosVal": 28,
+   "fotosPrueba": 21,
+   "registros": {
+    "gbif": 27,
+    "inaturalist": 111
+   },
+   "altitud": {
+    "n": 138,
+    "media": 683,
+    "desviacion": 411,
+    "min": 20,
+    "max": 1709,
+    "p05": 55,
+    "p95": 1250,
+    "fuente": {
+     "registro": 24,
+     "dem": 114
+    }
+   },
+   "subregiones": {
+    "05_norte": 10,
+    "08_bajo_cauca": 4,
+    "06_nordeste": 29,
+    "02_oriente": 50,
+    "07_magdalena_medio": 23,
+    "09_uraba_antioqueno": 22
+   },
+   "gbifKey": 2427981,
+   "inatTaxonId": "23742",
+   "carpetaDataset": "Phyllomedusa_venusta"
+  }
+ ],
+ "comparacion": {
+  "fecha": "2026-09-26",
+  "datos": {
+   "referencias": 4028,
+   "prueba_conocidas": 547,
+   "val_calibracion": 501,
+   "desconocidas": 715,
+   "especies_desconocidas": [
+    "Craugastor_metriosistus",
+    "Dendropsophus_labialis",
+    "Dendropsophus_minutus",
+    "Espadarana_prosoblepon",
+    "Hyloxalus_picachos",
+    "Leptodactylus_fragilis",
+    "Pristimantis_w_nigrum",
+    "Rhinella_marina",
+    "Sachatamia_electrops",
+    "Scinax_rostratus",
+    "Smilisca_phaeota"
+   ],
+   "altitud_fuente": {
+    "dem_cercano": 8008,
+    "registro": 7070
+   },
+   "prueba_con_altitud": 167,
+   "desconocidas_con_altitud": 164
+  },
+  "viejo": {
+   "top1_visual_sin_rechazo": 0.5923217550274223,
+   "kar": 0.8683729433272395,
+   "aceptadas_y_correctas": 0.5429616087751371,
+   "far": 0.8265734265734266,
+   "auroc": 0.5972948440955753,
+   "desconocidas_respuesta_segura": 0.17342657342657342,
+   "desconocidas_nivel_correcto": 0.0,
+   "tau": 39.35406371422803
+  },
+  "nuevo": {
+   "capa1_cascada": {
+    "especie_correcta": 0.5978062157221207,
+    "especie_equivocada": 0.36380255941499084,
+    "kar": 0.9616087751371115,
+    "genero_correcto_sin_especie": 0.003656307129798903,
+    "estados_conocidas": {
+     "MATCH_FAMILY": 9,
+     "MATCH_SPECIES": 526,
+     "MATCH_GENUS": 2,
+     "OSR_GLOBAL": 10
+    },
+    "far": 0.9300699300699301,
+    "auroc": 0.6517124557343936,
+    "estados_desconocidas": {
+     "MATCH_FAMILY": 21,
+     "OSR_GLOBAL": 26,
+     "MATCH_GENUS": 3,
+     "MATCH_SPECIES": 665
+    },
+    "desconocidas_respuesta_segura": 0.0699300699300699,
+    "desconocidas_nivel_correcto": 0.015384615384615385
+   },
+   "capa1_cascada_clusters": {
+    "especie_correcta": 0.6087751371115173,
+    "especie_equivocada": 0.2577696526508227,
+    "kar": 0.8665447897623401,
+    "genero_correcto_sin_especie": 0.07861060329067641,
+    "estados_conocidas": {
+     "MATCH_FAMILY": 9,
+     "MATCH_SPECIES": 474,
+     "OSR_CLUSTER": 52,
+     "MATCH_GENUS": 2,
+     "OSR_GLOBAL": 10
+    },
+    "far": 0.8,
+    "auroc": 0.6517124557343936,
+    "estados_desconocidas": {
+     "MATCH_FAMILY": 21,
+     "OSR_GLOBAL": 26,
+     "MATCH_GENUS": 3,
+     "MATCH_SPECIES": 572,
+     "OSR_CLUSTER": 93
+    },
+    "desconocidas_respuesta_segura": 0.19999999999999996,
+    "desconocidas_nivel_correcto": 0.07832167832167833
+   },
+   "completo_tres_capas": {
+    "especie_correcta": 0.5941499085923218,
+    "especie_equivocada": 0.226691042047532,
+    "kar": 0.8208409506398537,
+    "genero_correcto_sin_especie": 0.12248628884826325,
+    "estados_conocidas": {
+     "MATCH_FAMILY": 9,
+     "MATCH_SPECIES": 449,
+     "OSR_CLUSTER": 52,
+     "MATCH_GENUS": 2,
+     "OSR_GLOBAL": 10,
+     "OSR_GEO": 25
+    },
+    "far": 0.7566433566433567,
+    "auroc": 0.6517124557343936,
+    "estados_desconocidas": {
+     "MATCH_FAMILY": 21,
+     "OSR_GLOBAL": 26,
+     "MATCH_GENUS": 3,
+     "MATCH_SPECIES": 541,
+     "OSR_CLUSTER": 93,
+     "OSR_GEO": 31
+    },
+    "desconocidas_respuesta_segura": 0.2433566433566433,
+    "desconocidas_nivel_correcto": 0.08391608391608392
+   },
+   "completo_radio_val": {
+    "especie_correcta": 0.5978062157221207,
+    "especie_equivocada": 0.22851919561243145,
+    "kar": 0.8263254113345521,
+    "genero_correcto_sin_especie": 0.13711151736745886,
+    "estados_conocidas": {
+     "OSR_CLUSTER": 64,
+     "MATCH_SPECIES": 452,
+     "OSR_GLOBAL": 2,
+     "OSR_GEO": 27,
+     "MATCH_GENUS": 2
+    },
+    "far": 0.7902097902097902,
+    "auroc": 0.6242466856726454,
+    "estados_desconocidas": {
+     "MATCH_SPECIES": 565,
+     "OSR_CLUSTER": 111,
+     "OSR_GEO": 31,
+     "OSR_GLOBAL": 6,
+     "MATCH_FAMILY": 1,
+     "MATCH_GENUS": 1
+    },
+    "desconocidas_respuesta_segura": 0.2097902097902098,
+    "desconocidas_nivel_correcto": 0.07692307692307693
+   },
+   "sin_altitud_radio_val": {
+    "especie_correcta": 0.6124314442413162,
+    "especie_equivocada": 0.263254113345521,
+    "kar": 0.8756855575868373,
+    "genero_correcto_sin_especie": 0.09323583180987204,
+    "estados_conocidas": {
+     "OSR_CLUSTER": 64,
+     "MATCH_SPECIES": 479,
+     "OSR_GLOBAL": 2,
+     "MATCH_GENUS": 2
+    },
+    "far": 0.8335664335664336,
+    "auroc": 0.6242466856726454,
+    "estados_desconocidas": {
+     "MATCH_SPECIES": 596,
+     "OSR_CLUSTER": 111,
+     "OSR_GLOBAL": 6,
+     "MATCH_FAMILY": 1,
+     "MATCH_GENUS": 1
+    },
+    "desconocidas_respuesta_segura": 0.16643356643356644,
+    "desconocidas_nivel_correcto": 0.06993006993006994
+   }
+  },
+  "misma_exigencia": {
+   "kar_objetivo": 0.8683729433272395,
+   "far_viejo": 0.8265734265734266,
+   "far_nuevo_capa1": 0.7762237762237763
+  },
+  "por_desconocida": {
+   "Craugastor_metriosistus": {
+    "n": 85,
+    "ideal": "MATCH_GENUS",
+    "viejo_aceptada_como_especie": 0.8941176470588236,
+    "nuevo_estados": {
+     "MATCH_SPECIES": 80,
+     "OSR_CLUSTER": 4,
+     "OSR_GLOBAL": 1
+    }
+   },
+   "Dendropsophus_labialis": {
+    "n": 64,
+    "ideal": "MATCH_GENUS",
+    "viejo_aceptada_como_especie": 0.6875,
+    "nuevo_estados": {
+     "MATCH_SPECIES": 44,
+     "OSR_CLUSTER": 6,
+     "OSR_GLOBAL": 7,
+     "MATCH_FAMILY": 7
+    }
+   },
+   "Dendropsophus_minutus": {
+    "n": 23,
+    "ideal": "MATCH_GENUS",
+    "viejo_aceptada_como_especie": 0.9130434782608695,
+    "nuevo_estados": {
+     "MATCH_SPECIES": 21,
+     "OSR_CLUSTER": 2
+    }
+   },
+   "Espadarana_prosoblepon": {
+    "n": 87,
+    "ideal": "OSR_GLOBAL",
+    "viejo_aceptada_como_especie": 0.9885057471264368,
+    "nuevo_estados": {
+     "MATCH_SPECIES": 83,
+     "OSR_GEO": 4
+    }
+   },
+   "Hyloxalus_picachos": {
+    "n": 15,
+    "ideal": "MATCH_FAMILY",
+    "viejo_aceptada_como_especie": 0.8666666666666667,
+    "nuevo_estados": {
+     "OSR_CLUSTER": 2,
+     "MATCH_SPECIES": 13
+    }
+   },
+   "Leptodactylus_fragilis": {
+    "n": 84,
+    "ideal": "MATCH_GENUS",
+    "viejo_aceptada_como_especie": 0.7142857142857143,
+    "nuevo_estados": {
+     "MATCH_SPECIES": 63,
+     "MATCH_FAMILY": 1,
+     "OSR_CLUSTER": 16,
+     "OSR_GEO": 3,
+     "OSR_GLOBAL": 1
+    }
+   },
+   "Pristimantis_w_nigrum": {
+    "n": 53,
+    "ideal": "MATCH_GENUS",
+    "viejo_aceptada_como_especie": 0.7735849056603774,
+    "nuevo_estados": {
+     "MATCH_SPECIES": 41,
+     "OSR_GEO": 3,
+     "OSR_CLUSTER": 7,
+     "OSR_GLOBAL": 2
+    }
+   },
+   "Rhinella_marina": {
+    "n": 58,
+    "ideal": "MATCH_GENUS",
+    "viejo_aceptada_como_especie": 0.9482758620689655,
+    "nuevo_estados": {
+     "MATCH_SPECIES": 25,
+     "OSR_CLUSTER": 33
+    }
+   },
+   "Sachatamia_electrops": {
+    "n": 39,
+    "ideal": "OSR_GLOBAL",
+    "viejo_aceptada_como_especie": 0.8974358974358975,
+    "nuevo_estados": {
+     "MATCH_SPECIES": 36,
+     "OSR_CLUSTER": 3
+    }
+   },
+   "Scinax_rostratus": {
+    "n": 100,
+    "ideal": "MATCH_GENUS",
+    "viejo_aceptada_como_especie": 0.76,
+    "nuevo_estados": {
+     "MATCH_SPECIES": 76,
+     "OSR_CLUSTER": 15,
+     "MATCH_GENUS": 2,
+     "OSR_GLOBAL": 6,
+     "MATCH_FAMILY": 1
+    }
+   },
+   "Smilisca_phaeota": {
+    "n": 107,
+    "ideal": "MATCH_FAMILY",
+    "viejo_aceptada_como_especie": 0.7850467289719626,
+    "nuevo_estados": {
+     "MATCH_FAMILY": 12,
+     "OSR_GLOBAL": 9,
+     "MATCH_GENUS": 1,
+     "MATCH_SPECIES": 59,
+     "OSR_CLUSTER": 5,
+     "OSR_GEO": 21
+    }
+   }
+  },
+  "por_especie": {
+   "Rheobates palmatus": {
+    "n": 10,
+    "fotos_ref": 48,
+    "individuos_ref": 31,
+    "viejo_ok": 0.8,
+    "nuevo_ok": 0.9,
+    "radio": 0.456438156421625,
+    "tau_cos": 0.543561843578375,
+    "geo_rechazos": 0
+   },
+   "Rhinella alata": {
+    "n": 19,
+    "fotos_ref": 62,
+    "individuos_ref": 38,
+    "viejo_ok": 0.42105263157894735,
+    "nuevo_ok": 0.47368421052631576,
+    "radio": 0.517296219102141,
+    "tau_cos": 0.48270378089785904,
+    "geo_rechazos": 0
+   },
+   "Rhinella horribilis": {
+    "n": 10,
+    "fotos_ref": 63,
+    "individuos_ref": 45,
+    "viejo_ok": 0.8,
+    "nuevo_ok": 0.3,
+    "radio": 0.21347644368317015,
+    "tau_cos": 0.7865235563168298,
+    "geo_rechazos": 0
+   },
+   "Rhinella margaritifera": {
+    "n": 18,
+    "fotos_ref": 126,
+    "individuos_ref": 83,
+    "viejo_ok": 0.7222222222222222,
+    "nuevo_ok": 0.2222222222222222,
+    "radio": 0.4811911883570268,
+    "tau_cos": 0.5188088116429732,
+    "geo_rechazos": 0
+   },
+   "Craugastor raniformis": {
+    "n": 18,
+    "fotos_ref": 267,
+    "individuos_ref": 154,
+    "viejo_ok": 0.5555555555555556,
+    "nuevo_ok": 0.6666666666666666,
+    "radio": 0.5571501102323778,
+    "tau_cos": 0.4428498897676222,
+    "geo_rechazos": 0
+   },
+   "Pristimantis achatinus": {
+    "n": 32,
+    "fotos_ref": 300,
+    "individuos_ref": 300,
+    "viejo_ok": 0.46875,
+    "nuevo_ok": 0.5,
+    "radio": 0.6289294096562618,
+    "tau_cos": 0.37107059034373824,
+    "geo_rechazos": 2
+   },
+   "Pristimantis erythropleura": {
+    "n": 19,
+    "fotos_ref": 95,
+    "individuos_ref": 65,
+    "viejo_ok": 0.21052631578947367,
+    "nuevo_ok": 0.3684210526315789,
+    "radio": 0.6720081928419405,
+    "tau_cos": 0.32799180715805953,
+    "geo_rechazos": 0
+   },
+   "Pristimantis gaigei": {
+    "n": 11,
+    "fotos_ref": 65,
+    "individuos_ref": 38,
+    "viejo_ok": 0.7272727272727273,
+    "nuevo_ok": 0.7272727272727273,
+    "radio": 0.4289839450513354,
+    "tau_cos": 0.5710160549486646,
+    "geo_rechazos": 1
+   },
+   "Pristimantis paisa": {
+    "n": 21,
+    "fotos_ref": 134,
+    "individuos_ref": 82,
+    "viejo_ok": 0.42857142857142855,
+    "nuevo_ok": 0.42857142857142855,
+    "radio": 0.5745690044456595,
+    "tau_cos": 0.4254309955543405,
+    "geo_rechazos": 6
+   },
+   "Pristimantis palmeri": {
+    "n": 19,
+    "fotos_ref": 72,
+    "individuos_ref": 40,
+    "viejo_ok": 0.5263157894736842,
+    "nuevo_ok": 0.42105263157894735,
+    "radio": 0.47032627925292975,
+    "tau_cos": 0.5296737207470703,
+    "geo_rechazos": 2
+   },
+   "Pristimantis penelopus": {
+    "n": 28,
+    "fotos_ref": 107,
+    "individuos_ref": 59,
+    "viejo_ok": 0.39285714285714285,
+    "nuevo_ok": 0.5357142857142857,
+    "radio": 0.6448902616054593,
+    "tau_cos": 0.35510973839454074,
+    "geo_rechazos": 2
+   },
+   "Pristimantis permixtus": {
+    "n": 25,
+    "fotos_ref": 74,
+    "individuos_ref": 42,
+    "viejo_ok": 0.4,
+    "nuevo_ok": 0.64,
+    "radio": 0.4799839107363669,
+    "tau_cos": 0.5200160892636331,
+    "geo_rechazos": 2
+   },
+   "Pristimantis taeniatus": {
+    "n": 15,
+    "fotos_ref": 119,
+    "individuos_ref": 84,
+    "viejo_ok": 0.5333333333333333,
+    "nuevo_ok": 0.4,
+    "radio": 0.46080106448324804,
+    "tau_cos": 0.5391989355167519,
+    "geo_rechazos": 0
+   },
+   "Pristimantis thectopternus": {
+    "n": 13,
+    "fotos_ref": 56,
+    "individuos_ref": 39,
+    "viejo_ok": 0.38461538461538464,
+    "nuevo_ok": 0.6153846153846154,
+    "radio": 0.48591663454324086,
+    "tau_cos": 0.5140833654567591,
+    "geo_rechazos": 0
+   },
+   "Dendrobates truncatus": {
+    "n": 23,
+    "fotos_ref": 300,
+    "individuos_ref": 300,
+    "viejo_ok": 1.0,
+    "nuevo_ok": 1.0,
+    "radio": 0.3167099810771843,
+    "tau_cos": 0.6832900189228157,
+    "geo_rechazos": 0
+   },
+   "Boana boans": {
+    "n": 14,
+    "fotos_ref": 118,
+    "individuos_ref": 63,
+    "viejo_ok": 0.7142857142857143,
+    "nuevo_ok": 0.7142857142857143,
+    "radio": 0.45650025647553083,
+    "tau_cos": 0.5434997435244692,
+    "geo_rechazos": 1
+   },
+   "Boana platanera": {
+    "n": 15,
+    "fotos_ref": 116,
+    "individuos_ref": 59,
+    "viejo_ok": 0.5333333333333333,
+    "nuevo_ok": 0.6,
+    "radio": 0.5240155402378193,
+    "tau_cos": 0.47598445976218073,
+    "geo_rechazos": 0
+   },
+   "Boana pugnax": {
+    "n": 19,
+    "fotos_ref": 113,
+    "individuos_ref": 54,
+    "viejo_ok": 0.3157894736842105,
+    "nuevo_ok": 0.631578947368421,
+    "radio": 0.46171253570653037,
+    "tau_cos": 0.5382874642934696,
+    "geo_rechazos": 0
+   },
+   "Boana rosenbergi": {
+    "n": 20,
+    "fotos_ref": 101,
+    "individuos_ref": 46,
+    "viejo_ok": 0.45,
+    "nuevo_ok": 0.45,
+    "radio": 0.2835508008000893,
+    "tau_cos": 0.7164491991999107,
+    "geo_rechazos": 0
+   },
+   "Boana xerophylla": {
+    "n": 20,
+    "fotos_ref": 68,
+    "individuos_ref": 38,
+    "viejo_ok": 0.45,
+    "nuevo_ok": 0.45,
+    "radio": 0.44271164660713896,
+    "tau_cos": 0.557288353392861,
+    "geo_rechazos": 0
+   },
+   "Dendropsophus bogerti": {
+    "n": 21,
+    "fotos_ref": 300,
+    "individuos_ref": 300,
+    "viejo_ok": 0.42857142857142855,
+    "nuevo_ok": 0.42857142857142855,
+    "radio": 0.5881052766043159,
+    "tau_cos": 0.4118947233956841,
+    "geo_rechazos": 7
+   },
+   "Dendropsophus columbianus": {
+    "n": 17,
+    "fotos_ref": 108,
+    "individuos_ref": 55,
+    "viejo_ok": 0.0,
+    "nuevo_ok": 0.35294117647058826,
+    "radio": 0.5402749117952913,
+    "tau_cos": 0.4597250882047087,
+    "geo_rechazos": 0
+   },
+   "Dendropsophus ebraccatus": {
+    "n": 18,
+    "fotos_ref": 112,
+    "individuos_ref": 53,
+    "viejo_ok": 0.7777777777777778,
+    "nuevo_ok": 0.7777777777777778,
+    "radio": 0.3358242623977297,
+    "tau_cos": 0.6641757376022703,
+    "geo_rechazos": 0
+   },
+   "Dendropsophus microcephalus": {
+    "n": 14,
+    "fotos_ref": 300,
+    "individuos_ref": 300,
+    "viejo_ok": 0.5714285714285714,
+    "nuevo_ok": 0.7857142857142857,
+    "radio": 0.4293448728633725,
+    "tau_cos": 0.5706551271366276,
+    "geo_rechazos": 0
+   },
+   "Dendropsophus norandinus": {
+    "n": 7,
+    "fotos_ref": 17,
+    "individuos_ref": 8,
+    "viejo_ok": 0.0,
+    "nuevo_ok": 0.0,
+    "radio": 0.46299704992940616,
+    "tau_cos": 0.5370029500705938,
+    "geo_rechazos": 0
+   },
+   "Hyloscirtus palmeri": {
+    "n": 29,
+    "fotos_ref": 127,
+    "individuos_ref": 73,
+    "viejo_ok": 0.7586206896551724,
+    "nuevo_ok": 0.8620689655172413,
+    "radio": 0.47968282281409375,
+    "tau_cos": 0.5203171771859063,
+    "geo_rechazos": 1
+   },
+   "Scinax ruber": {
+    "n": 12,
+    "fotos_ref": 100,
+    "individuos_ref": 74,
+    "viejo_ok": 0.5833333333333334,
+    "nuevo_ok": 0.5833333333333334,
+    "radio": 0.4962169269695,
+    "tau_cos": 0.5037830730305,
+    "geo_rechazos": 0
+   },
+   "Engystomops pustulosus": {
+    "n": 14,
+    "fotos_ref": 300,
+    "individuos_ref": 300,
+    "viejo_ok": 0.6428571428571429,
+    "nuevo_ok": 0.8571428571428571,
+    "radio": 0.7059397576442745,
+    "tau_cos": 0.2940602423557255,
+    "geo_rechazos": 0
+   },
+   "Leptodactylus colombiensis": {
+    "n": 25,
+    "fotos_ref": 159,
+    "individuos_ref": 74,
+    "viejo_ok": 0.76,
+    "nuevo_ok": 0.84,
+    "radio": 0.5019060413446792,
+    "tau_cos": 0.4980939586553208,
+    "geo_rechazos": 0
+   },
+   "Phyllomedusa venusta": {
+    "n": 21,
+    "fotos_ref": 101,
+    "individuos_ref": 58,
+    "viejo_ok": 0.8095238095238095,
+    "nuevo_ok": 0.8571428571428571,
+    "radio": 0.4437803626855573,
+    "tau_cos": 0.5562196373144427,
+    "geo_rechazos": 1
+   }
+  },
+  "clusters": [
+   {
+    "id": "CL_01",
+    "miembros": [
+     "Rheobates palmatus",
+     "Craugastor raniformis",
+     "Pristimantis achatinus",
+     "Pristimantis erythropleura",
+     "Pristimantis paisa",
+     "Pristimantis palmeri",
+     "Pristimantis penelopus",
+     "Pristimantis permixtus",
+     "Pristimantis taeniatus",
+     "Pristimantis thectopternus",
+     "Engystomops pustulosus",
+     "Leptodactylus colombiensis"
+    ],
+    "epsilon": 0.24895608863960794,
+    "columnas": 64,
+    "bytes_fp16": 65536
+   },
+   {
+    "id": "CL_02",
+    "miembros": [
+     "Boana boans",
+     "Boana platanera",
+     "Boana pugnax",
+     "Boana rosenbergi",
+     "Boana xerophylla",
+     "Dendropsophus bogerti",
+     "Dendropsophus columbianus",
+     "Dendropsophus ebraccatus",
+     "Dendropsophus microcephalus",
+     "Dendropsophus norandinus",
+     "Scinax ruber"
+    ],
+    "epsilon": 0.24028071342907845,
+    "columnas": 64,
+    "bytes_fp16": 65536
+   },
+   {
+    "id": "CL_03",
+    "miembros": [
+     "Rhinella alata",
+     "Rhinella horribilis",
+     "Rhinella margaritifera"
+    ],
+    "epsilon": 0.07237602330244175,
+    "columnas": 64,
+    "bytes_fp16": 65536
+   }
+  ],
+  "nodos": {
+   "generos": {
+    "Boana": 0.4965630162725765,
+    "Craugastor": 0.4428498897676224,
+    "Dendrobates": 0.6832900189228157,
+    "Dendropsophus": 0.4424629647702767,
+    "Engystomops": 0.2940602423557255,
+    "Hyloscirtus": 0.5203171771859063,
+    "Leptodactylus": 0.4980939586553208,
+    "Phyllomedusa": 0.5562196373144427,
+    "Pristimantis": 0.3270714871924224,
+    "Rheobates": 0.5435618435783751,
+    "Rhinella": 0.48571944720290317,
+    "Scinax": 0.5037830730305
+   },
+   "familias": {
+    "Aromobatidae": 0.5435618435783751,
+    "Bufonidae": 0.48571944720290317,
+    "Craugastoridae": 0.28136443033206326,
+    "Dendrobatidae": 0.6832900189228157,
+    "Hylidae": 0.3108452195227225,
+    "Leptodactylidae": 0.2755743479094359,
+    "Phyllomedusidae": 0.5562196373144427
+   }
+  },
+  "tamano": {
+   "viejo_bytes": 11777008,
+   "nuevo_vectores_y_matrices_bytes_fp16": 246784
+  },
+  "encoder": "fine_tuning"
+ },
+ "comparacionEncoderPuro": {
+  "fecha": "2026-09-26",
+  "nuevo": {
+   "capa1_cascada": {
+    "especie_correcta": 0.5813528336380256,
+    "especie_equivocada": 0.3930530164533821,
+    "kar": 0.9744058500914077,
+    "genero_correcto_sin_especie": 0.0,
+    "estados_conocidas": {
+     "MATCH_SPECIES": 533,
+     "OSR_GLOBAL": 13,
+     "MATCH_FAMILY": 1
+    },
+    "far": 0.9664335664335665,
+    "auroc": 0.5992252719857839,
+    "estados_desconocidas": {
+     "MATCH_SPECIES": 691,
+     "OSR_GLOBAL": 22,
+     "MATCH_FAMILY": 2
+    },
+    "desconocidas_respuesta_segura": 0.03356643356643352,
+    "desconocidas_nivel_correcto": 0.0013986013986013986
+   },
+   "capa1_cascada_clusters": {
+    "especie_correcta": 0.6179159049360147,
+    "especie_equivocada": 0.2851919561243144,
+    "kar": 0.903107861060329,
+    "genero_correcto_sin_especie": 0.043875685557586835,
+    "estados_conocidas": {
+     "MATCH_SPECIES": 494,
+     "OSR_CLUSTER": 39,
+     "OSR_GLOBAL": 13,
+     "MATCH_FAMILY": 1
+    },
+    "far": 0.8937062937062937,
+    "auroc": 0.5992252719857839,
+    "estados_desconocidas": {
+     "MATCH_SPECIES": 639,
+     "OSR_CLUSTER": 52,
+     "OSR_GLOBAL": 22,
+     "MATCH_FAMILY": 2
+    },
+    "desconocidas_respuesta_segura": 0.10629370629370627,
+    "desconocidas_nivel_correcto": 0.016783216783216783
+   },
+   "completo_tres_capas": {
+    "especie_correcta": 0.6051188299817185,
+    "especie_equivocada": 0.2413162705667276,
+    "kar": 0.8464351005484461,
+    "genero_correcto_sin_especie": 0.07861060329067641,
+    "estados_conocidas": {
+     "MATCH_SPECIES": 463,
+     "OSR_CLUSTER": 39,
+     "OSR_GEO": 31,
+     "OSR_GLOBAL": 13,
+     "MATCH_FAMILY": 1
+    },
+    "far": 0.8419580419580419,
+    "auroc": 0.5992252719857839,
+    "estados_desconocidas": {
+     "MATCH_SPECIES": 602,
+     "OSR_CLUSTER": 52,
+     "OSR_GEO": 37,
+     "OSR_GLOBAL": 22,
+     "MATCH_FAMILY": 2
+    },
+    "desconocidas_respuesta_segura": 0.15804195804195809,
+    "desconocidas_nivel_correcto": 0.022377622377622378
+   },
+   "completo_radio_val": {
+    "especie_correcta": 0.6106032906764168,
+    "especie_equivocada": 0.23583180987202926,
+    "kar": 0.8464351005484461,
+    "genero_correcto_sin_especie": 0.06946983546617916,
+    "estados_conocidas": {
+     "MATCH_SPECIES": 463,
+     "OSR_CLUSTER": 45,
+     "OSR_GEO": 31,
+     "OSR_GLOBAL": 7,
+     "MATCH_GENUS": 1
+    },
+    "far": 0.8447552447552448,
+    "auroc": 0.5459429053578962,
+    "estados_desconocidas": {
+     "MATCH_SPECIES": 604,
+     "OSR_CLUSTER": 56,
+     "OSR_GEO": 36,
+     "OSR_GLOBAL": 15,
+     "MATCH_FAMILY": 3,
+     "MATCH_GENUS": 1
+    },
+    "desconocidas_respuesta_segura": 0.15524475524475523,
+    "desconocidas_nivel_correcto": 0.019580419580419582
+   },
+   "sin_altitud_radio_val": {
+    "especie_correcta": 0.623400365630713,
+    "especie_equivocada": 0.2797074954296161,
+    "kar": 0.903107861060329,
+    "genero_correcto_sin_especie": 0.03656307129798903,
+    "estados_conocidas": {
+     "MATCH_SPECIES": 494,
+     "OSR_CLUSTER": 45,
+     "OSR_GLOBAL": 7,
+     "MATCH_GENUS": 1
+    },
+    "far": 0.8951048951048951,
+    "auroc": 0.5459429053578962,
+    "estados_desconocidas": {
+     "MATCH_SPECIES": 640,
+     "OSR_CLUSTER": 56,
+     "OSR_GLOBAL": 15,
+     "MATCH_FAMILY": 3,
+     "MATCH_GENUS": 1
+    },
+    "desconocidas_respuesta_segura": 0.1048951048951049,
+    "desconocidas_nivel_correcto": 0.013986013986013986
+   }
+  },
+  "clusters": [
+   {
+    "id": "CL_01",
+    "miembros": [
+     "Rhinella alata",
+     "Rhinella margaritifera",
+     "Craugastor raniformis",
+     "Pristimantis achatinus",
+     "Pristimantis erythropleura",
+     "Pristimantis paisa",
+     "Pristimantis palmeri",
+     "Pristimantis penelopus",
+     "Pristimantis permixtus",
+     "Pristimantis taeniatus",
+     "Pristimantis thectopternus",
+     "Engystomops pustulosus",
+     "Leptodactylus colombiensis"
+    ],
+    "epsilon": 0.35426283450335766,
+    "columnas": 64,
+    "bytes_fp16": 65536
+   },
+   {
+    "id": "CL_02",
+    "miembros": [
+     "Boana boans",
+     "Boana platanera",
+     "Boana pugnax",
+     "Boana rosenbergi",
+     "Boana xerophylla",
+     "Dendropsophus bogerti",
+     "Dendropsophus columbianus",
+     "Dendropsophus ebraccatus",
+     "Dendropsophus microcephalus",
+     "Dendropsophus norandinus",
+     "Scinax ruber"
+    ],
+    "epsilon": 0.3560674825880766,
+    "columnas": 64,
+    "bytes_fp16": 65536
+   }
+  ],
+  "top1_knn": 0.5904936014625228
+ }
+}

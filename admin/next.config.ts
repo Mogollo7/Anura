@@ -1,0 +1,11 @@
+import type { NextConfig } from "next";
+
+// El proxy a auth-service vive en src/app/api/{auth,panel}/[...path]/route.ts, no aquí:
+// next.config.ts se evalúa en el build (output: "standalone"), pero AUTH_SERVICE_URL solo
+// se conoce en tiempo de arranque del contenedor (docker-compose.server.yml). Un rewrite()
+// horneado en el build habría quedado apuntando a localhost siempre.
+const nextConfig: NextConfig = {
+  output: "standalone",
+};
+
+export default nextConfig;
