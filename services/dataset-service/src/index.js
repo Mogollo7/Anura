@@ -8,12 +8,22 @@ const { registrar: registrarAuditoria } = require('./audit');
 const { DEFAULTS, ejecutarLimpieza, decidir } = require('./limpieza');
 const curacion = require('./curacion');
 const etiquetas = require('./etiquetas');
+const especies = require('./especies');
+const ficha = require('./ficha');
+const altitud = require('./altitud');
 const trabajos = require('./trabajos');
 const contenido = require('./contenido');
 const regiones = require('./regiones');
 const manifiesto = require('./manifiesto');
 const centroides = require('./centroides');
 const paquetes = require('./paquetes');
+const validacionTecnica = require('./validacionTecnica');
+const release = require('./release');
+const vectores = require('./vectores');
+const clusteres = require('./clusteres');
+const osr = require('./osr');
+const evaluacion = require('./evaluacion');
+const simulador = require('./simulador');
 
 const BUCKET = process.env.DATASET_BUCKET || 'anura-dataset';
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -88,6 +98,18 @@ app.get('/api/dataset/resumen', requirePanelAction('verEspecies'), ah(async (_re
   const { rows: [exclusiones] } = await pool.query(
     'SELECT COUNT(*)::int AS total FROM dataset.exclusion WHERE revertida IS NULL');
   res.json({ especies: rows, version: version || null, exclusiones: exclusiones.total });
+}));
+
+// ── Especies: crear y editar (Admin → Especies). dataset.especie es el único catálogo ──────
+
+// POST /api/dataset/especies { nombre_cientifico: "Género epíteto", familia }
+app.post('/api/dataset/especies', requirePanelAction('editarTaxonomia'), ah(async (req, res) => {
+  res.status(201).json(await especies.crear(pool, req.body || {}, req.userId));
+}));
+
+// PUT /api/dataset/especies/:id { nombre_cientifico?, familia?, aplicar_a_congeneres? }
+app.put('/api/dataset/especies/:id', requirePanelAction('editarTaxonomia'), ah(async (req, res) => {
+  res.json(await especies.editar(pool, Number(req.params.id), req.body || {}, req.userId));
 }));
 
 // GET /api/dataset/especies/:id/fotos?limit=&offset= — la grilla de Curación, con URL firmada.
@@ -186,6 +208,22 @@ app.delete('/api/dataset/morfos/:id', requirePanelAction('definirMorfo'), ah(asy
 // Cada campo pide su propio permiso dentro de etiquetar(); aquí basta con ser cuenta del panel.
 app.put('/api/dataset/observaciones/:id/etiqueta', requirePanelAction('verEspecies'), ah(async (req, res) => {
   res.json(await etiquetas.etiquetar(pool, Number(req.params.id), req.body || {}, req.panelAccount, req.userId));
+}));
+
+// ── Ficha técnica y altitudes (bloque 2) ───────────────────────────────────────────────
+
+app.get('/api/dataset/especies/:id/ficha', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await ficha.deEspecie(pool, Number(req.params.id)));
+}));
+
+// Cada bloque (altitud, pesos, lrc) pide su propio permiso dentro de ajustar().
+app.put('/api/dataset/especies/:id/ficha', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await ficha.ajustar(pool, Number(req.params.id), req.body || {}, req.panelAccount, req.userId));
+}));
+
+// Rellena por lotes las altitudes que faltan; el cliente repite con desde_id = siguiente_id.
+app.post('/api/dataset/altitudes/calcular', requirePanelAction('definirMicrohabitat'), ah(async (req, res) => {
+  res.json(await altitud.calcularFaltantes(pool, req.body || {}, req.userId));
 }));
 
 // ── Limpieza y decisiones (Admin → Calidad) ─────────────────────────────────────────────
@@ -288,6 +326,27 @@ app.post('/api/dataset/trabajos/:id/cancelar', requirePanelAction('ejecutarEntre
   res.json(await trabajos.cancelar(pool, Number(req.params.id), req.userId));
 }));
 
+app.get('/api/dataset/trabajos/:id/errores', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await trabajos.errores(pool, Number(req.params.id), Number(req.query.limit) || 100));
+}));
+
+// ── DB vectorial (bloque 5): conteos, proyección PCA, metadatos y latencia de pgvector ──
+app.get('/api/dataset/vectores', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await vectores.resumen(pool, req.query.encoder || null));
+}));
+
+app.get('/api/dataset/vectores/proyeccion', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await vectores.proyeccion(pool, req.query.encoder || null, req.query.por_especie));
+}));
+
+app.get('/api/dataset/vectores/metadatos', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await vectores.metadatos(pool, req.query.encoder || null, req.query));
+}));
+
+app.post('/api/dataset/vectores/latencia', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await vectores.latencia(pool, req.body?.encoder || null));
+}));
+
 // ── Ficha pública / Contenido (K) ────────────────────────────────────────────────────────
 
 // ── Catálogo público (K): lo leen la app y la web sin sesión — solo la copia publicada ──
@@ -298,19 +357,53 @@ const publico = (_req, res, next) => {
   next();
 };
 
-// C1: país → departamento → subregión. El teléfono y la web bajan el archivo real
-// (sqlite de identificación o catálogo JSON), no una barra de progreso inventada.
+// C1: país → departamento → subregión, solo lo publicado en Admin → Release (src/paquetes.js).
+// El teléfono y la web bajan el sqlite real desde MinIO, con el sha256 que se calculó al compilar.
 app.get('/api/dataset/publico/paquetes', publico, ah(async (_req, res) => {
-  res.json(paquetes.arbol());
+  res.set('Cache-Control', 'no-cache');
+  res.json(await paquetes.arbol(pool));
 }));
 
-app.get('/api/dataset/publico/paquetes/:id/archivo', publico, ah(async (req, res) => {
-  const f = paquetes.archivo(decodeURIComponent(req.params.id));
-  if (!f) return res.status(404).json({ message: 'Ese paquete no tiene archivo para descargar' });
-  res.set('Cache-Control', 'public, max-age=3600');
-  res.set('ETag', `"${f.sha256}"`);
-  res.type(f.formato === 'json' ? 'application/json' : 'application/octet-stream');
-  res.sendFile(f.abs);
+app.get('/api/dataset/publico/paquetes/:id/:parte(archivo|manifiesto)', publico, ah(async (req, res) => {
+  const p = await paquetes.publicado(pool, req.params.id);
+  if (!p) return res.status(404).json({ message: 'Ese paquete no está publicado' });
+  const manifiestoPedido = req.params.parte === 'manifiesto';
+  res.set('Cache-Control', 'no-cache');
+  res.set('ETag', `"${p.sha256}${manifiestoPedido ? '-json' : ''}"`);
+  if (req.headers['if-none-match'] === res.get('ETag')) return res.status(304).end();
+  res.type(manifiestoPedido ? 'application/json' : 'application/vnd.sqlite3');
+  if (!manifiestoPedido) res.set('Content-Length', String(p.size_bytes));
+  const stream = await minio.getObject(BUCKET, manifiestoPedido ? p.manifiesto_key : p.storage_key);
+  stream.on('error', (err) => res.destroy(err));
+  stream.pipe(res);
+}));
+
+// ── Validación técnica y Release (bloque 4): compilar, aprobar y publicar en el servidor ──
+app.get('/api/dataset/validacion', requirePanelAction('verEspecies'), ah(async (_req, res) => {
+  res.json(await validacionTecnica.resumen(pool));
+}));
+
+app.get('/api/dataset/validacion/:subregionId', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await validacionTecnica.evaluar(pool, Number(req.params.subregionId)));
+}));
+
+app.get('/api/dataset/releases', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await release.listar(pool, req.query.subregion_id ? Number(req.query.subregion_id) : null));
+}));
+
+app.post('/api/dataset/releases', requirePanelAction('generarPaquete'), ah(async (req, res) => {
+  const subregionId = Number(req.body?.subregion_id);
+  if (!Number.isInteger(subregionId)) return res.status(400).json({ message: 'Elige la subregión que quieres compilar' });
+  res.status(201).json(await release.compilar({ pool, minio, bucket: BUCKET }, subregionId, req.panelAccount, req.userId));
+}));
+
+// Cada tipo pide su permiso dentro de aprobar(): científica → aprobarCientifico, técnica → publicarPaquete.
+app.post('/api/dataset/releases/:id/aprobaciones', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.status(201).json(await release.aprobar(pool, Number(req.params.id), req.body?.tipo, req.panelAccount, req.userId));
+}));
+
+app.post('/api/dataset/releases/:id/publicar', requirePanelAction('publicarPaquete'), ah(async (req, res) => {
+  res.json(await release.publicar(pool, Number(req.params.id), req.panelAccount, req.userId));
 }));
 
 app.get('/api/dataset/publico/catalogo', publico, ah(async (req, res) => {
@@ -461,11 +554,74 @@ app.post('/api/dataset/centroides', requirePanelAction('ejecutarEntrenamiento'),
   res.status(201).json(await centroides.calcular(pool, req.userId));
 }));
 
+app.get('/api/dataset/centroides/morfos', requirePanelAction('verEspecies'), ah(async (_req, res) => {
+  res.json(await centroides.morfos(pool));
+}));
+
+// ── Clústeres (bloque 5): matriz de confusión real y decisiones de la persona ──────────
+app.get('/api/dataset/clusteres', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await clusteres.panorama(pool, req.query));
+}));
+
+app.post('/api/dataset/clusteres', requirePanelAction('crearComplejo'), ah(async (req, res) => {
+  res.status(201).json(await clusteres.decidir(pool, req.body || {}, req.userId));
+}));
+
+app.delete('/api/dataset/clusteres/:id', requirePanelAction('crearComplejo'), ah(async (req, res) => {
+  res.json(await clusteres.retirar(pool, Number(req.params.id), req.userId));
+}));
+
+// ── OSR, Métricas y Simulador (bloque 6): umbral de rechazo, evaluación y una foto ─────
+// OSR: el servidor calibra (Mahalanobis + Ledoit-Wolf, como el teléfono) y una persona valida.
+app.get('/api/dataset/osr', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await osr.estado(pool, osr.leerSubregion(req.query.subregion_id)));
+}));
+
+// Solo la lista de paquetes (para elegir uno en OSR, Métricas y Simulador).
+app.get('/api/dataset/osr/paquetes', requirePanelAction('verEspecies'), ah(async (_req, res) => {
+  res.json({ paquetes: await osr.paquetes(pool, await osr.vigente(pool)) });
+}));
+
+app.post('/api/dataset/osr/calibraciones', requirePanelAction('configurarOSR'), ah(async (req, res) => {
+  res.status(201).json(await osr.calibrar(pool, req.body || {}, req.userId));
+}));
+
+app.post('/api/dataset/osr/validaciones', requirePanelAction('configurarOSR'), ah(async (req, res) => {
+  res.status(201).json(await osr.validar(pool, req.body || {}, req.panelAccount, req.userId));
+}));
+
+// Métricas: top-1/top-3 en la partición test contra los centroides vigentes de cada paquete.
+app.get('/api/dataset/evaluaciones', requirePanelAction('verEspecies'), ah(async (_req, res) => {
+  res.json(await evaluacion.listar(pool));
+}));
+
+app.get('/api/dataset/evaluaciones/:id', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await evaluacion.detalle(pool, Number(req.params.id)));
+}));
+
+app.post('/api/dataset/evaluaciones', requirePanelAction('ejecutarEntrenamiento'), ah(async (req, res) => {
+  res.status(201).json(await evaluacion.evaluar(pool, req.body || {}, req.userId));
+}));
+
+// Simulador: solo lee. Fotos que ya tienen vector (el servidor no embebe fotos nuevas).
+app.get('/api/dataset/simulador', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await simulador.opciones(pool, osr.leerSubregion(req.query.subregion_id)));
+}));
+
+app.get('/api/dataset/simulador/fotos', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  const firmar = (key) => signer.presignedGetObject(BUCKET, key, URL_TTL_S);
+  res.json(await simulador.fotos(pool, firmar, Number(req.query.especie_id), Number(req.query.offset) || 0));
+}));
+
+app.post('/api/dataset/simulador/identificar', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await simulador.identificar(pool, req.body || {}));
+}));
+
 app.use((err, _req, res, _next) => {
   if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ message: `La foto pesa más de ${MAX_MB} MB` });
   if (err instanceof multer.MulterError) return res.status(400).json({ message: 'Sube una sola foto en el campo "foto"' });
   if (err.status && err.status < 500 || err.status === 502) {
-    return res.status(err.status).json({ message: err.message, ...(err.codigo ? { codigo: err.codigo, ubicacion: err.ubicacion } : {}) });
+    return res.status(err.status).json({ message: err.message, ...(err.codigo ? { codigo: err.codigo, ubicacion: err.ubicacion } : {}), ...(err.detalle ? { detalle: err.detalle } : {}), ...(err.motivos ? { motivos: err.motivos } : {}) });
   }
   console.error(err);
   res.status(500).json({ message: 'Error interno de dataset-service' });

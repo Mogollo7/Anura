@@ -1,72 +1,88 @@
 /**
- * Entrega de paquetes regionales (C1) a partir de archivos que ya existen:
- * el sqlite de identificación de un departamento y el catálogo JSON de cada subregión.
- * El índice (paquetes/indice.json) describe país → departamento → subregión.
- * El tamaño y el sha256 se calculan del archivo, no se escriben a mano.
+ * Entrega pública de paquetes (C1): lo que la app y la web pueden descargar. Solo lo PUBLICADO
+ * en Admin → Release (packages.regional_packages con estado 'publicado', dos aprobaciones).
+ * Árbol país → departamento → subregión; cada subregión trae su sqlite de identificación y su
+ * manifiesto JSON. Sin paquetes publicados el árbol está vacío: la app lo dice, no inventa uno.
+ * El tamaño y el sha256 son los que se calcularon al compilar el archivo.
  */
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+const NOTA_SUBREGION = 'Paquete de identificación de la subregión (SQLite).';
 
-const DIR = process.env.PACKAGES_DIR || path.join(__dirname, '..', 'paquetes');
+const PUBLICADOS = `
+  SELECT p.id, p.region_id, p.version, p.sha256, p.size_bytes, p.especies, p.published_at,
+         p.storage_key, p.manifiesto_key, s.nombre, s.numero, r.codigo_dane, r.nombre AS region_nombre
+  FROM packages.regional_packages p
+  JOIN dataset.subregion s ON s.id = p.subregion_id
+  JOIN dataset.region r ON r.codigo_dane = s.region
+  WHERE p.estado = 'publicado'`;
 
-let cache = null;
-const archivos = new Map();
+const url = (id, que) => `/api/dataset/publico/paquetes/${encodeURIComponent(id)}/${que}`;
 
-function huella(abs) {
-  const buf = fs.readFileSync(abs);
-  return {
-    size_bytes: buf.length,
-    sha256: crypto.createHash('sha256').update(buf).digest('hex'),
-  };
-}
-
-function adorn(node) {
-  const hijos = (node.hijos || []).map(adorn);
-  let propio = null;
-  if (node.archivo) {
-    const abs = path.join(DIR, node.archivo);
-    if (!fs.existsSync(abs)) {
-      throw new Error(`Falta el artefacto de paquetes: ${node.archivo}`);
+async function arbol(db) {
+  const { rows } = await db.query(`${PUBLICADOS} ORDER BY r.nombre, s.numero`);
+  const departamentos = new Map();
+  for (const r of rows) {
+    if (!departamentos.has(r.codigo_dane)) {
+      departamentos.set(r.codigo_dane, {
+        id: r.codigo_dane,
+        nivel: 'departamento',
+        nombre: r.region_nombre,
+        version: null,
+        especies: null,
+        formato: null,
+        nota: 'Bajar el departamento baja los paquetes de todas sus subregiones.',
+        sha256: null,
+        size_archivo: 0,
+        size_bytes: 0,
+        archivo_url: null,
+        hijos: [],
+      });
     }
-    const hash = huella(abs);
-    archivos.set(node.id, { abs, formato: node.formato, sha256: hash.sha256 });
-    propio = {
-      ...hash,
-      archivo_url: `/api/dataset/publico/paquetes/${encodeURIComponent(node.id)}/archivo`,
-    };
+    const dep = departamentos.get(r.codigo_dane);
+    const size = Number(r.size_bytes);
+    dep.hijos.push({
+      id: r.region_id,
+      nivel: 'subregion',
+      nombre: r.nombre,
+      version: String(r.version),
+      especies: r.especies,
+      formato: 'sqlite',
+      nota: NOTA_SUBREGION,
+      sha256: r.sha256,
+      size_archivo: size,
+      size_bytes: size,
+      archivo_url: url(r.region_id, 'archivo'),
+      manifiesto_url: url(r.region_id, 'manifiesto'),
+      publicado: r.published_at,
+      hijos: [],
+    });
+    dep.size_bytes += size;
   }
-  const sizeHijos = hijos.reduce((sum, hijo) => sum + hijo.size_bytes, 0);
+  const hijos = [...departamentos.values()];
   return {
-    id: node.id,
-    nivel: node.nivel,
-    nombre: node.nombre,
-    version: node.version || null,
-    especies: node.especies ?? null,
-    formato: node.formato || null,
-    nota: node.nota || null,
-    sha256: propio?.sha256 || null,
-    size_archivo: propio?.size_bytes || 0,
-    size_bytes: (propio?.size_bytes || 0) + sizeHijos,
-    archivo_url: propio?.archivo_url || null,
-    hijos,
-  };
-}
-
-function arbol() {
-  if (cache) return cache;
-  const indice = JSON.parse(fs.readFileSync(path.join(DIR, 'indice.json'), 'utf8'));
-  archivos.clear();
-  cache = {
     generado: new Date().toISOString(),
-    paises: (indice.paises || []).map(adorn),
+    paises: hijos.length
+      ? [{
+        id: 'colombia',
+        nivel: 'pais',
+        nombre: 'Colombia',
+        version: null,
+        especies: null,
+        formato: null,
+        nota: 'Bajar el país baja los paquetes de sus departamentos.',
+        sha256: null,
+        size_archivo: 0,
+        size_bytes: hijos.reduce((s, d) => s + d.size_bytes, 0),
+        archivo_url: null,
+        hijos,
+      }]
+      : [],
   };
-  return cache;
 }
 
-function archivo(id) {
-  arbol();
-  return archivos.get(id) || null;
+/** El paquete publicado de una subregión (id "<DANE>.<CLAVE>"), o null. */
+async function publicado(db, id) {
+  const { rows: [r] } = await db.query(`${PUBLICADOS} AND p.region_id = $1`, [id]);
+  return r || null;
 }
 
-module.exports = { arbol, archivo };
+module.exports = { arbol, publicado };

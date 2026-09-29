@@ -19,9 +19,8 @@ const falla = (mensaje, status = 400) => Object.assign(new Error(mensaje), { sta
 const puede = (account, accion) => account.isSuperAdmin || !!account.permissions?.[accion];
 
 const SUSTRATOS = ['hojarasca', 'vegetacion', 'quebrada', 'roca'];
-// Mismos umbrales que admin/src/lib/dataset/reglas.ts (MIN_FOTOS_ENTRENABLE, MIN_INDIVIDUOS).
-const MIN_FOTOS_ENTRENABLE = 10;
-const MIN_INDIVIDUOS = 3;
+// Mismos umbrales que admin/src/lib/dataset/reglas.ts (una sola definición en el servidor).
+const { MIN_FOTOS_ENTRENABLE, MIN_INDIVIDUOS } = require('./reglas');
 // Con menos registros que esto (la misma regla de la limpieza) un percentil, una desviación o un
 // "atípico" no dicen nada: se muestran con aviso y no proponen pesos.
 const MIN_PUNTOS = DEFAULTS.min_puntos_especie;

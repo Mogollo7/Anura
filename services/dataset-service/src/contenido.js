@@ -387,12 +387,12 @@ const DIAS_DESTACADOS = 30;
  */
 async function catalogo(pool) {
   const { rows } = await pool.query(`
-    SELECT e.id AS especie_id, e.taxon_id, e.carpeta, e.nombre_cientifico, e.genero, e.familia,
-           c.publicada, c.version, c.publicado_en,
-           (SELECT COUNT(*)::int FROM dataset.foto f WHERE f.especie_id = e.id AND NOT EXISTS (
+    -- dataset.especie_publica (phase22.sql) es la definición de "especie pública": la misma que lee explorer-service.
+    SELECT e.especie_id, e.taxon_id, e.carpeta, e.nombre_cientifico, e.genero, e.familia,
+           e.publicada, e.version, e.publicado_en,
+           (SELECT COUNT(*)::int FROM dataset.foto f WHERE f.especie_id = e.especie_id AND NOT EXISTS (
               SELECT 1 FROM dataset.exclusion x WHERE x.sha256 = f.sha256 AND x.revertida IS NULL)) AS fotos_referencia
-    FROM dataset.especie e JOIN dataset.species_content c ON c.especie_id = e.id
-    WHERE c.publicada IS NOT NULL AND e.taxon_id IS NOT NULL
+    FROM dataset.especie_publica e
     ORDER BY e.nombre_cientifico`);
   const shas = rows.flatMap((r) => [r.publicada.foto_principal_sha256, ...(r.publicada.galeria || [])]).filter(Boolean);
   const { rows: fotos } = shas.length ? await pool.query(

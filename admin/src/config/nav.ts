@@ -160,7 +160,7 @@ export const NAV_AREAS: NavArea[] = [
         title: "Resultado",
         items: [
           { href: "/validacion-tecnica", label: "Validación", icon: ClipboardCheck, phase: 22, blurb: "Lista para compilar, o el motivo por el que no." },
-          { href: "/compilador", label: "Release", icon: PackageCheck, phase: 23, blurb: "El JSON por subregión." },
+          { href: "/compilador", label: "Release", icon: PackageCheck, phase: 23, blurb: "Compilar, aprobar y publicar el paquete de cada subregión." },
           { href: "/laboratorio", label: "Simulador", icon: LabIcon, phase: 24, blurb: "Una foto contra el release. No lo modifica." },
           { href: "/validacion", label: "Métricas", icon: FlaskConical, phase: 6, blurb: "Cómo le fue al paquete ya publicado." },
         ],

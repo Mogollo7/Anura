@@ -7,13 +7,13 @@ export default function ValidacionTecnicaPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight text-label-primary">Validación técnica</h1>
         <p className="text-sm text-label-secondary">
-          Antes de compilar (F23): revisa que dataset, embeddings, centroides, morfos y OSR sean consistentes para
-          el paquete de una subregión. No inventa una métrica de modelo que no exista — reutiliza el KAR/FAR/AUROC
-          ya medido en OSR y los checks del job de embeddings ya corrido.
+          Antes de compilar, el servidor revisa el paquete de cada subregión: especies entrenables, vectores del
+          encoder del teléfono, centroides al día y umbral OSR validado por una persona. Si algo falta, dice qué es y
+          dónde se arregla.
         </p>
       </div>
-      <M3MethodCard foco="validacion" />
       <TechnicalValidationConsole />
+      <M3MethodCard foco="validacion" />
     </div>
   );
 }

@@ -223,6 +223,7 @@ function ReviewDialog({
               </a>
             )}
           </Row>
+          {o.field_trip_id && (<Row label="Salida de campo">{o.field_trip_place ? shortPlace(o.field_trip_place) : "Salida sin lugar"}{o.field_trip_started && <span className="block text-xs text-label-tertiary">{formatDate(o.field_trip_started)}</span>}</Row>)}
           {o.notes && <Row label="Nota de quien la reportó">{o.notes}</Row>}
           {o.review_reason && <Row label="Motivo de la última decisión">{o.review_reason}</Row>}
           <Row label="Usuario">
