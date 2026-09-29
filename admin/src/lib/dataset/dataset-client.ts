@@ -508,3 +508,16 @@ export const borrarSubregion = (codigo: string, id: number) => send<unknown>("DE
 export const asignarMunicipios = (codigo: string, id: number, municipios: string[]) =>
   send<unknown>("POST", `/api/dataset/regiones/${codigo}/subregiones/${id}/municipios`, { municipios });
 export const quitarRegion = (codigo: string) => send<unknown>("DELETE", `/api/dataset/regiones/${codigo}`);
+
+// ── Etiquetas de curación: morfos, estadio y sustrato (bloque 1) ─────────────────────────
+
+export const getEtiquetas = (especieId: number) =>
+  send<import("./etiquetas").EtiquetasEspecie>("GET", `/api/dataset/especies/${especieId}/etiquetas`);
+export const declararMorfo = (especieId: number, input: { subregion_id: number; nombre: string; nota?: string }) =>
+  send<import("./etiquetas").Morfo>("POST", `/api/dataset/especies/${especieId}/morfos`, input);
+export const quitarMorfo = (morfoId: number) => send<unknown>("DELETE", `/api/dataset/morfos/${morfoId}`);
+/** Solo cambia los campos que vienen; null los borra. */
+export const etiquetarObservacion = (
+  observacionId: number,
+  cambios: Partial<Pick<import("./etiquetas").EtiquetaObservacion, "estadio" | "sustrato" | "morfo_id">>
+) => send<import("./etiquetas").EtiquetaObservacion>("PUT", `/api/dataset/observaciones/${observacionId}/etiqueta`, cambios);

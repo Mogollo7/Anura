@@ -1,11 +1,8 @@
 import { Suspense } from "react";
-import { getAllSpecies } from "@/lib/mock/catalog";
 import { CurationManager } from "@/components/curation/curation-manager";
 import { PhotoSourcesCard } from "@/components/curation/photo-sources-card";
 
 export default function CuracionPage() {
-  const species = getAllSpecies();
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-1">
@@ -16,7 +13,7 @@ export default function CuracionPage() {
         </p>
       </div>
       <Suspense fallback={null}>
-        <CurationManager species={species} />
+        <CurationManager />
       </Suspense>
       <details className="rounded-lg border border-border bg-surface p-4">
         <summary className="cursor-pointer text-sm font-medium text-label-primary">Cómo llegan las fotos al servidor</summary>

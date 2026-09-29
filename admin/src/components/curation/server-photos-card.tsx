@@ -9,7 +9,6 @@ import { Dialog, DialogHeader } from "@/components/ui/dialog";
 import { Field, Input, Select } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import { usePanelSession } from "@/lib/session/panel-session";
-import { INVALID_OBSERVATION_REASONS } from "@/lib/mock/curation";
 import { UploadPhotoDialog } from "@/components/curation/upload-photo-dialog";
 import {
   excluirFoto,
@@ -17,10 +16,17 @@ import {
   invalidarObservacion,
   reincluirFoto,
   revertirInvalidacion,
+  etiquetarObservacion,
+  getEtiquetas,
   type DatasetEspecie,
   type DatasetFoto,
   type FiltroFotos,
 } from "@/lib/dataset/dataset-client";
+import { ESTADIO_LABEL, MOTIVOS_INVALIDACION, SUSTRATO_LABEL, type Estadio, type EtiquetaObservacion, type EtiquetasEspecie, type Morfo, type Sustrato } from "@/lib/dataset/etiquetas";
+import { MorfosCard } from "@/components/curation/morfos-card";
+
+type CambiosEtiqueta = Partial<Pick<EtiquetaObservacion, "estadio" | "sustrato" | "morfo_id">>;
+type Permisos = { estadio: boolean; sustrato: boolean; morfo: boolean };
 
 const PAGINA = 36;
 const PARTICION: Record<string, string> = { train: "Entrenamiento", val: "Validación", test: "Prueba" };
@@ -87,6 +93,36 @@ export function ServerPhotosCard({ especie: e, onCambio }: { especie: DatasetEsp
   const [otroMotivo, setOtroMotivo] = useState("");
   const [trabajando, setTrabajando] = useState(false);
   const [aviso, setAviso] = useState<{ tono: "ok" | "error"; texto: string } | null>(null);
+  const [etiquetas, setEtiquetas] = useState<EtiquetasEspecie | null>(null);
+  const [recargaEtiquetas, setRecargaEtiquetas] = useState(0);
+
+  useEffect(() => {
+    let cancelado = false;
+    getEtiquetas(e.id)
+      .then((r) => !cancelado && setEtiquetas(r))
+      .catch((err: Error) => !cancelado && setAviso({ tono: "error", texto: `No se pudieron leer las etiquetas: ${err.message}` }));
+    return () => {
+      cancelado = true;
+    };
+  }, [e.id, recargaEtiquetas]);
+
+  /** Estadio, sustrato o morfo de un individuo: se muestra al instante y se deshace si el servidor lo rechaza. */
+  async function etiquetar(observacionId: number, cambios: CambiosEtiqueta) {
+    const previo = etiquetas;
+    setEtiquetas((cur) => {
+      if (!cur) return cur;
+      const actual = cur.observaciones.find((o) => o.observacion_id === observacionId);
+      const base: EtiquetaObservacion = actual ?? { observacion_id: observacionId, estadio: null, sustrato: null, morfo_id: null, actualizado: "" };
+      return { ...cur, observaciones: [...cur.observaciones.filter((o) => o.observacion_id !== observacionId), { ...base, ...cambios }] };
+    });
+    try {
+      await etiquetarObservacion(observacionId, cambios);
+      if ("morfo_id" in cambios) setRecargaEtiquetas((n) => n + 1);
+    } catch (err) {
+      setEtiquetas(previo);
+      setAviso({ tono: "error", texto: err instanceof Error ? err.message : "No se pudo guardar la etiqueta" });
+    }
+  }
 
   useEffect(() => {
     let cancelado = false;
@@ -119,7 +155,7 @@ export function ServerPhotosCard({ especie: e, onCambio }: { especie: DatasetEsp
 
   function abrir(a: Accion) {
     setAccion(a);
-    setMotivo(a.tipo === "excluir" ? MOTIVOS_FOTO[0] : INVALID_OBSERVATION_REASONS[0]);
+    setMotivo(a.tipo === "excluir" ? MOTIVOS_FOTO[0] : MOTIVOS_INVALIDACION[0]);
     setOtroMotivo("");
   }
 
@@ -156,6 +192,8 @@ export function ServerPhotosCard({ especie: e, onCambio }: { especie: DatasetEsp
   const puedeEditar = canFotos && !trabajando;
 
   return (
+    <div className="space-y-4">
+    {etiquetas && <MorfosCard especieId={e.id} morfos={etiquetas.morfos} subregiones={etiquetas.subregiones} onCambio={() => setRecargaEtiquetas((n) => n + 1)} />}
     <Card>
       <CardHeader className="mb-1 flex-wrap gap-2">
         <div>
@@ -221,6 +259,14 @@ export function ServerPhotosCard({ especie: e, onCambio }: { especie: DatasetEsp
               fotos={g.fotos}
               especie={e.nombre_cientifico}
               puedeEditar={puedeEditar}
+              etiqueta={etiquetas?.observaciones.find((o) => o.observacion_id === g.fotos[0].observacion_id) ?? null}
+              morfos={etiquetas?.morfos ?? []}
+              permisos={{
+                estadio: session.can("validarEstadio"),
+                sustrato: session.can("definirMicrohabitat"),
+                morfo: session.can("definirMorfo"),
+              }}
+              onEtiquetar={etiquetar}
               onExcluir={(f) => abrir({ tipo: "excluir", foto: f })}
               onInvalidar={(f) => abrir({ tipo: "invalidar", foto: f })}
               onReincluir={(f) => ejecutar(() => reincluirFoto(f.sha256), () => "Foto reincluida en el dataset.")}
@@ -255,7 +301,7 @@ export function ServerPhotosCard({ especie: e, onCambio }: { especie: DatasetEsp
         <div className="space-y-3">
           <Field label="Motivo">
             <Select value={motivo} onChange={(ev) => setMotivo(ev.target.value)}>
-              {(accion?.tipo === "invalidar" ? INVALID_OBSERVATION_REASONS : MOTIVOS_FOTO).map((m) => (
+              {(accion?.tipo === "invalidar" ? MOTIVOS_INVALIDACION : MOTIVOS_FOTO).map((m) => (
                 <option key={m} value={m}>
                   {m}
                 </option>
@@ -279,6 +325,7 @@ export function ServerPhotosCard({ especie: e, onCambio }: { especie: DatasetEsp
         </div>
       </Dialog>
     </Card>
+    </div>
   );
 }
 
@@ -287,6 +334,10 @@ function ObservacionGrupo({
   fotos,
   especie,
   puedeEditar,
+  etiqueta,
+  morfos,
+  permisos,
+  onEtiquetar,
   onExcluir,
   onInvalidar,
   onReincluir,
@@ -295,6 +346,10 @@ function ObservacionGrupo({
   fotos: DatasetFoto[];
   especie: string;
   puedeEditar: boolean;
+  etiqueta: EtiquetaObservacion | null;
+  morfos: Morfo[];
+  permisos: Permisos;
+  onEtiquetar: (observacionId: number, cambios: CambiosEtiqueta) => void;
   onExcluir: (f: DatasetFoto) => void;
   onInvalidar: (f: DatasetFoto) => void;
   onReincluir: (f: DatasetFoto) => void;
@@ -344,6 +399,15 @@ function ObservacionGrupo({
           </span>
         )}
       </div>
+      {f0.observacion_id != null && !invalidada && (
+        <EtiquetasIndividuo
+          observacionId={f0.observacion_id}
+          etiqueta={etiqueta}
+          morfos={morfos}
+          permisos={permisos}
+          onEtiquetar={onEtiquetar}
+        />
+      )}
       <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-6">
         {fotos.map((f) => {
           const excluida = f.exclusion_origen !== null;
@@ -385,5 +449,92 @@ function ObservacionGrupo({
         })}
       </ul>
     </section>
+  );
+}
+
+function EtiquetaSelect({
+  id,
+  label,
+  value,
+  disabled,
+  motivo,
+  onChange,
+  children,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  disabled: boolean;
+  motivo?: string;
+  onChange: (valor: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="flex flex-col gap-1 text-[11px] font-medium text-label-secondary" htmlFor={id}>
+      {label}
+      <Select id={id} value={value} disabled={disabled} title={disabled ? motivo : undefined} onChange={(ev) => onChange(ev.target.value)}>
+        {children}
+      </Select>
+    </label>
+  );
+}
+
+/** Estadio, sustrato y morfo del individuo de esta observación (dataset.observacion_etiqueta). */
+function EtiquetasIndividuo({
+  observacionId,
+  etiqueta,
+  morfos,
+  permisos,
+  onEtiquetar,
+}: {
+  observacionId: number;
+  etiqueta: EtiquetaObservacion | null;
+  morfos: Morfo[];
+  permisos: Permisos;
+  onEtiquetar: (observacionId: number, cambios: CambiosEtiqueta) => void;
+}) {
+  const id = `etq-${observacionId}`;
+  return (
+    <div className="mb-2 grid gap-2 sm:grid-cols-3">
+      <EtiquetaSelect
+        id={`${id}-estadio`}
+        label="Estadio"
+        value={etiqueta?.estadio ?? ""}
+        disabled={!permisos.estadio}
+        motivo="Necesita el permiso Validar adulto o juvenil"
+        onChange={(v) => onEtiquetar(observacionId, { estadio: (v || null) as Estadio | null })}
+      >
+        <option value="">Sin revisar</option>
+        {(Object.keys(ESTADIO_LABEL) as Estadio[]).map((k) => (
+          <option key={k} value={k}>{ESTADIO_LABEL[k]}</option>
+        ))}
+      </EtiquetaSelect>
+      <EtiquetaSelect
+        id={`${id}-sustrato`}
+        label="Sustrato"
+        value={etiqueta?.sustrato ?? ""}
+        disabled={!permisos.sustrato}
+        motivo="Necesita el permiso Definir microhábitat"
+        onChange={(v) => onEtiquetar(observacionId, { sustrato: (v || null) as Sustrato | null })}
+      >
+        <option value="">Sin revisar</option>
+        {(Object.keys(SUSTRATO_LABEL) as Sustrato[]).map((k) => (
+          <option key={k} value={k}>{SUSTRATO_LABEL[k]}</option>
+        ))}
+      </EtiquetaSelect>
+      <EtiquetaSelect
+        id={`${id}-morfo`}
+        label="Morfo"
+        value={etiqueta?.morfo_id != null ? String(etiqueta.morfo_id) : ""}
+        disabled={!permisos.morfo || morfos.length === 0}
+        motivo={!permisos.morfo ? "Necesita el permiso Definir morph id" : "Declara un morfo arriba primero"}
+        onChange={(v) => onEtiquetar(observacionId, { morfo_id: v ? Number(v) : null })}
+      >
+        <option value="">{morfos.length ? "Sin morfo" : "Sin morfos declarados"}</option>
+        {morfos.map((m) => (
+          <option key={m.id} value={m.id}>{m.nombre} · {m.subregion}</option>
+        ))}
+      </EtiquetaSelect>
+    </div>
   );
 }
