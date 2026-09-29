@@ -20,6 +20,10 @@ exports.registrar = async (data) => {
   if (!email || !password) {
     throw new Error('Debe enviar email y password');
   }
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    throw new Error('Debe enviar email y password');
+  }
+  email = email.trim().toLowerCase();
 
   // Generar username creativo si no se proporciona
   if (!username) {
@@ -151,7 +155,7 @@ exports.getPublicProfile = async (username) => {
   const followingCount = parseInt(followingRes.rows[0].following);
 
   return {
-    user: user.toJSON(),
+    user: user.toPublicJSON(),
     stats: {
       observations: parseInt(stats.total_observations),
       species: parseInt(stats.total_species),

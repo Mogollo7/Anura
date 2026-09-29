@@ -5,7 +5,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 train_finetune.py - BioCLIP-2.5 ViT-H/14 Fine-Tuning Pipeline
 ================================================================
 Caracteristicas:
-  - Corrige rutas del JSON (D:/ a ruta real en C:/)
+  - Corrige rutas del JSON hacia datasets/raw del repositorio
   - Integra features de localizacion GBIF (lat/lon centroide por especie)
   - Falsos positivos sinteticos (rocas, hojas, otros animales -> clase 'no_frog')
   - Augmentacion de datos (albumentations)
@@ -98,29 +98,28 @@ def augment_pil(pil_image: Image.Image, n: int = 1):
 
 # ─── CORRECCIÓN DE RUTAS ─────────────────────────────────────────────────────
 def fix_path(raw_path: str) -> str:
-    """
-    Convierte rutas del JSON (D:/user/Downloads/.../Datos Crudos label/...) a la
-    ruta real dentro de IMAGES_ROOT (C:/.../Datos Crudos label/...).
-    """
+    """Resuelve rutas viejas y relativas del JSON contra datasets/raw del repo."""
     if not raw_path:
         return ""
 
-    # Normalizar separadores
     raw_path = raw_path.replace("\\", "/").replace("file:///", "")
 
-    # Buscar el segmento "Datos Crudos label" en la ruta
     marker = "Datos Crudos label/"
     idx = raw_path.find(marker)
     if idx != -1:
         relative = raw_path[idx + len(marker):]
-        # FIX: The JSON has 'Strabomantidae' but folder is 'Craugastoridae'
         relative = relative.replace("Strabomantidae", "Craugastoridae")
         return os.path.join(IMAGES_ROOT, relative.replace("/", os.sep))
 
-    # Si ya empieza con C: y contiene Datos Crudos label, podria ser valida
-    if os.path.exists(raw_path):
-        return raw_path
+    normalized = raw_path[2:] if raw_path.startswith("./") else raw_path
+    if normalized.startswith("datasets/"):
+        return os.path.join(REPO_ROOT, normalized.replace("/", os.sep))
 
+    if os.path.isabs(raw_path) and os.path.exists(raw_path):
+        return raw_path
+    candidate = os.path.join(REPO_ROOT, normalized.replace("/", os.sep))
+    if os.path.exists(candidate):
+        return candidate
     return ""
 
 
@@ -128,9 +127,9 @@ def fix_path(raw_path: str) -> str:
 def load_dataset(json_path: str):
     """
     Lee el JSON de Label Studio y extrae (ruta_imagen, especie).
-    Corrige automáticamente las rutas a la ubicación real en C:/.
+    Corrige automáticamente las rutas hacia datasets/raw del repositorio.
     """
-    with open(json_path, 'r', encoding='utf-8') as f:
+    with open(json_path, 'r', encoding='utf-8-sig') as f:
         data = json.load(f)
 
     image_paths, labels = [], []
@@ -178,7 +177,7 @@ def load_gbif_features(gbif_root: str) -> dict:
 
     for json_file in glob.glob(os.path.join(gbif_root, "**", "*.json"), recursive=True):
         try:
-            with open(json_file, 'r', encoding='utf-8') as f:
+            with open(json_file, 'r', encoding='utf-8-sig') as f:
                 records = json.load(f)
             for rec in records:
                 lat = rec.get("decimalLatitude")

@@ -1,3 +1,10 @@
+// Sin JWT_SECRET no se arranca: los "|| 'fallback_secret'" que quedan por el código firmarían y
+// aceptarían tokens con una clave que está en el repositorio.
+if (!process.env.JWT_SECRET) {
+  console.error('JWT_SECRET no está definido: auth-service no arranca sin él.');
+  process.exit(1);
+}
+
 module.exports = {
   port: process.env.PORT || 3001,
   databaseUrl: process.env.DATABASE_URL,

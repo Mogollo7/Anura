@@ -15,10 +15,13 @@
  *   las de otras subregiones y las que no tienen centroide.
  *
  * Paquete de una subregión = especies con centroide en el lote vigente y con fotos dentro de
- * su polígono (fila en centroide_regional, propia o prestada). subregion_id null = todas.
+ * su polígono (fila en centroide_regional, propia o prestada) que además entran al paquete según la
+ * validación técnica (entrenables y con taxon_id): el modelo calibrado es el que compila
+ * paqueteSqlite.js, con esas mismas especies. subregion_id null = todas.
  */
 const M = require('./mahalanobis');
 const { registrar } = require('./audit');
+const validacion = require('./validacionTecnica');
 
 const falla = (mensaje, status = 400) => Object.assign(new Error(mensaje), { status });
 
@@ -153,7 +156,16 @@ async function calibrar(pool, body, userId) {
   }
   const exp = await exigirVigente(pool);
   await exigirSubregion(pool, subregionId);
-  const paquete = await especiesDelPaquete(pool, exp.id, subregionId);
+  let paquete = await especiesDelPaquete(pool, exp.id, subregionId);
+  if (subregionId !== null && paquete.length) {
+    // El modelo viaja en el paquete con exactamente las especies que entran (validacionTecnica.js):
+    // las que no llegan al piso de entrenamiento o no tienen taxon_id quedan como desconocidas.
+    const entran = new Set(await validacion.especiesIncluidasIds(pool, subregionId));
+    paquete = paquete.filter((e) => entran.has(e.id));
+    if (!paquete.length) {
+      throw falla('Ninguna especie de esta subregión cumple lo necesario para entrar al paquete (fotos, individuos y taxon_id). Revisa Validación.', 409);
+    }
+  }
   if (!paquete.length) {
     throw falla(subregionId === null
       ? 'El lote de centroides no tiene especies.'

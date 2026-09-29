@@ -13,8 +13,11 @@ except ImportError:
     REMBG_AVAILABLE = False
     print("[AVISO] rembg no instalado. La segmentación previa al modelo estará desactivada.")
 
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+import hmac
+from app.worker import embeddings as embeddings_worker
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 # ─── CONFIGURACIÓN ───────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -37,6 +40,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# El servidor liviano llega por HTTP (y por túnel cuando esté en Hostinger): sin token no se atiende.
+MODEL_SERVICE_TOKEN = os.environ.get("MODEL_SERVICE_TOKEN", "")
+
+
+@app.middleware("http")
+async def require_model_token(request: Request, call_next):
+    if MODEL_SERVICE_TOKEN and request.url.path != "/health":
+        sent = request.headers.get("x-model-token", "")
+        if not hmac.compare_digest(sent, MODEL_SERVICE_TOKEN):
+            return JSONResponse({"detail": "Falta el token de model-service o no coincide."}, status_code=401)
+    return await call_next(request)
 
 # ─── CARGA DEL MODELO ────────────────────────────────────────────────────────
 print("Cargando BioCLIP (ViT-H/14)...")
@@ -173,6 +188,8 @@ async def warmup():
         dummy_img = Image.new("RGB", (256, 256), (128, 128, 128))
         segment_and_crop(dummy_img)
     print("✅ Warm-up completo: BioCLIP + rembg listos")
+    # M2: worker de embeddings (pide trabajos a dataset-service; no abre puertos).
+    print(f"Worker de embeddings: {embeddings_worker.iniciar()}")
 
 
 @app.get("/health")
@@ -185,6 +202,7 @@ def health():
         "classes": list(le.classes_) if le is not None else [],
         "device": str(device),
         "gbif_species": len(geo_features) if geo_features else 0,
+        "worker": embeddings_worker.estado(),
     }
 
 

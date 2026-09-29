@@ -105,8 +105,9 @@ async function sembrar() {
   ];
   const fotos = {};
   for (const [i, e] of especies.entries()) {
-    const { rows: [es] } = await q(`INSERT INTO dataset.especie (carpeta, nombre_cientifico, genero, familia)
-      VALUES ($1, $2, $3, 'Prueboidae') RETURNING id`, [`Rana_${e.n}`, `Rana ${e.n}`, i < 3 ? 'Rana' : 'Otra']);
+    // Con taxon_id del catálogo: sin él la especie no entra al paquete y la calibración de una subregión no la cuenta.
+    const { rows: [es] } = await q(`INSERT INTO dataset.especie (carpeta, nombre_cientifico, genero, familia, taxon_id)
+      VALUES ($1, $2, $3, 'Prueboidae', $4) RETURNING id`, [`Rana_${e.n}`, `Rana ${e.n}`, i < 3 ? 'Rana' : 'Otra', `COL_ANURA_${9200 + i}`]);
     e.id = es.id;
     e.p = prototipo();
     fotos[e.n] = { train: [], val: [], test: [], fuera: [] };

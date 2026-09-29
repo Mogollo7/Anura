@@ -39,8 +39,15 @@ exports.getMe = async (jwtUser) => {
   if (!account) return null;
   if (!account.userId) {
     await panelAccountRepository.linkUserId(account.id, jwtUser.id);
-    account.userId = jwtUser.id;
+    // Si otra persona ganó la carrera, el UPDATE no cambió nada: se vuelve a leer quién quedó atado.
+    const atada = await panelAccountRepository.findById(account.id);
+    if (!atada) return null;
+    account.userId = atada.userId;
   }
+  // La cuenta del panel pertenece a UNA persona (auth.users.id), no a un correo: sin esta
+  // comparación, otra cuenta con el mismo correo (mayúsculas distintas, o una registrada después
+  // de borrar a la dueña) heredaría todos sus permisos.
+  if (account.userId !== jwtUser.id) return null;
   return account;
 };
 
@@ -51,11 +58,15 @@ exports.create = async ({ name, email, template }, actor) => {
   if (!ROLE_TEMPLATES[template]) throw new Error('Plantilla inválida');
   if (await panelAccountRepository.findByEmail(email)) throw new Error('Ya existe una cuenta del panel con ese correo');
 
+  // Si la persona ya tiene cuenta en ANURA, la cuenta del panel nace atada a ella: nadie más puede
+  // reclamarla registrándose con ese correo. Si aún no se registró, se ata en su primer ingreso.
+  const userId = await panelAccountRepository.findUserIdByEmail(email);
   const account = await panelAccountRepository.create({
     name,
     email,
     permissions: ROLE_TEMPLATES[template],
     createdBy: actor.id,
+    userId,
   });
   await auditRepository.log({
     actorId: actor.userId,

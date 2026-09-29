@@ -15,6 +15,9 @@ const falla = (mensaje, status = 400) => Object.assign(new Error(mensaje), { sta
 const GEO = process.env.GEO_SERVICE_URL || 'http://geo-service:3003';
 
 async function geo(ruta, init) {
+  // Solo estas rutas de geo-service, con el código DANE de departamento de 2 dígitos
+  // (dataset.region.codigo_dane CHAR(2)): un "05/../../x" venido de la URL no puede salirse de /departamentos.
+  if (!/^\/departamentos(\?geometria=1|\/\d{2}\/(ubicar|municipios))?$/.test(ruta)) throw falla('Código DANE de departamento inválido', 400);
   let res;
   try {
     res = await fetch(`${GEO}/api/geo/regiones${ruta}`, init);

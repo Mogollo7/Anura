@@ -19,6 +19,9 @@
  *   decidió una persona o, si no, lo calculado); NULL donde la Ficha no tiene el dato.
  * - occurrence_points: coordenadas de las observaciones del dataset (no ocultas, no
  *   invalidadas, no excluidas por uso geográfico), hasta 300 por especie.
+ * - open_set_model: el modelo de rechazo VALIDADO (osrModelo.js, formato ANOS v1 que lee
+ *   OpenSetModel.kt): τ del umbral que validó una persona + precisión compartida + medias crudas
+ *   de train de las especies del paquete, con sus taxon_id. Sin él la app no acepta identificar.
  * - zones, grid_cells, zone_prior, zone_prior_meta, weather_prior, weather_prior_meta: el servidor todavía no calcula priors de zona
  *   ni de clima. Las tablas van VACÍAS (la app las consulta y un paquete sin ellas fallaría);
  *   package_info lo dice. Vacías = sin ajuste de contexto, nunca un prior inventado.
@@ -30,6 +33,7 @@ const crypto = require('crypto');
 const { DatabaseSync } = require('node:sqlite');
 const sqliteVec = require('sqlite-vec');
 const { ENCODER } = require('./centroides');
+const osrModelo = require('./osrModelo');
 
 const MAX_PUNTOS_POR_ESPECIE = 300;
 
@@ -77,9 +81,33 @@ const ESQUEMA = `
     hum_mean REAL NOT NULL, hum_std REAL NOT NULL
   ) WITHOUT ROWID;
   CREATE TABLE weather_prior_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL) WITHOUT ROWID;
+  CREATE TABLE open_set_model (
+    id INTEGER PRIMARY KEY CHECK (id = 1), format TEXT NOT NULL, dim INTEGER NOT NULL, species INTEGER NOT NULL,
+    tau REAL NOT NULL, sha256 TEXT NOT NULL, data BLOB NOT NULL
+  );
   CREATE TABLE occurrence_points (taxon_id TEXT NOT NULL, latitude REAL NOT NULL, longitude REAL NOT NULL);
   CREATE INDEX idx_occurrence_points_taxon ON occurrence_points(taxon_id);
 `;
+
+/**
+ * El modelo OSR del umbral validado vigente: medias y precisión de su calibración, con los ids del
+ * paquete. La validación técnica ya bloqueó los casos incoherentes; aquí se vuelve a comprobar
+ * porque un paquete con un rechazo equivocado es peor que ningún paquete.
+ */
+async function modeloOsr(db, validacion, encoder, taxonDe) {
+  const { osr } = validacion;
+  if (!osr || !osr.calibracion_id) throw new Error('El umbral OSR validado no tiene calibración: no se puede armar el modelo de rechazo');
+  const { rows: [cal] } = await db.query(
+    'SELECT especie_ids, medias, precision FROM dataset.osr_calibracion WHERE id = $1', [osr.calibracion_id]);
+  if (!cal) throw new Error('La calibración del umbral OSR ya no existe');
+  const ids = cal.especie_ids.map((id) => {
+    const taxon = taxonDe.get(id);
+    if (!taxon) throw new Error('La calibración OSR tiene una especie que no está en el paquete');
+    return taxon;
+  });
+  if (ids.length !== taxonDe.size) throw new Error('La calibración OSR no cubre todas las especies del paquete');
+  return osrModelo.codificar({ dim: encoder.dimension, tau: Number(osr.tau), precision: cal.precision, medias: cal.medias, ids });
+}
 
 /**
  * @param db        cliente pg (idealmente dentro de la transacción del compilador)
@@ -143,6 +171,8 @@ async function construir(db, validacion, meta) {
 
   const { rows: [enc] } = await db.query('SELECT preprocesado, normalizacion FROM dataset.encoder WHERE sha256 = $1', [ENCODER]);
 
+  const modelo = await modeloOsr(db, validacion, encoder, taxonDe);
+
   const tmp = path.join(os.tmpdir(), `anura-paquete-${process.pid}-${crypto.randomBytes(6).toString('hex')}.sqlite`);
   const lite = new DatabaseSync(tmp, { allowExtension: true });
   try {
@@ -182,6 +212,8 @@ async function construir(db, validacion, meta) {
     for (const c of validacion.clusteres) {
       cl.run(c.id, c.nombre, JSON.stringify(c.miembros.map((id) => taxonDe.get(id))), c.medicion ? JSON.stringify(c.medicion) : null);
     }
+    lite.prepare('INSERT INTO open_set_model VALUES (1, ?, ?, ?, ?, ?, ?)')
+      .run(modelo.formato, modelo.dim, modelo.k, modelo.tau, modelo.sha256, modelo.data);
     const pt = lite.prepare('INSERT INTO occurrence_points VALUES (?, ?, ?)');
     for (const p of puntos) pt.run(taxonDe.get(p.especie_id), p.lat, p.lon);
 
@@ -206,8 +238,11 @@ async function construir(db, validacion, meta) {
       k_taxa: String(incluidas.length),
       reference_vectors: String(refs.length),
       occurrence_points: String(puntos.length),
-      osr_threshold_id: osr ? String(osr.umbral_id) : '',
-      osr_tau: osr ? String(osr.tau) : '',
+      osr_threshold_id: String(osr.umbral_id),
+      osr_tau: String(osr.tau),
+      osr_model_format: modelo.formato,
+      osr_model_sha256: modelo.sha256,
+      osr_model_species: String(modelo.k),
       zone_prior: 'sin datos: el servidor todavía no calcula el prior de zona',
       weather_prior: 'sin datos: el servidor todavía no calcula el prior de clima',
     };
@@ -229,7 +264,13 @@ async function construir(db, validacion, meta) {
       encoder: { sha256: encoder.sha256, archivo: encoder.archivo, dimension: encoder.dimension },
       dataset_version: datasetVersion,
       centroides: { experimento_id: centroides.experimento_id },
-      osr: osr ? { umbral_id: osr.umbral_id, tau: osr.tau, validado: osr.validado } : null,
+      osr: {
+        umbral_id: osr.umbral_id,
+        tau: osr.tau,
+        validado: osr.validado,
+        calibracion_id: osr.calibracion_id,
+        modelo: { formato: modelo.formato, tabla: 'open_set_model', sha256: modelo.sha256, size_bytes: modelo.size_bytes, especies: modelo.k, dim: modelo.dim },
+      },
       especies: incluidas.map((e) => ({
         taxon_id: e.taxon_id,
         nombre_cientifico: e.nombre_cientifico,

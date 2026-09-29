@@ -1,7 +1,8 @@
 import joblib
 import os
 
-MODEL_SAVE_PATH = r"c:\user\OneDrive\Desktop\tareas\Anura\services\ai-service\weights\custom_model.pkl"
+SERVICE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_SAVE_PATH = os.path.join(SERVICE_DIR, "weights", "custom_model.pkl")
 
 if os.path.exists(MODEL_SAVE_PATH):
     model_data = joblib.load(MODEL_SAVE_PATH)

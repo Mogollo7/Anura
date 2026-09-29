@@ -54,9 +54,20 @@ function readSourceFromDisk(filename) {
   return null;
 }
 
+// Un solo segmento de archivo (uuid.webp, profile_<uuid>.webp…). Express decodifica %2F en los parámetros:
+// sin esta comprobación, "x/../../etc/passwd" salía del directorio de miniaturas y res.sendFile lo entregaba.
+const NOMBRE_ARCHIVO = /^[A-Za-z0-9][A-Za-z0-9._-]{0,200}$/;
+
 app.get('/api/thumbnail/:size/:filename', async (req, res) => {
-  const { size, filename } = req.params;
-  const targetWidth = SIZES[size] || SIZES.medium;
+  const { filename } = req.params;
+  if (!NOMBRE_ARCHIVO.test(filename) || filename.includes('..')) return res.status(400).send('Nombre de archivo inválido');
+  // Solo tamaños conocidos; cualquier otro cae en "medium" (como antes) pero ya no entra crudo en la ruta de disco.
+  const size = req.params.size === 'original' || Object.hasOwn(SIZES, req.params.size) ? req.params.size : 'medium';
+  // "original" es la imagen completa (frontend: getFullImageUrl/hero) — antes caía en
+  // SIZES[size] || SIZES.medium y la servía recortada a 400x400 cuadrado como cualquier
+  // miniatura, degradando en calidad sin que nadie lo notara (nunca fallaba, solo se veía mal).
+  const isOriginal = size === 'original';
+  const targetWidth = SIZES[size];
   const localThumbPath = path.join(THUMBS_DIR, `${size}_${filename}`);
 
   try {
@@ -99,10 +110,12 @@ app.get('/api/thumbnail/:size/:filename', async (req, res) => {
 
     if (!sourceBuffer) return res.status(404).send('Image not found');
 
-    const thumbBuffer = await sharp(sourceBuffer)
-      .resize(targetWidth, targetWidth, { fit: 'cover' })
-      .webp({ quality: 80 })
-      .toBuffer();
+    const thumbBuffer = isOriginal
+      ? await sharp(sourceBuffer).webp({ quality: 90 }).toBuffer()
+      : await sharp(sourceBuffer)
+          .resize(targetWidth, targetWidth, { fit: 'cover' })
+          .webp({ quality: 80 })
+          .toBuffer();
 
     fs.writeFileSync(localThumbPath, thumbBuffer);
 
@@ -113,5 +126,7 @@ app.get('/api/thumbnail/:size/:filename', async (req, res) => {
     res.status(500).send('Error processing image');
   }
 });
+
+app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'thumbnail-service' }));
 
 app.listen(port, () => console.log(`Thumbnail Service on :${port}`));

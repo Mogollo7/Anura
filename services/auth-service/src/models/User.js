@@ -33,6 +33,20 @@ class User {
       updated_at: this.updated_at,
     };
   }
+
+  /**
+   * Lo único que una persona ajena (o sin sesión) puede ver de un perfil: nada de correo, proveedor
+   * de acceso, estado de verificación ni preferencias. GET /api/auth/public/:username no exige token.
+   */
+  toPublicJSON() {
+    return {
+      id: this.id,
+      username: this.username,
+      profile_image: this.profile_image,
+      biography: this.biography,
+      role: this.role,
+    };
+  }
 }
 
 module.exports = User;

@@ -228,7 +228,15 @@ async function esperarSalud() {
     await q(`INSERT INTO dataset.osr_umbral (subregion_id, tau, validado_por, validado) VALUES ($1, 0.42, NULL, NULL)`, [sub.id]);
     r = await api('GET', `/api/dataset/validacion/${sub.id}`, LECTOR);
     assert.strictEqual(r.body.lista, false, 'una propuesta sin validar no cuenta');
+    // Un umbral "validado" sin su calibración (medias y precisión) ya no basta: el paquete lleva el modelo.
     await q(`INSERT INTO dataset.osr_umbral (subregion_id, tau, validado_por, validado) VALUES ($1, 0.40, $2, NOW())`, [sub.id, HERP]);
+    r = await api('GET', `/api/dataset/validacion/${sub.id}`, LECTOR);
+    assert.ok(r.body.motivos.some((m) => m.codigo === 'osr_sin_modelo'), 'umbral sin calibración bloquea');
+    // Lo que hace el Admin: calibrar en OSR y validar (aquí con τ = 0.40).
+    r = await api('POST', '/api/dataset/osr/calibraciones', ADMIN, { subregion_id: sub.id });
+    espera(r, 201, 'calibrar OSR');
+    const calibracionId = r.body.calibracion.id;
+    espera(await api('POST', '/api/dataset/osr/validaciones', ADMIN, { calibracion_id: calibracionId, tau: 0.4 }), 201, 'validar OSR');
     r = await api('GET', `/api/dataset/validacion/${sub.id}`, LECTOR);
     assert.strictEqual(r.body.lista, true, JSON.stringify(r.body.motivos));
     console.log('ok 4 · umbral validado → lista para compilar');
@@ -309,6 +317,9 @@ async function esperarSalud() {
     }
     assert.strictEqual(lite.prepare("SELECT value FROM package_info WHERE key = 'encoder_onnx_sha256'").get().value, ENCODER);
     assert.strictEqual(lite.prepare("SELECT value FROM package_info WHERE key = 'osr_tau'").get().value, '0.4');
+    const modeloOsr = lite.prepare('SELECT format, dim, species, tau, sha256, length(data) AS n FROM open_set_model').get();
+    assert.deepStrictEqual([modeloOsr.format, modeloOsr.dim, modeloOsr.species, modeloOsr.tau], ['ANOS v1', 512, 2, 0.4]);
+    assert.strictEqual(modeloOsr.n, 24 + 512 * 512 * 8 + 2 * 512 * 8 + 2 * (4 + 14), 'ANOS: cabecera + precisión + 2 medias + 2 ids');
     assert.ok(lite.prepare('SELECT COUNT(*) n FROM occurrence_points').get().n >= 8);
     assert.strictEqual(lite.prepare("SELECT COUNT(*) n FROM centroids WHERE level = 'especie'").get().n, 2);
     assert.strictEqual(lite.prepare('SELECT COUNT(*) n FROM taxon_context').get().n, 2);
@@ -328,7 +339,7 @@ async function esperarSalud() {
     espera(r, 201, 'compilar v2');
     const v2 = r.body;
     assert.strictEqual(v2.version, 2);
-    await q(`INSERT INTO dataset.osr_umbral (subregion_id, tau, validado_por, validado) VALUES ($1, 0.38, $2, NOW())`, [sub.id, HERP]);
+    espera(await api('POST', '/api/dataset/osr/validaciones', ADMIN, { calibracion_id: calibracionId, tau: 0.38 }), 201, 'validar OSR con otro τ');
     r = await api('GET', `/api/dataset/releases?subregion_id=${sub.id}`, LECTOR);
     assert.strictEqual(r.body.paquetes.find((p) => p.id === v2.id).desactualizado, true);
     r = await api('POST', `/api/dataset/releases/${v2.id}/aprobaciones`, HERP, { tipo: 'cientifica' });

@@ -11,7 +11,7 @@ Ejecuta este script ANTES de entrenar para confirmar que:
   4. Se puede crear la carpeta de caché
 
 Uso:
-    python scripts/check_paths.py
+    python services/ai-service/app/utils/check_paths.py
 """
 
 import os
@@ -19,12 +19,15 @@ import sys
 import json
 import glob
 
-BASE_DIR     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-IMAGES_ROOT  = os.path.join(BASE_DIR, "Datos Crudos label")
-JSON_PATH    = os.path.join(BASE_DIR, "data", "pre_annotated_dataset.json")
-GBIF_ROOT    = os.path.join(BASE_DIR, "LOCALIZACION", "PAIS")
-DATA_DIR     = os.path.join(BASE_DIR, "data")
-MODELS_DIR   = os.path.join(BASE_DIR, "models")
+# app/utils -> ai-service -> services -> repo
+HERE         = os.path.dirname(os.path.abspath(__file__))
+SERVICE_DIR  = os.path.abspath(os.path.join(HERE, "..", ".."))
+REPO_ROOT    = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
+IMAGES_ROOT  = os.path.join(REPO_ROOT, "datasets", "raw")
+JSON_PATH    = os.path.join(REPO_ROOT, "datasets", "labeled", "pre_annotated_dataset.json")
+GBIF_ROOT    = os.path.join(SERVICE_DIR, "app", "contextual", "PAIS")
+DATA_DIR     = os.path.join(REPO_ROOT, "datasets")
+MODELS_DIR   = os.path.join(SERVICE_DIR, "weights")
 
 OK    = "  [OK]  "
 WARN  = "  [!]   "
@@ -39,11 +42,18 @@ def fix_path(raw_path: str) -> str:
     idx = raw_path.find(marker)
     if idx != -1:
         relative = raw_path[idx + len(marker):]
-        # FIX: The JSON has 'Strabomantidae' but folder is 'Craugastoridae'
         relative = relative.replace("Strabomantidae", "Craugastoridae")
         return os.path.join(IMAGES_ROOT, relative.replace("/", os.sep))
-    if os.path.exists(raw_path):
+
+    normalized = raw_path[2:] if raw_path.startswith("./") else raw_path
+    if normalized.startswith("datasets/"):
+        return os.path.join(REPO_ROOT, normalized.replace("/", os.sep))
+
+    if os.path.isabs(raw_path) and os.path.exists(raw_path):
         return raw_path
+    candidate = os.path.join(REPO_ROOT, normalized.replace("/", os.sep))
+    if os.path.exists(candidate):
+        return candidate
     return ""
 
 
@@ -56,7 +66,7 @@ def main():
     print("=" * 60)
 
     # 1. Carpeta raiz del proyecto
-    print(f"\n[*] Base del proyecto: {BASE_DIR}")
+    print(f"\n[*] Base del proyecto: {REPO_ROOT}")
 
     # 2. Carpeta de imágenes
     print(f"\n[1] Carpeta de imágenes: {IMAGES_ROOT}")
@@ -76,7 +86,7 @@ def main():
     # 3. JSON del dataset
     print(f"\n[2] JSON del dataset: {JSON_PATH}")
     if os.path.exists(JSON_PATH):
-        with open(JSON_PATH, 'r', encoding='utf-8') as f:
+        with open(JSON_PATH, 'r', encoding='utf-8-sig') as f:
             data = json.load(f)
         print(f"{OK} JSON válido con {len(data)} entradas.")
 
@@ -99,7 +109,7 @@ def main():
             print(f"{OK} {found}/{found+not_found} rutas corregidas OK (muestra de 50).")
         else:
             print(f"{ERROR} 0/{found+not_found} rutas corregidas. Las imágenes no se encuentran.")
-            print(f"       ¿Está la carpeta en C:\\?")
+            print(f"       Esperadas bajo: {IMAGES_ROOT}")
             for b in sample_bad:
                 print(f"       - Ruta original: {b}")
             errors += 1
@@ -133,7 +143,7 @@ def main():
                 print(f"       - {rel}")
         else:
             print(f"{WARN} No hay archivos JSON en GBIF_ROOT.")
-            print(f"       Ejecuta: python LOCALIZACION/scripts/download_gbif_data.py")
+            print(f"       Ejecuta: python services/ai-service/app/contextual/scripts/download_gbif_data.py")
             warnings += 1
     else:
         print(f"{WARN} Carpeta GBIF no encontrada: {GBIF_ROOT}")
@@ -142,7 +152,7 @@ def main():
     # 5. Carpetas de datos y modelos
     print(f"\n[4] Directorios de salida:")
 
-    for d, name in [(DATA_DIR, "data/"), (MODELS_DIR, "models/")]:
+    for d, name in [(DATA_DIR, "datasets/"), (MODELS_DIR, "weights/")]:
         if os.path.isdir(d):
             print(f"{OK} {name} existe.")
         else:
@@ -157,10 +167,10 @@ def main():
     print("\n" + "=" * 60)
     if errors == 0 and warnings == 0:
         print("[OK] TODO CORRECTO - Puedes entrenar con:")
-        print("   python scripts/train_finetune.py")
+        print("   python services/ai-service/training/train_finetune.py")
     elif errors == 0:
         print(f"[!] {warnings} advertencia(s) - El entrenamiento puede continuar.")
-        print("   python scripts/train_finetune.py")
+        print("   python services/ai-service/training/train_finetune.py")
     else:
         print(f"[ERR] {errors} error(s) encontrado(s). Corrige antes de entrenar.")
     print("=" * 60)

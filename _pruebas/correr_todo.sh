@@ -8,6 +8,8 @@ export NODE_PATH=$P/node_modules
 sh $P/bd_prueba.sh anura >/dev/null 2>&1
 docker rm -f anura_test_minio_release >/dev/null 2>&1
 docker run -d --rm --name anura_test_minio_release -e MINIO_ROOT_USER=prueba -e MINIO_ROOT_PASSWORD=prueba-prueba -p 127.0.0.1:39139:9000 minio/minio:latest server /data >/dev/null 2>&1
+docker rm -f anura_test_minio_osrpaq >/dev/null 2>&1
+docker run -d --rm --name anura_test_minio_osrpaq -e MINIO_ROOT_USER=prueba -e MINIO_ROOT_PASSWORD=prueba-prueba -p 127.0.0.1:39219:9000 minio/minio:latest server /data >/dev/null 2>&1
 sleep 5
 corre() { # nombre_bd prueba cwd
   docker exec anura_test_pg dropdb -U postgres --force --if-exists "$1" >/dev/null 2>&1
@@ -22,6 +24,8 @@ corre anura_vectores prueba_vectores.js $DS
 corre anura_osr prueba_osr.js $DS
 corre anura_release prueba_release.js $DS
 corre anura_clave prueba_clave.js $DS
+corre anura_osrpaq prueba_osrpaquete.js $DS
 corre anura_explorer prueba_explorer.js D:/server/Anura/services/explorer-service
 corre anura_salidas prueba_salidas.js D:/server/Anura/services/observation-service
 docker rm -f anura_test_minio_release >/dev/null 2>&1
+docker rm -f anura_test_minio_osrpaq >/dev/null 2>&1

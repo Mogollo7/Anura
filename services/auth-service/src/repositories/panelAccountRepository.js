@@ -27,12 +27,18 @@ exports.linkUserId = async (panelAccountId, userId) => {
   ]);
 };
 
-exports.create = async ({ name, email, permissions, createdBy }) => {
+/** id de la cuenta de ANURA con ese correo, solo si es inequívoca (una sola coincidencia). */
+exports.findUserIdByEmail = async (email) => {
+  const result = await pool.query('SELECT id FROM auth.users WHERE lower(email) = lower($1) LIMIT 2', [email]);
+  return result.rows.length === 1 ? result.rows[0].id : null;
+};
+
+exports.create = async ({ name, email, permissions, createdBy, userId }) => {
   const result = await pool.query(
-    `INSERT INTO auth.panel_accounts (name, email, is_super, permissions, created_by)
-     VALUES ($1, $2, FALSE, $3, $4)
+    `INSERT INTO auth.panel_accounts (name, email, is_super, permissions, created_by, user_id)
+     VALUES ($1, $2, FALSE, $3, $4, $5)
      RETURNING *`,
-    [name, email, JSON.stringify(permissions), createdBy || null]
+    [name, email, JSON.stringify(permissions), createdBy || null, userId || null]
   );
   return new PanelAccount(result.rows[0]);
 };

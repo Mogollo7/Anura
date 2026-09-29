@@ -31,6 +31,11 @@
  * (id, subregion_id, tau, validado_por, validado, creado). Vale la fila más reciente de esa
  * subregión con `validado IS NOT NULL`. Si la tabla no existe todavía, el motivo es el mismo:
  * "Falta validar el umbral OSR".
+ *
+ * Modelo de rechazo: el paquete no lleva solo τ sino el modelo validado (osrModelo.js: medias y
+ * precisión de `dataset.osr_calibracion`). Bloquea si el umbral validado no tiene esa calibración
+ * (osr_sin_modelo / osr_modelo_invalido), si salió de otros centroides (osr_otros_centroides) o si
+ * cubre otras especies que las del paquete (osr_otras_especies).
  */
 const crypto = require('crypto');
 const { ENCODER, BASE, MIN_INDIVIDUOS_REGIONAL } = require('./centroides');
@@ -75,7 +80,7 @@ async function subregionDe(db, id) {
   return s || null;
 }
 
-async function especiesDe(db, ctx, subregionId) {
+async function especiesDe(db, ctx, subregionId, conContexto = true) {
   if (!ctx.experimento) return [];
   const { rows } = await db.query(`
     SELECT e.id AS especie_id, e.taxon_id, e.nombre_cientifico, e.genero, e.familia,
@@ -104,7 +109,7 @@ async function especiesDe(db, ctx, subregionId) {
   for (const r of rows) {
     const entrenable = esEntrenable(r);
     const incluida = entrenable && !!r.taxon_id && r.centroide_global;
-    especies.push({ ...r, entrenable, incluida, contexto: incluida ? await contextoDe(db, ctx, r.especie_id) : null });
+    especies.push({ ...r, entrenable, incluida, contexto: incluida && conContexto ? await contextoDe(db, ctx, r.especie_id) : null });
   }
   return especies;
 }
@@ -145,10 +150,55 @@ async function clusteresDe(db, ctx, especieIds) {
 
 async function umbralOsr(db, ctx, subregionId) {
   if (!ctx.tablaOsr) return null;
+  // Solo metadatos de la calibración (tamaños, lote, especies): las medias y la precisión pesan
+  // ~2 MB y las lee el compilador (paqueteSqlite.js) cuando de verdad arma el paquete.
   const { rows: [u] } = await db.query(`
-    SELECT id, tau, validado, validado_por FROM dataset.osr_umbral
-    WHERE subregion_id = $1 AND validado IS NOT NULL ORDER BY id DESC LIMIT 1`, [subregionId]);
+    SELECT u.id, u.tau, u.validado, u.validado_por, u.calibracion_id,
+           c.experimento_id AS cal_experimento, c.encoder_sha256 AS cal_encoder, c.especie_ids AS cal_especies,
+           octet_length(c.medias) AS cal_bytes_medias, octet_length(c.precision) AS cal_bytes_precision
+    FROM dataset.osr_umbral u LEFT JOIN dataset.osr_calibracion c ON c.id = u.calibracion_id
+    WHERE u.subregion_id = $1 AND u.validado IS NOT NULL ORDER BY u.id DESC LIMIT 1`, [subregionId]);
   return u || null;
+}
+
+/**
+ * El paquete lleva el modelo de rechazo VALIDADO (osrModelo.js), no solo τ. Para que el teléfono
+ * rechace con lo que una persona validó, la calibración de ese umbral tiene que existir, tener
+ * medias y precisión, venir de los centroides vigentes y cubrir EXACTAMENTE las especies del paquete
+ * (τ se calibró con esas medias: quitar o añadir alguna cambiaría lo que se validó).
+ */
+function motivosModeloOsr(osr, incluidas, ctx) {
+  const motivos = [];
+  const arreglar = 'Calibra y valida de nuevo en OSR.';
+  if (!osr.calibracion_id || !osr.cal_especies) {
+    motivos.push(['osr_sin_modelo', `El umbral OSR validado no trae su modelo de rechazo (medias y precisión de las especies). ${arreglar}`]);
+    return motivos;
+  }
+  const dim = ctx.encoder?.dimension;
+  if (!dim || osr.cal_bytes_precision !== dim * dim * 8 || osr.cal_bytes_medias !== osr.cal_especies.length * dim * 8) {
+    motivos.push(['osr_modelo_invalido', `El modelo de rechazo guardado no tiene el tamaño del encoder del teléfono. ${arreglar}`]);
+    return motivos;
+  }
+  if (osr.cal_encoder !== ENCODER || osr.cal_experimento !== ctx.experimento.id) {
+    motivos.push(['osr_otros_centroides', `El umbral OSR se calibró con otros centroides que los vigentes. ${arreglar}`]);
+  }
+  const calibradas = new Set(osr.cal_especies);
+  const enPaquete = new Set(incluidas.map((e) => e.especie_id));
+  const faltan = incluidas.filter((e) => !calibradas.has(e.especie_id));
+  const sobran = osr.cal_especies.filter((id) => !enPaquete.has(id));
+  if (faltan.length || sobran.length) {
+    const partes = [];
+    if (faltan.length) partes.push(`le faltan ${nombres(faltan)}`);
+    if (sobran.length) partes.push(`incluye ${sobran.length === 1 ? 'una especie' : `${sobran.length} especies`} que ya no está${sobran.length === 1 ? '' : 'n'} en el paquete`);
+    motivos.push(['osr_otras_especies', `El umbral OSR no corresponde a las especies del paquete: ${partes.join(' y ')}. ${arreglar}`]);
+  }
+  return motivos;
+}
+
+/** Ids de las especies que entrarían al paquete de una subregión (la misma regla de `evaluar`). */
+async function especiesIncluidasIds(db, subregionId) {
+  const ctx = await contexto(db);
+  return (await especiesDe(db, ctx, subregionId, false)).filter((e) => e.incluida).map((e) => e.especie_id);
 }
 
 /** Evalúa una subregión. `ctx` se reusa al evaluar varias (resumen). */
@@ -194,7 +244,11 @@ async function evaluar(db, subregionId, ctx = null) {
   if (pesosMalos.length) {
     m('pesos_invalidos', `Los pesos wv + wg + wm de ${nombres(pesosMalos)} no suman 1. Corrígelos en la Ficha.`, '/ficha-especie');
   }
-  if (!osr) m('osr_sin_validar', 'Falta validar el umbral OSR', '/osr');
+  if (!osr) {
+    m('osr_sin_validar', 'Falta validar el umbral OSR', '/osr');
+  } else if (ctx.experimento && incluidas.length) {
+    for (const [codigo, texto] of motivosModeloOsr(osr, incluidas, ctx)) m(codigo, texto, '/osr');
+  }
 
   const noEntrenables = especies.filter((e) => !e.entrenable);
   if (noEntrenables.length) {
@@ -235,7 +289,7 @@ async function evaluar(db, subregionId, ctx = null) {
     encoder: ctx.encoder ? { sha256: ctx.encoder.sha256, archivo: ctx.encoder.archivo, dimension: ctx.encoder.dimension } : null,
     dataset_version: ctx.version,
     centroides: ctx.experimento ? { experimento_id: ctx.experimento.id, creado: ctx.experimento.creado, vigente: ctx.vigente } : null,
-    osr: osr ? { umbral_id: Number(osr.id), tau: osr.tau, validado: osr.validado, validado_por: osr.validado_por } : null,
+    osr: osr ? { umbral_id: Number(osr.id), tau: osr.tau, validado: osr.validado, validado_por: osr.validado_por, calibracion_id: osr.calibracion_id } : null,
     especies,
     morfos,
     clusteres: clusteres.map(({ id, nombre, miembros, medicion }) => ({ id, nombre, miembros, medicion })),
@@ -262,4 +316,4 @@ async function resumen(db) {
   return { subregiones };
 }
 
-module.exports = { evaluar, resumen, MIN_FOTOS_ENTRENABLE, MIN_INDIVIDUOS };
+module.exports = { evaluar, resumen, especiesIncluidasIds, MIN_FOTOS_ENTRENABLE, MIN_INDIVIDUOS };

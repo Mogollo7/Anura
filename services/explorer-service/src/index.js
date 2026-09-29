@@ -3,7 +3,12 @@ const axios = require('axios');
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
 const { coincide, unirEspecie, columnasTaxon, slugDe } = require('./especiePublica');
-const JWT_SECRET = process.env.JWT_SECRET || 'anura_secret';
+// Sin JWT_SECRET no se arranca: con un valor por defecto en el código, cualquiera podría firmarse un token.
+if (!process.env.JWT_SECRET) {
+  console.error('JWT_SECRET no está definido: explorer-service no arranca sin él.');
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const app = express();
 app.use(express.json());
@@ -517,9 +522,13 @@ app.get('/api/explorer/observers/by-species', async (req, res) => {
 // Proxy to Thumbnail Service
 app.get('/api/explorer/thumbnail/:size/:filename', async (req, res) => {
   const { size, filename } = req.params;
+  // Este endpoint es público: nada de "/", ".." ni "%2F" (doble codificación) hacia thumbnail-service.
+  if (!/^[a-z]{1,16}$/.test(size) || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,200}$/.test(filename) || filename.includes('..')) {
+    return res.status(400).json({ error: 'Nombre de archivo inválido' });
+  }
   try {
     const response = await axios({
-      url: `http://thumbnail-service:3004/api/thumbnail/${size}/${filename}`,
+      url: `http://thumbnail-service:3004/api/thumbnail/${size}/${encodeURIComponent(filename)}`,
       method: 'GET',
       responseType: 'stream'
     });

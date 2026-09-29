@@ -2,10 +2,10 @@ import os
 import json
 import uuid
 
-# Configuration
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RAW_IMAGES_DIR = r"d:\user\Downloads\Datos Crudos label-20260413T023117Z-3-001\Datos Crudos label"
-OUTPUT_JSON = os.path.join(BASE_DIR, "data", "pre_annotated_dataset.json")
+# app/utils -> ai-service -> services -> repo
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+RAW_IMAGES_DIR = os.path.join(REPO_ROOT, "datasets", "raw")
+OUTPUT_JSON = os.path.join(REPO_ROOT, "datasets", "labeled", "pre_annotated_dataset.json")
 
 def main():
     ls_tasks = []
@@ -29,16 +29,12 @@ def main():
                     # Construct taxonomy array
                     taxonomy_path = [family, genus, species]
                     
-                    # In Label Studio, local files can be referenced using the Local Storage feature
-                    # But for now, we write the absolute path. Note: You must setup local storage in LS 
-                    # for absolute paths to render as images, or upload them to a server.
-                    # As a safe default locally:
-                    image_url = "file:///" + full_path.replace("\\", "/")
-                    
+                    rel_from_repo = "./" + os.path.relpath(full_path, REPO_ROOT).replace("\\", "/")
+
                     task = {
                         "data": {
-                            "image": image_url,
-                            "original_path": full_path # Helper field
+                            "image": rel_from_repo,
+                            "original_path": rel_from_repo
                         },
                         "annotations": [{
                             "result": [{

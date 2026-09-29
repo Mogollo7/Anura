@@ -12,7 +12,8 @@ const uploadDir = path.join(__dirname, '../../uploads/profiles');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+// Una sola imagen de perfil y de tamaño acotado: sin límite, cualquier cuenta podía llenar la memoria del servicio.
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024, files: 1 } });
 
 // POST /api/auth/register
 router.post('/register', authController.registrar);

@@ -3,7 +3,9 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
 exports.findByEmail = async (email) => {
-  const query = 'SELECT * FROM auth.users WHERE email = $1';
+  // Sin distinguir mayúsculas: el panel identifica sus cuentas por lower(email); si "Ana@x.co" y
+  // "ana@x.co" pudieran ser dos personas, la segunda heredaría los permisos de la primera.
+  const query = 'SELECT * FROM auth.users WHERE lower(email) = lower($1) ORDER BY (email = $1) DESC, created_at LIMIT 1';
   const result = await pool.query(query, [email]);
   return result.rows[0] ? new User(result.rows[0]) : null;
 };

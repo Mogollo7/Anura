@@ -132,7 +132,8 @@ app.get('/api/dataset/especies/:id/fotos', requirePanelAction('revisarFotografia
     val: "vf.particion = 'val'",
     test: "vf.particion = 'test'",
   };
-  const filtro = FILTROS[req.query.filtro] || 'TRUE';
+  // Object.hasOwn: "constructor" o "__proto__" no son filtros; sin esto el texto de una función acabaría dentro del SQL.
+  const filtro = (typeof req.query.filtro === 'string' && Object.hasOwn(FILTROS, req.query.filtro) && FILTROS[req.query.filtro]) || 'TRUE';
   const { rows } = await pool.query(`
     SELECT f.sha256, f.object_key, f.archivo_original, f.ancho, f.alto, f.licencia, f.atribucion,
            f.url_origen, f.estado, f.subida_por IS NOT NULL AS subida_a_mano,
