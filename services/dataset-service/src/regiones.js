@@ -213,4 +213,4 @@ async function quitar(pool, codigo, userId) {
   return { ok: true };
 }
 
-module.exports = { quitar, listar, detalle, agregar, crearSubregion, renombrarSubregion, borrarSubregion, asignarMunicipios, activar };
+module.exports = { cifrasPorMunicipio, quitar, listar, detalle, agregar, crearSubregion, renombrarSubregion, borrarSubregion, asignarMunicipios, activar };

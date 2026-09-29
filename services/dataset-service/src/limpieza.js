@@ -40,6 +40,11 @@ function mediana(xs) {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 }
 
+/** Puntaje z robusto: desviación a la mediana en unidades de MAD (1,4826·MAD ≈ σ). MAD 0 → 0. */
+function zRobusto(x, med, mad) {
+  return mad > 0 ? (x - med) / (1.4826 * mad) : 0;
+}
+
 function km(aLat, aLon, bLat, bLon) {
   const r = Math.PI / 180;
   const dLat = (bLat - aLat) * r;
@@ -123,7 +128,7 @@ async function ejecutarLimpieza(pool, entrada, userId) {
       if (esPrecisa(o)) {
         const e = aislamiento.get(o.id);
         if (e) {
-          const z = e.mad > 0 ? (e.nn - e.mNN) / (1.4826 * e.mad) : 0;
+          const z = zRobusto(e.nn, e.mNN, e.mad);
           if (z > p.z_atipica && e.nn > p.distancia_min_atipica_km) {
             hallazgos.push({
               tipo: 'coordenada_atipica', observacion_id: o.id, especie_id: o.especie_id,
@@ -293,4 +298,4 @@ async function decidir(pool, { ids, filtro, opcion, latitud, longitud, motivo },
   }
 }
 
-module.exports = { DEFAULTS, OPCIONES, ejecutarLimpieza, decidir };
+module.exports = { DEFAULTS, OPCIONES, ejecutarLimpieza, decidir, mediana, zRobusto };

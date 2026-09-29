@@ -14,6 +14,7 @@ const LICENCIAS = ['cc0', 'cc-by', 'cc-by-sa', 'cc-by-nc', 'cc-by-nc-sa', 'cc-by
 const FORMATOS = ['jpeg', 'png', 'webp'];
 
 const auditar = require('./audit').registrar;
+const altitud = require('./altitud');
 
 /** Pregunta a geo-service en qué departamento cae el punto (límites DANE, sin red externa). */
 async function ubicar(lat, lon) {
@@ -70,6 +71,9 @@ async function subirFoto({ pool, minio, bucket }, especieId, archivo, campos, us
       422, { codigo: 'fuera_de_colombia', ubicacion });
   }
 
+  // Altitud de la coordenada (geo-service). Si no responde, la subida sigue y "Calcular altitudes" la llena luego.
+  const alt = await altitud.alCrear(lat, lon);
+
   let meta;
   try {
     meta = await sharp(archivo.buffer).metadata();
@@ -94,10 +98,11 @@ async function subirFoto({ pool, minio, bucket }, especieId, archivo, campos, us
     await db.query('BEGIN');
     const { rows: [obs] } = await db.query(`
       INSERT INTO dataset.observacion (fuente, latitud, longitud, incertidumbre_m, coordenada_fuente, lugar,
-        departamento, observada_en, limpieza_metodo)
-      VALUES ('manual', $1, $2, $3, $4, $5, $6, $7, 'pendiente_de_limpieza') RETURNING id`,
+        departamento, observada_en, limpieza_metodo, altitud_m, altitud_lat, altitud_lon, altitud_fuente, altitud_calculada)
+      VALUES ('manual', $1, $2, $3, $4, $5, $6, $7, 'pendiente_de_limpieza', $8, $9, $10, $11, $12) RETURNING id`,
       [lat, lon, incertidumbre, fuente, ubicacion.departamento ? `${ubicacion.departamento}, Colombia` : null,
-        ubicacion.departamento, fecha]);
+        ubicacion.departamento, fecha, alt.altitud_m, alt.altitud_m === null ? null : lat, alt.altitud_m === null ? null : lon,
+        alt.fuente, alt.altitud_m === null ? null : new Date()]);
     await db.query(`
       INSERT INTO dataset.foto (sha256, object_key, especie_id, observacion_id, archivo_original, ancho, alto, bytes,
         licencia, atribucion, estado, sha256_origen, subida_por)
