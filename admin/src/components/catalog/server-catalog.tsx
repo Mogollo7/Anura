@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Images, MapPin, Mountain, Search } from "lucide-react";
+import { BookOpen, Download, Images, MapPin, Pencil, Plus, Search, Upload } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
-import type { SpeciesDetail, SpeciesEntry } from "@/lib/mock/catalog";
+import { usePanelSession } from "@/lib/session/panel-session";
+import { esEntrenable, MIN_FOTOS_ENTRENABLE, MIN_INDIVIDUOS } from "@/lib/dataset/reglas";
+import { slugEspecie } from "@/lib/catalog/intake";
 import {
   getContenidoLista,
   getFotos,
@@ -16,24 +19,31 @@ import {
   type ContenidoResumen,
   type DatasetEspecie,
   type DatasetFoto,
+  type EspecieCreada,
 } from "@/lib/dataset/dataset-client";
+import { SpeciesIntakeForm } from "@/components/catalog/species-intake-form";
 
-const slug = (nombre: string) => nombre.trim().toLowerCase().replace(/\s+/g, "-");
 const n = (v: number) => v.toLocaleString("es-CO");
 const ESTADO_FICHA: Record<string, string> = { borrador: "Borrador", en_revision: "En revisión", publicada: "Publicada" };
+const aviso = (e: DatasetEspecie) => ({ activas: e.fotos - e.excluidas, individuos: e.observaciones });
 
 /**
- * Especies del servidor (dataset-service): las mismas que curan Imágenes y Contenido, con sus
- * cifras reales. Lo que todavía no está en el servidor (altitud p5–p95 y registros GBIF de
- * antioquia-real.json) se muestra con su origen dicho.
+ * Admin → Especies. Todo sale de dataset-service: la lista es dataset.especie (la misma que
+ * curan Imágenes y Contenido) con sus cifras reales. Aquí también se crea y se corrige una
+ * especie; no hay otro camino.
  */
-export function ServerCatalog({ mockSpecies, detailsById }: { mockSpecies: SpeciesEntry[]; detailsById: Record<string, SpeciesDetail> }) {
+export function ServerCatalog() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const session = usePanelSession();
+  const puedeEditar = session.can("editarTaxonomia");
   const [especies, setEspecies] = useState<DatasetEspecie[] | null>(null);
   const [fichas, setFichas] = useState<Map<number, ContenidoResumen>>(new Map());
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
+  const [recarga, setRecarga] = useState(0);
+  const [formulario, setFormulario] = useState<{ especie: DatasetEspecie | null } | null>(null);
+  const [mensaje, setMensaje] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelado = false;
@@ -42,12 +52,20 @@ export function ServerCatalog({ mockSpecies, detailsById }: { mockSpecies: Speci
         if (cancelado) return;
         setEspecies(r.especies);
         setFichas(new Map(c.especies.map((f) => [f.especie_id, f])));
+        setError(null);
       })
       .catch((e: Error) => !cancelado && setError(e.message));
     return () => {
       cancelado = true;
     };
-  }, []);
+  }, [recarga]);
+
+  // Los enlaces de otras pantallas (?anadir=1) abren el formulario y limpian la dirección.
+  useEffect(() => {
+    if (searchParams.get("anadir") !== "1" || !especies) return;
+    if (puedeEditar) setFormulario({ especie: null });
+    router.replace("/catalogo");
+  }, [searchParams, especies, puedeEditar, router]);
 
   const arbol = useMemo(() => {
     const needle = busqueda.trim().toLowerCase();
@@ -66,23 +84,103 @@ export function ServerCatalog({ mockSpecies, detailsById }: { mockSpecies: Speci
     document.querySelector('nav [aria-current="true"], ul [aria-current="true"]')?.scrollIntoView({ block: "nearest" });
   }, [especies, searchParams]);
 
-  if (error) return <p className="rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">No se pudo cargar el catálogo: {error}</p>;
+  const alGuardar = useCallback(
+    (e: EspecieCreada, corregidas: number) => {
+      const creada = !especies?.some((x) => x.id === e.id);
+      setFormulario(null);
+      setBusqueda("");
+      setRecarga((v) => v + 1);
+      setMensaje(
+        creada
+          ? `Creaste ${e.nombre_cientifico} (${e.taxon_id}).`
+          : corregidas > 0
+            ? `Guardaste ${e.nombre_cientifico} y corregiste la familia de ${corregidas === 1 ? "otra especie" : `otras ${corregidas} especies`} del género.`
+            : `Guardaste los cambios de ${e.nombre_cientifico}.`
+      );
+      router.push(`/catalogo?especie=${e.id}`);
+    },
+    [especies, router]
+  );
+
+  const cabecera = (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <p className="max-w-2xl text-sm text-label-secondary">
+        {puedeEditar ? "" : "Crear o corregir una especie necesita el permiso Editar taxonomía."}
+      </p>
+      <Button variant="primary" disabled={!puedeEditar || !especies} onClick={() => setFormulario({ especie: null })}>
+        <Plus size={14} aria-hidden /> Añadir especie
+      </Button>
+    </div>
+  );
+
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <p role="alert" className="rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">
+          No se pudo cargar el catálogo: {error}. Recarga la página; si sigue igual, revisa que dataset-service esté encendido.
+        </p>
+      </div>
+    );
+  }
   if (!especies) return <p className="text-sm text-label-secondary">Cargando especies…</p>;
 
+  const dialogo = (
+    <SpeciesIntakeForm
+      abierto={!!formulario}
+      onCerrar={() => setFormulario(null)}
+      especie={formulario?.especie ?? null}
+      familias={[...new Set(especies.map((e) => e.familia))].sort()}
+      onGuardada={alGuardar}
+      onAbrirExistente={(id) => {
+        setFormulario(null);
+        setBusqueda("");
+        router.push(`/catalogo?especie=${id}`);
+      }}
+    />
+  );
+
+  if (especies.length === 0) {
+    return (
+      <div className="space-y-6">
+        {cabecera}
+        <Card className="space-y-2 p-6">
+          <h2 className="text-base font-semibold text-label-primary">Aún no hay especies</h2>
+          <p className="max-w-xl text-sm text-label-secondary">
+            Para empezar, añade la primera: escribe su nombre científico y su familia. Después podrás traer sus fotos desde
+            Scraping o subirlas en Imágenes, y escribir su ficha en Contenido.
+          </p>
+        </Card>
+        {dialogo}
+      </div>
+    );
+  }
+
   const param = searchParams.get("especie") ?? "";
-  const selected = especies.find((e) => String(e.id) === param || slug(e.nombre_cientifico) === param) ?? arbol[0]?.especies[0] ?? especies[0];
+  const selected =
+    especies.find((e) => String(e.id) === param || slugEspecie(e.nombre_cientifico) === param) ?? arbol[0]?.especies[0] ?? especies[0];
   const familias = new Set(especies.map((e) => e.familia)).size;
   const generos = new Set(especies.map((e) => e.genero)).size;
-  const fueraPaquete = especies.filter((e) => !e.taxon_id).length;
+  const sinEntrenar = especies.filter((e) => !esEntrenable({ fotosActivas: aviso(e).activas, individuos: aviso(e).individuos })).length;
   const publicadas = [...fichas.values()].filter((f) => f.en_catalogo).length;
+  const deSuGenero = (e: DatasetEspecie) => especies.filter((x) => x.genero === e.genero).length;
 
   return (
     <div className="space-y-6">
+      {cabecera}
+      {mensaje && (
+        <p role="status" className="flex items-center justify-between gap-3 rounded-md bg-accent-wash px-3 py-2 text-sm text-accent-ink">
+          {mensaje}
+          <button type="button" className="text-xs underline" onClick={() => setMensaje(null)}>
+            Cerrar
+          </button>
+        </p>
+      )}
+
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
         <Kpi valor={familias} label="Familias" />
         <Kpi valor={generos} label="Géneros" />
-        <Kpi valor={especies.length} label="Especies en el servidor" />
-        <Kpi valor={fueraPaquete} label="Fuera del paquete (en revisión)" tono={fueraPaquete ? "text-warning" : undefined} />
+        <Kpi valor={especies.length} label="Especies" />
+        <Kpi valor={sinEntrenar} label="Aún no entrenan" tono={sinEntrenar ? "text-warning" : undefined} />
         <Kpi valor={publicadas} label={`Fichas publicadas de ${especies.length}`} />
       </div>
 
@@ -107,14 +205,18 @@ export function ServerCatalog({ mockSpecies, detailsById }: { mockSpecies: Speci
                       <button
                         type="button"
                         aria-current={e.id === selected?.id ? "true" : undefined}
-                        onClick={() => router.push(`/catalogo?especie=${slug(e.nombre_cientifico)}`)}
+                        onClick={() => router.push(`/catalogo?especie=${e.id}`)}
                         className={cn(
                           "flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-surface-subtle",
                           e.id === selected?.id && "bg-accent-wash/60"
                         )}
                       >
                         <span className="truncate italic text-label-primary">{e.nombre_cientifico}</span>
-                        {!e.taxon_id && <Badge tone="warning" className="shrink-0 text-[10px]">Revisión</Badge>}
+                        {e.fotos === 0 ? (
+                          <Badge tone="neutral" className="shrink-0 text-[10px]">Sin fotos</Badge>
+                        ) : (
+                          !e.taxon_id && <Badge tone="warning" className="shrink-0 text-[10px]">Sin taxon_id</Badge>
+                        )}
                       </button>
                     </li>
                   ))}
@@ -130,11 +232,13 @@ export function ServerCatalog({ mockSpecies, detailsById }: { mockSpecies: Speci
             key={selected.id}
             especie={selected}
             ficha={fichas.get(selected.id)}
-            mock={mockSpecies.find((m) => m.especie.toLowerCase() === selected.nombre_cientifico.toLowerCase())}
-            detailsById={detailsById}
+            unicaDeSuGenero={deSuGenero(selected) === 1}
+            puedeEditar={puedeEditar}
+            onEditar={() => setFormulario({ especie: selected })}
           />
         )}
       </div>
+      {dialogo}
     </div>
   );
 }
@@ -142,27 +246,33 @@ export function ServerCatalog({ mockSpecies, detailsById }: { mockSpecies: Speci
 function Detalle({
   especie: e,
   ficha,
-  mock,
-  detailsById,
+  unicaDeSuGenero,
+  puedeEditar,
+  onEditar,
 }: {
   especie: DatasetEspecie;
   ficha?: ContenidoResumen;
-  mock?: SpeciesEntry;
-  detailsById: Record<string, SpeciesDetail>;
+  unicaDeSuGenero: boolean;
+  puedeEditar: boolean;
+  onEditar: () => void;
 }) {
   const [fotos, setFotos] = useState<DatasetFoto[] | null>(null);
   useEffect(() => {
     let cancelado = false;
+    if (e.fotos === 0) {
+      setFotos([]);
+      return;
+    }
     getFotos(e.id, 0, 6, false, "activas")
       .then((r) => !cancelado && setFotos(r.fotos))
       .catch(() => !cancelado && setFotos([]));
     return () => {
       cancelado = true;
     };
-  }, [e.id]);
-  const d = mock ? detailsById[mock.id] : undefined;
-  const activas = e.fotos - e.excluidas;
-  const tieneAltitud = d && (d.altitudMin > 0 || d.altitudMax > 0);
+  }, [e.id, e.fotos]);
+  const { activas, individuos } = aviso(e);
+  const entrena = esEntrenable({ fotosActivas: activas, individuos });
+  const slug = slugEspecie(e.nombre_cientifico);
 
   return (
     <Card>
@@ -175,17 +285,46 @@ function Detalle({
           <h2 className="text-lg font-semibold italic text-label-primary">{e.nombre_cientifico}</h2>
           {ficha?.nombre_comun && <p className="text-sm text-label-secondary">{ficha.nombre_comun}</p>}
         </div>
-        <div className="flex flex-wrap gap-1.5">
-          {!e.taxon_id && <Badge tone="warning">Fuera del paquete: en revisión</Badge>}
-          {mock?.orphanGenus && <Badge tone="warning">Única de su género</Badge>}
-          {mock?.lowData && <Badge tone="danger">Pocos datos (menos de 70 individuos)</Badge>}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {!e.taxon_id && <Badge tone="warning">Sin taxon_id: no sale en la app</Badge>}
+          {unicaDeSuGenero && <Badge tone="warning">Única de su género</Badge>}
+          {!entrena && <Badge tone="danger">Aún no entrena</Badge>}
+          {puedeEditar && (
+            <Button variant="outline" className="px-2.5 py-1 text-xs" onClick={onEditar}>
+              <Pencil size={12} aria-hidden /> Editar nombre y familia
+            </Button>
+          )}
         </div>
       </div>
 
-      {fotos === null ? (
+      {e.fotos === 0 ? (
+        <div className="mb-4 space-y-3 rounded-md bg-surface-subtle p-4">
+          <p className="text-sm font-medium text-label-primary">Esta especie todavía no tiene fotos.</p>
+          <p className="text-sm text-label-secondary">
+            El siguiente paso es traerlas: consíguelas en Scraping (iNaturalist y GBIF) o súbelas una a una en Imágenes.
+            Para entrenar necesita al menos {MIN_FOTOS_ENTRENABLE} fotos activas de {MIN_INDIVIDUOS} individuos distintos.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/scraping"
+              className="inline-flex items-center gap-1.5 rounded-md bg-cta-bg px-3 py-1.5 text-sm font-medium text-cta-fg hover:opacity-90"
+            >
+              <Download size={14} aria-hidden /> Conseguir fotos en Scraping
+            </Link>
+            <Link
+              href={`/curacion?especie=${e.id}`}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-label-primary hover:bg-surface"
+            >
+              <Upload size={14} aria-hidden /> Subir fotos en Imágenes
+            </Link>
+          </div>
+        </div>
+      ) : fotos === null ? (
         <div className="mb-4 h-24 animate-pulse rounded-md bg-surface-subtle" />
       ) : fotos.length === 0 ? (
-        <p className="mb-4 rounded-md bg-surface-subtle p-4 text-sm text-label-secondary">Esta especie todavía no tiene fotos activas en el servidor.</p>
+        <p className="mb-4 rounded-md bg-surface-subtle p-4 text-sm text-label-secondary">
+          Todas sus fotos están excluidas. Revísalas en Imágenes si alguna debe volver.
+        </p>
       ) : (
         <ul className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-6">
           {fotos.map((f) => (
@@ -197,22 +336,15 @@ function Detalle({
         </ul>
       )}
 
-      <dl className="mb-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+      <dl className="mb-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
         <Dato icono={Images} label="Fotos activas" valor={`${n(activas)} de ${n(e.fotos)}`} />
         <Dato icono={MapPin} label="Observaciones" valor={`${n(e.observaciones)} · ${n(e.con_coordenada)} fotos con coordenada`} />
         <Dato icono={Images} label="En el manifiesto" valor={`${n(e.train)} entrenamiento · ${n(e.val)} validación · ${n(e.test)} prueba`} />
-        {tieneAltitud && <Dato icono={Mountain} label="Altitud de los registros (p5–p95)" valor={`${n(d.altitudMin)}–${n(d.altitudMax)} m`} />}
       </dl>
-      {d && (d.gbifRecords > 0 || d.iNaturalistObs > 0) && (
-        <p className="mb-4 text-xs text-label-tertiary">
-          Registros sin foto usados para altitud y subregiones: {n(d.gbifRecords)} de GBIF y {n(d.iNaturalistObs)} de iNaturalist (records_v1, exportado
-          al Admin; todavía no está en el servidor).
-        </p>
-      )}
 
       <div className="flex flex-wrap gap-2 border-t border-border pt-4">
         <Link
-          href={`/curacion?especie=${slug(e.nombre_cientifico)}`}
+          href={`/curacion?especie=${slug}`}
           className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-label-primary hover:bg-surface-subtle"
         >
           <Images size={14} /> Curar fotos

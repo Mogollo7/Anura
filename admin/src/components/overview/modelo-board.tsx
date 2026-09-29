@@ -1,13 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Table, THead, TBody, TRow, TH, TD } from "@/components/ui/table";
-import { ANTIOQUIA_SUBREGIONES } from "@/lib/packages/antioquia-subregiones";
 import { NAV_AREAS, type NavItem } from "@/config/nav";
-import { auditarIntake, especieNombre } from "@/lib/catalog/intake";
-import { useIntakeStore } from "@/lib/catalog/intake-store";
 import { useAppResource } from "@/lib/app-data/app-client";
 import { getRegiones, getResumen, getTrabajos } from "@/lib/dataset/dataset-client";
 
@@ -26,9 +21,6 @@ export function ModeloBoard() {
       ? regionesRes.value.data.departamentos.filter((d) => d.estado === "activa").reduce((n, d) => n + d.subregiones, 0)
       : null;
   const vectores = worker.value.state === "listo" ? worker.value.data.encoders.reduce((n, e) => n + e.vectores, 0) : null;
-  const intake = useIntakeStore();
-  const filas = intake.especies.map((s) => ({ s, a: auditarIntake(s) }));
-  const regionNombre = (id: string) => ANTIOQUIA_SUBREGIONES.find((r) => r.id === id)?.nombre ?? id;
 
   return (
     <div className="space-y-8">
@@ -61,79 +53,14 @@ export function ModeloBoard() {
         ))}
       </div>
 
-      <Card className="flex flex-wrap items-center justify-between gap-3 border-dashed bg-accent-wash/40 p-4">
-        <p className="max-w-xl text-sm text-label-primary">
-          Si el resultado no sirve, la especie vuelve a limpiarse. Las fotos que escribiste no se borran solas. El número de vectores es el mismo que muestra la DB vectorial.
-        </p>
-        <Link href="/modelo#limpiar" className="inline-flex items-center gap-1 text-sm font-medium text-accent-ink hover:underline">
-          Repetir desde limpiar <ArrowRight size={14} />
-        </Link>
-      </Card>
-
       <div className="flex flex-wrap gap-2">
-        <Link href="/catalogo#anadir" className="inline-flex items-center rounded-md bg-cta-bg px-3.5 py-2 text-sm font-medium text-cta-fg hover:opacity-90">
+        <Link href="/catalogo?anadir=1" className="inline-flex items-center rounded-md bg-cta-bg px-3.5 py-2 text-sm font-medium text-cta-fg hover:opacity-90">
           Añadir especie
         </Link>
         <Link href="/compilador" className="inline-flex items-center rounded-md px-3 py-2 text-sm text-accent-ink hover:underline">
           Crear release
         </Link>
       </div>
-
-      <div className="grid gap-3 lg:grid-cols-4">
-        {ETAPAS.map((etapa) => {
-          const aqui = filas.filter((f) => f.a.etapa === etapa);
-          return (
-            <div key={etapa} className="rounded-lg border border-border bg-surface-subtle/60 p-3">
-              <p className="text-xs font-semibold capitalize text-label-primary">
-                {etapa}
-                <span className="ml-1.5 font-normal text-label-tertiary">{aqui.length}</span>
-              </p>
-              <ul className="mt-2 space-y-2">
-                {aqui.length === 0 && <li className="text-[11px] text-label-tertiary">Ninguna especie añadida en esta etapa.</li>}
-                {aqui.map(({ s, a }) => (
-                  <li key={s.id} className="rounded-md bg-surface px-2.5 py-2 text-xs shadow-card">
-                    <p className="font-medium italic text-label-primary">{especieNombre(s)}</p>
-                    <p className="text-label-tertiary">{regionNombre(s.subregionId)} · {a.vectores} vectores</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
-        })}
-      </div>
-
-      <Card className="p-0">
-        <div className="border-b border-border px-5 py-4">
-          <h2 className="text-base font-semibold text-label-primary">Especies añadidas</h2>
-          <p className="text-xs text-label-secondary">La etapa sale de las fotos, la cota y los pesos que escribiste. La tabla es el detalle.</p>
-        </div>
-        {filas.length === 0 ? (
-          <p className="px-5 py-6 text-sm text-label-secondary">Todavía no añadiste especies. El catálogo de partida sigue en Especies.</p>
-        ) : (
-          <Table>
-            <THead>
-              <tr>
-                <TH>Especie</TH>
-                <TH>Región</TH>
-                <TH>Fotos activas</TH>
-                <TH>Vectores</TH>
-                <TH>Etapa</TH>
-              </tr>
-            </THead>
-            <TBody>
-              {filas.map(({ s, a }) => (
-                <TRow key={s.id}>
-                  <TD className="italic">{especieNombre(s)}</TD>
-                  <TD>{regionNombre(s.subregionId)}</TD>
-                  <TD>{a.fotosActivas}</TD>
-                  <TD>{a.vectores}</TD>
-                  <TD className="capitalize">{a.etapa}</TD>
-                </TRow>
-              ))}
-            </TBody>
-          </Table>
-        )}
-      </Card>
     </div>
   );
 }
