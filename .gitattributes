@@ -1,0 +1,3 @@
+# Scripts que corren dentro de contenedores Linux: siempre LF.
+*.sh text eol=lf
+infrastructure/postgres/*.sql text eol=lf
