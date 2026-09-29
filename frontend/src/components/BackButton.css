@@ -9,30 +9,30 @@
   box-sizing: border-box;
 }
 
+/* Botón "Volver" borderless, como el Back estándar del sistema (no una
+   píldora con borde) — el contenedor de arriba ya da la separación. */
 .btn-back {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  min-height: 2.5rem;
-  padding: 0.6rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  color: var(--text);
-  background: var(--surface);
+  gap: 0.3rem;
+  min-height: var(--touch);
+  min-width: var(--touch);
+  padding: 0.5rem 0.9rem 0.5rem 0.5rem;
+  border: 0;
+  border-radius: var(--r-button);
+  color: var(--accent-ink);
+  background: transparent;
   cursor: pointer;
   font: inherit;
-  font-weight: 700;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  transition: background var(--dur) var(--ease);
 }
 
 .btn-back:hover {
-  background: var(--surface-2);
-  border-color: var(--primary);
-  color: var(--primary);
-  transform: translateX(-4px);
+  background: var(--accent-wash);
 }
 
 .btn-back svg {
-  font-size: 1.1rem;
+  font-size: 1.35rem;
 }

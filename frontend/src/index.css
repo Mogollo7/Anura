@@ -1,9 +1,1 @@
-/* Reset mínimo; tokens de tema en App.css */
-html {
-  color-scheme: light dark;
-}
-
-body {
-  margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
+@import './styles/anura-hig.css';

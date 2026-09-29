@@ -1,42 +1,55 @@
-import { useNavigate, useLocation } from 'react-router-dom';
-import { FaCamera, FaMapLocationDot, FaUser } from 'react-icons/fa6'
-import './Navbar.css';
+import { useNavigate, useLocation } from 'react-router-dom'
+import { MdHome, MdExplore, MdFormatListBulleted, MdSettings, MdAdminPanelSettings } from 'react-icons/md'
+import { adminLoginUrl } from '../lib/adminAccess'
+import './Navbar.css'
 
-export default function Navbar({ isGuest = false }) {
-  const navigate = useNavigate();
-  const location = useLocation();
+// Barra inferior = .a-tabbar del design system (cápsula flotante, material
+// translúcido). Mismas 4 pestañas que AnuraRoute.kt (Home, Explore,
+// Observations, Settings). Explorar abre observaciones; Observaciones abre
+// especies (Listado en Android). Sin el FAB de captura de la app: la web es
+// para navegar, no para registrar ni identificar. Admin es un extra de la web.
+export default function Navbar({ isAdmin = false, token = null }) {
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const isActive = (path) => {
-    if (path === '/explorer') {
-      return location.pathname === '/explorer' || location.pathname.startsWith('/explorer/')
+    // Explorar → observaciones; Observaciones → especies/taxones.
+    if (path === '/explorar') {
+      return location.pathname === '/explorar' || location.pathname.startsWith('/explorer/')
+    }
+    if (path === '/observaciones') {
+      return location.pathname === '/observaciones' || location.pathname.startsWith('/taxa') || location.pathname.startsWith('/search')
+    }
+    if (path === '/ajustes') {
+      return location.pathname.startsWith('/ajustes') || location.pathname.startsWith('/perfil')
     }
     return location.pathname === path
   }
 
+  const tabs = [
+    { path: '/inicio', label: 'Inicio', Icon: MdHome },
+    { path: '/explorar', label: 'Explorar', Icon: MdExplore },
+    { path: '/observaciones', label: 'Observaciones', Icon: MdFormatListBulleted },
+    { path: '/ajustes', label: 'Ajustes', Icon: MdSettings },
+    // Sin path interno: abre el Admin real en una pestaña nueva, no una ruta de esta app.
+    ...(isAdmin ? [{ path: null, label: 'Admin', Icon: MdAdminPanelSettings }] : []),
+  ]
+
   return (
-    <nav className="main-navbar">
-      <div className="nav-container">
-        <div
-          onClick={() => navigate('/home/camara')}
-          className={isActive('/home/camara') ? 'nav-item active' : 'nav-item'}
-          role="presentation"
+    <nav className="a-tabbar" aria-label="Navegación principal">
+      {tabs.map(({ path, label, Icon }) => (
+        <button
+          key={path ?? 'admin'}
+          type="button"
+          className="a-tab"
+          aria-selected={path ? isActive(path) : false}
+          aria-current={path && isActive(path) ? 'page' : undefined}
+          onClick={() => (path ? navigate(path) : window.open(adminLoginUrl(token), '_blank', 'noopener'))}
         >
-          <span className="nav-icon"><FaCamera aria-hidden /></span>
-          <span className="nav-text">Cámara</span>
-        </div>
-        <div onClick={() => navigate('/explorer')} className={isActive('/explorer') ? 'nav-item active' : 'nav-item'}>
-          <span className="nav-icon"><FaMapLocationDot aria-hidden /></span>
-          <span className="nav-text">Explorar</span>
-        </div>
-        <div
-          onClick={() => navigate('/home/profile')}
-          className={isActive('/home/profile') ? 'nav-item active' : 'nav-item'}
-          role="presentation"
-        >
-          <span className="nav-icon"><FaUser aria-hidden /></span>
-          <span className="nav-text">Perfil</span>
-        </div>
-      </div>
+          <Icon aria-hidden size={22} />
+          <span>{label}</span>
+        </button>
+      ))}
     </nav>
-  );
+  )
 }

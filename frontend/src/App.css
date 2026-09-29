@@ -1,84 +1,116 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── Identidad Anura ─────────────────────────────────────────────────────
+   Este archivo NO define colores propios. Los nombres de variable de abajo
+   son los que usan todas las páginas (`Explorer.css`, `Profile.css`, etc.);
+   se mantienen para no tocar 12 archivos, pero ahora son alias directos del
+   design system real de la app móvil (`src/styles/anura-hig.css`, fuente de
+   verdad: Penpot › archivo ANURA › "Mockup Final"), para que el frontend web
+   sea la misma marca que el móvil, no un sistema aparte estilo iNaturalist.
+   ── */
+:root {
+  --primary:       var(--accent-ink);     /* texto/iconos de marca, AA */
+  --primary-light: var(--accent-tint);    /* verde vivo — solo realces puntuales */
+  --primary-dark:  var(--accent-pressed);
+  --earth:         var(--gray-1);         /* sin equivalente propio, tono neutro */
+
+  --bg:         var(--bg-base);
+  --surface:    var(--bg-elevated);
+  --surface-2:  var(--bg-subtle);
+  --border:     var(--separator);
+  --text:       var(--label-primary);
+  --text-muted: var(--label-secondary);
+  --muted:      var(--label-secondary-aa);   /* AA en vez de --label-secondary a secas */
+
+  --accent:  var(--accent-ink);
+  --accent2: var(--accent-tint);
+  --radius:  var(--r-button);
+
+  /* Escala tipográfica usada por ~195 reglas de las páginas pero que nunca
+     se había definido: todo ese texto heredaba 17px y rompía la jerarquía
+     (y desbordaba barras/tarjetas). Mapeada 1:1 a los estilos de texto HIG
+     del design system. */
+  --text-2xs:  var(--f-caption);      /* 11 — caption 2 */
+  --text-xs:   var(--f-footnote);     /* 13 — footnote */
+  --text-sm:   var(--f-subhead);      /* 15 — subheadline */
+  --text-base: var(--f-body);         /* 17 — body */
+  --text-lg:   var(--f-title3);       /* 20 — title 3 */
+  --text-xl:   var(--f-title2);       /* 22 — title 2 */
+  --text-2xl:  var(--f-title1);       /* 28 — title 1 */
+  --text-3xl:  var(--f-large-title);  /* 34 — large title */
+
+  --shadow:        var(--sh-float);
+  --shadow-soft:   var(--sh-card);
+  --surface-hover: var(--bg-subtle);
+  --sky:           var(--info);
+  --font-main:     inherit;
+
+  /* Texto e iconos sobre fotografías (con scrim oscuro): blanco en todos los
+     temas. --label-on-accent es "sobre verde" y en oscuro es casi negro, lo
+     que dejaba invisibles los nombres sobre las fotos. */
+  --label-on-photo: #FFFFFF;
+
+  /* Margen lateral único de página: nunca menos de 16px (HIG / piso de
+     legibilidad en teléfono) y crece con el ancho sin pegarse al borde. */
+  --page-gutter: max(1rem, env(safe-area-inset-left), clamp(1rem, 5vw, 5rem));
+}
+
+/* Contenedor centrado global — única fuente de margen lateral. Ninguna
+   página debe anular su padding globalmente (antes Explorer.css lo ponía
+   a 0 en ≤400px para TODA la app). */
 .container {
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding-left: clamp(1.25rem, 7vw, 6.5rem);
-  padding-right: clamp(1.25rem, 7vw, 6.5rem);
 }
 
-.header-flex {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+/* Mayor especificidad a propósito: muchas páginas combinan
+   `container xxx-content` con `padding: A 0 B`, y ese atajo (cargado
+   después) borraba el margen lateral y pegaba el contenido al borde. */
+.app .container {
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
 }
 
-
-/* ── iNaturalist design tokens ──────────────────────────────────── */
-:root {
-  /* Brand greens */
-  --primary:       #4f8f1f;
-  --primary-light: #8bcf43;
-  --primary-dark:  #326414;
-  --earth:         #8b6f47;
-  --sky:           #dff3f0;
-  --danger:        #c0392b;
-  --success:       #2f7d32;
-
-  /* Light theme */
-  --bg:      #f4f7ef;
-  --surface: #ffffff;
-  --surface-2: #eef5e6;
-  --border:  #d7e3c8;
-  --text:    #16240d;
-  --muted:   #62705a;
-  --shadow:  0 18px 45px rgba(45, 74, 14, 0.12);
-  --shadow-soft: 0 8px 24px rgba(45, 74, 14, 0.08);
-
-  --accent:  var(--primary);
-  --accent2: var(--primary-light);
-  --radius:  12px;
-
-  /* Typography scale */
-  --text-2xs:  0.7rem;    /* 11px */
-  --text-xs:   0.85rem;   /* 13.6px */
-  --text-sm:   0.95rem;   /* 15.2px */
-  --text-base: 1rem;      /* 16px */
-  --text-lg:   1.2rem;    /* 19.2px */
-  --text-xl:   1.5rem;    /* 24px */
-  --text-2xl:  2rem;      /* 32px */
-  --text-3xl:  3rem;      /* 48px */
-  --text-4xl:  4.5rem;    /* 72px */
-
-  color-scheme: light;
+/* Leaflet usa z-index 200–1000 en sus paneles/controles sin crear contexto
+   de apilamiento propio, así que las teselas tapaban la barra inferior y los
+   sheets. Aislarlo mantiene cada mapa "dentro de su caja". */
+.leaflet-container {
+  isolation: isolate;
+  z-index: 0;
 }
 
-/* Dark theme */
-[data-theme="dark"] {
-  --bg:      #09110a;
-  --surface: #111d12;
-  --surface-2: #172817;
-  --border:  #284726;
-  --text:    #edf7df;
-  --muted:   #aec39e;
-  --shadow:  0 20px 55px rgba(0, 0, 0, 0.34);
-  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
-  color-scheme: dark;
+/* Texto largo sin espacios (usuarios, lugares) no debe empujar el layout
+   fuera de la pantalla. Tiene que ser `anywhere` (no `break-word`): solo
+   así el texto deja de fijar el ancho mínimo de columnas flex/grid. Donde
+   partir una palabra se vería mal, se da espacio suficiente a ese control. */
+h1, h2, h3, p, strong, span, a, li, td {
+  overflow-wrap: anywhere;
+}
+
+/* Excepción: etiquetas de botones/controles nunca se parten por letras
+   (el título "Anura" llegó a apilarse letra por letra en la barra). */
+button :is(span, strong, small) {
+  overflow-wrap: normal;
+}
+
+.icon-spin {
+  animation: icon-spin 0.8s linear infinite;
+}
+@keyframes icon-spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ── Base ────────────────────────────────────────────────────────── */
+html {
+  overflow-x: clip;
+}
+
 body {
-  background:
-    radial-gradient(circle at top left, color-mix(in srgb, var(--primary) 12%, transparent), transparent 34rem),
-    linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--bg) 88%, var(--surface-2)));
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
-  line-height: 1.5;
+  line-height: 1.29;
+  overflow-x: clip;
+  min-height: 100dvh;
 }
 
 /* App wrapper — full width so Camera/Preferences can use their own layouts */
@@ -88,27 +120,21 @@ body {
 }
 
 /* ── Typography ─────────────────────────────────────────────────── */
-h1 { font-size: var(--text-2xl); font-weight: 700; color: var(--primary); }
-h2 { color: var(--primary); }
+h1 { font-size: var(--f-title1); font-weight: 700; color: var(--label-primary); }
+h2 { font-size: var(--f-title2); font-weight: 700; color: var(--label-primary); }
 .subtitle { color: var(--muted); margin-top: -0.25rem; margin-bottom: 0.75rem; }
-
-svg {
-  flex-shrink: 0;
-}
 
 /* ── Cards ───────────────────────────────────────────────────────── */
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--r-card);
   padding: 1.5rem;
-  box-shadow: var(--shadow-soft);
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  box-shadow: var(--sh-card);
+  transition: box-shadow 0.2s;
 }
 
 .card:hover {
-  border-color: color-mix(in srgb, var(--primary) 36%, var(--border));
-  box-shadow: var(--shadow);
+  box-shadow: var(--sh-float);
 }
 
 /* ── Auth views ──────────────────────────────────────────────────── */
@@ -118,33 +144,12 @@ svg {
   align-items: center;
   min-height: 100vh;
   padding: 2rem 1rem;
-  background:
-    radial-gradient(circle at 20% 15%, color-mix(in srgb, var(--primary-light) 20%, transparent), transparent 20rem),
-    radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--earth) 16%, transparent), transparent 22rem),
-    var(--bg);
+  background: var(--bg);
 }
 
 .auth-card {
   width: 100%;
   max-width: 440px;
-  border-radius: 20px;
-  padding: 2.25rem clamp(1.35rem, 4vw, 2rem);
-}
-
-.auth-title,
-.loading-inline {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.65rem;
-}
-
-.auth-title svg {
-  color: var(--primary);
-}
-
-.loading-inline svg {
-  animation: spin 0.9s linear infinite;
 }
 
 .auth-card h1 {
@@ -154,8 +159,7 @@ svg {
 
 .auth-card .subtitle {
   text-align: center;
-  margin-top: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .auth-form {
@@ -166,67 +170,28 @@ svg {
 
 .auth-form input[type="text"],
 .auth-form input[type="email"],
-.auth-form input[type="password"],
-.auth-form textarea {
+.auth-form input[type="password"] {
+  min-height: var(--touch);
   padding: 0.85rem 1rem;
-  border-radius: 8px;
-  border: 1.5px solid var(--border);
-  background: var(--surface-2);
+  border-radius: var(--r-button);
+  border: 0;
+  background: var(--surface);
+  box-shadow: var(--sh-card);
   color: var(--text);
-  font-size: var(--text-base);
-  font-family: 'Inter', sans-serif;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: var(--f-body);
+  transition: box-shadow 0.2s;
 }
 
-.auth-form textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.auth-form input:focus,
-.auth-form textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(116, 172, 0, 0.18);
-}
-
-.password-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.password-input-wrapper input {
-  width: 100%;
-  padding-right: 3rem !important; /* Space for the icon */
-}
-
-.password-toggle {
-  position: absolute;
-  right: 1rem;
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  color: var(--muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  font-size: var(--text-lg);
-  transition: color 0.2s;
-  z-index: 2;
-}
-
-.password-toggle:hover {
-  color: var(--primary);
+.auth-form input:focus-visible {
+  outline: 3px solid var(--accent-ink);
+  outline-offset: 2px;
 }
 
 .auth-options {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: var(--text-sm);
+  font-size: 0.9rem;
 }
 
 .checkbox-label {
@@ -238,294 +203,228 @@ svg {
   transition: color 0.2s;
 }
 
-.checkbox-label:hover { color: var(--primary); }
+.checkbox-label:hover { color: var(--accent-ink); }
 
 .checkbox-label input {
-  accent-color: var(--primary);
+  accent-color: var(--accent-tint);
   width: 16px; height: 16px;
   cursor: pointer;
 }
 
 .text-link {
-  color: var(--primary);
+  color: var(--accent-ink);
   text-decoration: none;
   transition: color 0.2s;
 }
-.text-link:hover { color: var(--primary-dark); text-decoration: underline; }
+.text-link:hover { color: var(--accent-pressed); text-decoration: underline; }
 .font-bold { font-weight: 600; }
-
-.btn-back {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  min-height: 2.5rem;
-  padding: 0.65rem 0.9rem;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
-  background: color-mix(in srgb, var(--surface) 86%, transparent);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-  transition: background 0.18s, color 0.18s, transform 0.18s, border-color 0.18s;
-}
-
-.btn-back:hover {
-  color: var(--primary);
-  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
-  background: color-mix(in srgb, var(--primary) 10%, var(--surface));
-  transform: translateY(-1px);
-}
-
-.avatar-placeholder {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  color: var(--muted);
-  background: var(--surface-2);
-}
 
 .auth-footer {
   margin-top: 1.5rem;
   text-align: center;
   color: var(--muted);
-  font-size: var(--text-sm);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0.2rem 0.35rem;
-}
-
-.auth-footer-sep {
-  color: var(--muted);
-  user-select: none;
-}
-
-.auth-footer-link-btn {
-  display: inline;
-  width: auto;
-  min-height: unset;
-  padding: 0;
-  margin: 0;
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  color: var(--primary);
-  font: inherit;
-  font-size: inherit;
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-  line-height: inherit;
-}
-
-.auth-footer-link-btn:hover {
-  color: var(--primary-dark);
-  transform: none;
-  opacity: 1;
+  font-size: 0.93rem;
 }
 
 /* ── Buttons ─────────────────────────────────────────────────────── */
+/* .a-btn--primary del design system (anura-hig.css): fondo --cta-bg (tinta
+   AA en claro, verde vivo con texto oscuro en modo oscuro), sin degradado. */
 .btn-primary {
   width: 100%;
+  min-height: 50px;
   padding: 0.9rem;
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  background: var(--cta-bg);
   border: none;
-  border-radius: var(--radius);
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: #ffffff;
+  border-radius: var(--r-button);
+  font-size: var(--f-body);
+  font-weight: 600;
+  color: var(--cta-fg);
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  transition: background-color var(--dur) var(--ease), transform 0.15s;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 3px 10px rgba(116, 172, 0, 0.28);
 }
 
-.btn-primary:hover:not(:disabled) {
-  opacity: 0.92;
-  transform: translateY(-1px);
-  box-shadow: 0 5px 16px rgba(116, 172, 0, 0.35);
+.btn-primary:hover:not(:disabled) { background: var(--accent-pressed); }
+.btn-primary:active:not(:disabled) { transform: scale(.98); }
+.btn-primary:disabled { background: var(--bg-subtle); color: var(--label-tertiary); cursor: not-allowed; }
+
+/* Botón secundario compartido (antes definido dentro de ObservationDetail.css
+   y usado por 10 componentes que dependían de ese archivo). */
+.btn-secondary {
+  flex: unset;
+  width: auto;
+  min-height: var(--touch);
+  padding: 0.6rem 0.9rem;
+  background: var(--bg-elevated);
+  color: var(--label-secondary-aa);
+  border: 1.5px solid var(--separator);
+  border-radius: 10px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
 }
 
-.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+.btn-secondary:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-ink);
+  color: var(--accent-ink);
+}
 
 /* Google button */
 .btn-google {
   width: 100%;
+  min-height: var(--touch);
   padding: 0.85rem;
-  background: #ffffff;
-  border: 1.5px solid #dadce0;
-  border-radius: var(--radius);
-  color: #3c4043;
-  font-size: var(--text-sm);
+  background: var(--surface);
+  border: 0;
+  border-radius: var(--r-button);
+  color: var(--text);
+  font-size: 0.97rem;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.75rem;
-  transition: background 0.2s, box-shadow 0.2s;
+  transition: box-shadow 0.2s;
   margin-bottom: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: var(--sh-card);
 }
 
-.btn-google:hover {
-  background: #f8f9fa;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-}
+.btn-google:hover { box-shadow: var(--sh-float); }
 
 .google-icon { width: 20px; height: 20px; }
-
-/* Google + invitado: bloque compacto (evita que estilos globales de `button` colapsen el CTA) */
-.auth-oauth-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.65rem;
-  width: 100%;
-  margin-bottom: 0.25rem;
-}
-
-.auth-card button.btn-guest {
-  width: 100%;
-  padding: 0.85rem;
-  box-sizing: border-box;
-  min-height: 3rem;
-  background: var(--surface);
-  border: 1.5px solid #dadce0;
-  border-radius: var(--radius);
-  color: var(--text);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.auth-card button.btn-guest:hover {
-  background: #f8f9fa;
-  border-color: #d2d4d7;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-}
-
-.guest-icon { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.95; }
-
-.guest-hint {
-  margin: 0;
-  font-size: var(--text-xs);
-  line-height: 1.45;
-  color: var(--muted);
-  text-align: center;
-}
 
 /* Divider */
 .divider {
   display: flex;
   align-items: center;
   color: var(--muted);
-  font-size: var(--text-xs);
+  font-size: 0.85rem;
   margin: 1rem 0;
 }
 .divider::before,
 .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
 .divider span   { padding: 0 10px; }
 
+/* ── Control segmentado compartido (Observaciones, Paquetes) ──────────
+   Antes vivía en Explorer.css y Packages.css lo duplicaba. */
+.tabs {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--bg-subtle);
+  padding: 4px;
+  border-radius: var(--r-button);
+}
+
+.tabs button {
+  background: transparent;
+  border: 0;
+  min-height: var(--touch);
+  padding: 0.6rem 1.4rem;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--label-secondary-aa);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: calc(var(--r-button) - 4px);
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.tabs button.active {
+  background: var(--bg-elevated);
+  box-shadow: var(--sh-card);
+  color: var(--accent-ink);
+}
+
+/* En pantallas estrechas ocupa todo el ancho y reparte las pestañas: con
+   ancho fijo por pestaña se salía de la pantalla a 320–375px. */
+@media (max-width: 720px) {
+  .tabs {
+    display: flex;
+    width: 100%;
+  }
+
+  .tabs button {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding: 0.6rem 0.4rem;
+    text-align: center;
+  }
+}
+
 /* ── Status boxes ────────────────────────────────────────────────── */
 .error-box {
-  background: rgba(220, 53, 69, 0.08);
-  border: 1px solid rgba(220, 53, 69, 0.3);
-  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  border-radius: 8px;
   padding: 0.75rem 1rem;
   color: var(--danger);
   margin-top: 0.75rem;
-  font-size: var(--text-sm);
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
+  font-size: 0.93rem;
 }
 
 .success-box {
-  background: rgba(116, 172, 0, 0.08);
-  border: 1px solid rgba(116, 172, 0, 0.3);
+  background: var(--accent-wash);
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  color: var(--primary-dark);
+  color: var(--accent-ink);
   margin-top: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+/* Marcador de miniatura sin foto (components/Thumb.jsx). Especificidad
+   alta a propósito: debe ganarle a las reglas `.xxx img { object-fit: cover }`
+   de cada vista. */
+.app img.thumb-is-placeholder {
+  object-fit: contain;
+  padding: 22%;
+  background: var(--ph-thumb);
 }
 
-/* ── Dark theme auth ─────────────────────────────────────────────── */
-[data-theme="dark"] .auth-view      { background: #121a07; }
-[data-theme="dark"] .btn-google     { background: #1e2d0e; border-color: #2d4a18; color: #d4e8a0; }
-[data-theme="dark"] .btn-google:hover { background: #253a10; }
-[data-theme="dark"] .auth-card button.btn-guest {
-  background: #1e2d0e;
-  border-color: #2d4a18;
-  color: #d4e8a0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+/* Solo-audio: mismo tratamiento que "sin foto" (marcador + fondo), con su
+   propio glifo — no es un error, así que no lleva insignia ni texto extra. */
+.app img.thumb-is-audio {
+  padding: 26%;
 }
 
-[data-theme="dark"] .auth-card button.btn-guest:hover {
-  background: #253a10;
-  border-color: #385a1d;
+/* Nombres de usuario en filas de lista: una línea con puntos suspensivos
+   (HIG), nunca partidos en varias líneas. */
+.home-recent-username,
+.user-stack > span,
+.detail-user-link {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-[data-theme="dark"] .guest-hint { color: #9aad7a; }
-[data-theme="dark"] .error-box      { background: rgba(220,53,69,.12); color: #ff8080; }
-[data-theme="dark"] .auth-form input,
-[data-theme="dark"] .auth-form textarea { background: #182508; border-color: #2d4a18; color: #d4e8a0; }
-
-@media (max-width: 520px) {
-  .auth-view {
-    align-items: stretch;
-    padding: 1rem;
-  }
-
-  .auth-card {
-    margin: auto 0;
-  }
+.user-stack,
+.user-meta-detail {
+  min-width: 0;
+  max-width: 100%;
 }
 
-/* Botón de volver universal en móvil (icono centrado, sin texto, circular) */
-@media (max-width: 600px) {
-  .btn-back {
-    font-size: 0 !important;
-    padding: 0 !important;
-    gap: 0 !important;
-    min-width: unset !important;
-    width: 38px !important;
-    height: 38px !important;
-    min-height: unset !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 50% !important;
-    transform: none !important;
-    transition: background-color 0.2s ease !important;
-  }
+/* En tablas, un usuario muy largo (ya sin saltos) ensanchaba su columna y
+   aplastaba las de especie y fecha. */
+.obs-table-full .user-stack > span,
+.observers-table .username-main {
+  max-width: 14rem;
+}
 
-  .btn-back svg {
-    font-size: 1.15rem !important;
-    margin: 0 !important;
-  }
+.observers-table .username-main {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

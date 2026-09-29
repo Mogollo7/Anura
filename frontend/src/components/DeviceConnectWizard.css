@@ -1,0 +1,91 @@
+.device-wizard {
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.device-wizard-icon {
+  font-size: 3rem;
+  color: var(--muted);
+}
+
+.device-wizard-icon--ok {
+  color: var(--accent-ink);
+}
+
+.device-wizard-icon--spin {
+  animation: device-wizard-spin 1.6s linear infinite;
+}
+
+@keyframes device-wizard-spin {
+  to { transform: rotate(360deg); }
+}
+
+.device-wizard h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.device-wizard p {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+.device-wizard--idle .btn-primary {
+  margin-top: 0.5rem;
+  width: auto;
+  padding: 0.9rem 2rem;
+}
+
+.device-wizard-device-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: var(--text-base);
+}
+
+.device-wizard-device-model {
+  color: var(--muted);
+}
+
+.device-wizard--connected {
+  align-items: stretch;
+  text-align: left;
+  max-width: 480px;
+}
+
+.device-wizard-connected-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.device-wizard-connected-header h3 {
+  margin: 0 0 0.15rem;
+}
+
+.device-wizard-disconnect {
+  margin-left: auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.device-wizard-hint {
+  margin-top: 0.5rem;
+  text-align: left;
+}

@@ -1,0 +1,130 @@
+.field-trips-view {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.field-trips-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 1.75rem 0;
+}
+
+.field-trips-header h1 {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field-trips-subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.field-trips-content {
+  padding: 1.75rem 0 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field-trip-card {
+  padding: 1.1rem 1.25rem;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.field-trip-card:hover {
+  transform: translateY(-2px);
+}
+
+.field-trip-card-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.field-trip-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  font-size: 1.3rem;
+}
+
+.field-trip-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field-trip-card-body strong {
+  font-size: var(--text-base);
+  color: var(--text);
+}
+
+.field-trip-card-meta,
+.field-trip-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.field-trip-card-meta span,
+.field-trip-card-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.field-trip-card-stats {
+  font-weight: 600;
+}
+
+.field-trip-badge-active {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  padding: 0.1rem 0.5rem;
+  border-radius: 99px;
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.field-trip-card-arrow {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.field-trips-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.field-trips-state svg {
+  font-size: 2.5rem;
+  color: var(--label-secondary);
+}
+
+.field-trips-state strong {
+  color: var(--text);
+}

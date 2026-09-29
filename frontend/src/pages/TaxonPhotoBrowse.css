@@ -86,9 +86,15 @@
 ════════════════════════════════════ */
 .browse-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
   gap: 4px;
   padding: 4px;
+}
+
+.browse-load-more {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
 }
 
 /* ── Photo card ── */
@@ -143,7 +149,7 @@
 }
 
 .tooltip-common {
-  color: #fff;
+  color: var(--label-on-photo);
   font-size: var(--text-sm);
   font-weight: 700;
   margin: 0;
@@ -163,7 +169,7 @@
 ════════════════════════════════════ */
 @media (max-width: 768px) {
   .browse-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr));
     gap: 3px;
     padding: 3px;
   }
@@ -192,7 +198,7 @@
 
 @media (max-width: 480px) {
   .browse-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 2px;
     padding: 2px;
   }

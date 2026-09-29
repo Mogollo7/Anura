@@ -1,0 +1,127 @@
+.audio-player {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.audio-player-btn {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  border-radius: 50%;
+  border: none;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  background: var(--cta-bg);
+  color: var(--cta-fg);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.audio-player-btn:hover { transform: scale(1.05); }
+.audio-player-btn:active { transform: scale(0.96); }
+
+.audio-player-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.audio-player-labels {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.audio-player-labels strong {
+  font-size: var(--text-sm);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audio-player-labels small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.audio-player-wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 28px;
+}
+
+.audio-player-wave span {
+  flex: 1 1 0;
+  min-width: 2px;
+  border-radius: 2px;
+  background: var(--separator);
+  transition: background 0.15s;
+}
+
+.audio-player-wave span.is-past {
+  background: var(--accent-ink);
+}
+
+.audio-player.is-playing .audio-player-wave span {
+  animation: audio-wave-pulse 0.9s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@keyframes audio-wave-pulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audio-player.is-playing .audio-player-wave span { animation: none; }
+}
+
+.audio-player-time {
+  font-size: var(--text-2xs);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fila dentro de una lista (ficha de especie: bioacústica). */
+.audio-player--row {
+  padding: 0.75rem;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+/* Slide de audio dentro del carrusel de una observación: ocupa el alto
+   completo del carrusel, centrado, sobre el fondo de marcador. */
+.audio-player--carousel {
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--ph-thumb);
+}
+
+.audio-player--carousel .audio-player-btn {
+  width: 72px;
+  height: 72px;
+  font-size: 2rem;
+}
+
+.audio-player--carousel .audio-player-body {
+  width: 100%;
+  max-width: 280px;
+  align-items: center;
+  text-align: center;
+}
+
+.audio-player--carousel .audio-player-wave {
+  width: 100%;
+}

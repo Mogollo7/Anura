@@ -1,25 +1,12 @@
 .people-view {
   min-height: 100vh;
-  background: var(--bg, #f4f6f0);
-}
-
-.container {
-  width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding-left: clamp(1.25rem, 7vw, 6.5rem) !important;
-  padding-right: clamp(1.25rem, 7vw, 6.5rem) !important;
+  background: var(--bg);
 }
 
 .people-header-banner {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   padding: 3rem 0 2rem;
-}
-
-[data-theme='dark'] .people-header-banner {
-  background: var(--surface);
-  border-color: var(--border);
 }
 
 .people-profile-summary {
@@ -36,9 +23,9 @@
   min-height: 120px;
   border-radius: 50%;
   overflow: hidden;
-  background: #eee;
+  background: var(--bg-subtle);
   border: 4px solid var(--surface);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: var(--sh-card);
 }
 
 .people-avatar-large img {
@@ -95,7 +82,7 @@
 
 .profile-role .status-dot {
   font-size: 0.65rem;
-  color: #74AC00;
+  color: var(--accent-ink);
 }
 
 .people-meta {
@@ -123,11 +110,6 @@
   z-index: 10;
 }
 
-[data-theme='dark'] .people-nav {
-  background: var(--surface);
-  border-color: var(--border);
-}
-
 .people-nav ul {
   display: flex;
   overflow-x: auto;
@@ -146,12 +128,12 @@
 }
 
 .people-nav li:hover {
-  color: #74AC00;
+  color: var(--accent-ink);
 }
 
 .people-nav li.active {
-  color: #74AC00;
-  border-bottom-color: #74AC00;
+  color: var(--accent-ink);
+  border-bottom-color: var(--accent-ink);
 }
 
 .people-content {
@@ -166,7 +148,7 @@
 
 .stats-box {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.5rem;
   padding: 2rem;
 }
@@ -180,13 +162,13 @@
 .stat-val {
   font-size: var(--text-xl);
   font-weight: 800;
-  color: #74AC00;
+  color: var(--accent-ink);
 }
 
 .stat-label {
   font-size: var(--text-2xs);
   text-transform: uppercase;
-  color: #999;
+  color: var(--label-secondary);
   font-weight: 600;
 }
 
@@ -211,7 +193,7 @@
 
 .bio-text {
   line-height: 1.6;
-  color: var(--text, #444);
+  color: var(--text);
 }
 
 .no-bio {
@@ -221,7 +203,7 @@
 
 .recent-obs-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
 }
 
@@ -258,6 +240,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .recent-obs-name {
@@ -278,7 +262,7 @@
 
 @media (max-width: 600px) {
   .recent-obs-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1rem;
   }
 
@@ -332,7 +316,7 @@
 
 @media (max-width: 768px) {
   .people-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .people-profile-summary {
     flex-direction: column;
@@ -372,6 +356,12 @@
     gap: 1rem;
     width: 100%;
     min-width: 0;
+  }
+
+  /* Sin ancho explícito el bloque se ajustaba al h1 (nowrap) y un nombre
+     de usuario largo salía de la pantalla en vez de truncarse. */
+  .profile-name-block {
+    width: 100%;
   }
 
   .profile-name-row h1,
@@ -422,11 +412,6 @@
 
 /* Teléfonos estrechos (p. ej. iPhone 12–15 ~400px) */
 @media (max-width: 400px) {
-  .people-view .container {
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-  }
-
   .people-header-banner {
     padding: 1.75rem 0 1.25rem;
   }
@@ -487,38 +472,40 @@
   max-width: 100%;
 }
 
+/* Botón "Seguir" — mismo lenguaje que .a-btn--outline del design system,
+   con el estado "siguiendo" mostrando quitar-seguimiento en rojo al hover. */
 .btn-follow {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: var(--touch);
   padding: 0.5rem 1.25rem;
-  border-radius: 999px;
-  border: 1.5px solid #74AC00;
+  border-radius: var(--r-capsule);
+  border: 1.5px solid var(--accent-ink);
   background: transparent;
-  color: #74AC00;
-  font-size: 14px;
+  color: var(--accent-ink);
+  font-size: var(--f-subhead);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
   min-width: 125px;
   justify-content: center;
 }
 
 .btn-follow:hover {
-  background: #74AC00;
-  color: #fff;
-  transform: translateY(-1px);
+  background: var(--accent-ink);
+  color: var(--label-on-accent);
 }
 
 .btn-follow.following {
-  border-color: #888;
-  color: #888;
+  border-color: var(--separator);
+  color: var(--label-secondary-aa);
 }
 
 .btn-follow.following:hover {
-  background: #e44;
-  border-color: #e44;
-  color: #fff;
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--danger-fg);
 }
 
 .btn-follow svg {

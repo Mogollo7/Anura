@@ -1,0 +1,92 @@
+/* Card de especie/observación — replica ObservationCard.kt: 167:196, 16px de
+   radio, imagen a sangre con scrim inferior y texto blanco encima, sin sombra
+   elevada (borde + radio, no box-shadow pesado). Compartida entre Explorer
+   (grid de especies) y Home (carrusel de especies destacadas) — antes vivía
+   solo en Explorer.css y Home la habría tenido que duplicar. */
+.species-card {
+  position: relative;
+  background: var(--ph-thumb);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  box-shadow: var(--sh-card);
+  display: block;
+  cursor: pointer;
+}
+
+.card-no-border {
+  border-radius: var(--r-card);
+  box-shadow: var(--sh-card);
+}
+
+.species-img-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 167 / 196;
+  background: var(--ph-thumb);
+}
+
+.species-img-wrapper img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.species-img-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 55%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent);
+  pointer-events: none;
+}
+
+.species-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Con align-items: flex-start los hijos se ajustan a su contenido; un
+   usuario largo sin espacios hacía la fila más ancha que la tarjeta. */
+.species-info > * {
+  max-width: 100%;
+}
+
+.species-common {
+  font-weight: 600;
+  color: var(--label-on-photo);
+  font-size: var(--text-base);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .species-info { padding: 8px; }
+  .species-common { font-size: var(--text-sm); }
+}
+
+.species-scientific {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: var(--text-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.species-ai-prob {
+  font-style: normal;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: var(--text-xs);
+}

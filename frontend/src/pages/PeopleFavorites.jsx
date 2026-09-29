@@ -1,21 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { currentUserIdFromToken, obsIdKey } from '../lib/observationIds';
-import {
-  FaCircle, FaFrog, FaLocationDot, FaMagnifyingGlass,
-  FaTableCells, FaList, FaTriangleExclamation, FaUser,
-  FaCalendarDays, FaHeart, FaXmark, FaGoogle,
-} from 'react-icons/fa6';
+import { MdCircle, MdLocationOn, MdSearch, MdGridView, MdFormatListBulleted, MdWarning, MdPerson, MdCalendarToday, MdFavorite } from 'react-icons/md';
 import './People.css';
 import './PeopleObservations.css';
 import LoadingSpinner from '../components/LoadingSpinner';
-
-const API_BASE = import.meta.env.VITE_API_URL || '';
+import GuestLoginModal from '../components/GuestLoginModal';
+import FavoriteHeartButton from '../components/FavoriteHeartButton';
+import { apiGet, apiPost, getThumbUrl } from '../services/api';
+import { mediaUrl, isAudioOnly } from '../lib/format';
+import Thumb from '../components/Thumb';
 
 const getImageUrl = (key, size = 'medium') => {
   if (!key) return '';
   const filename = key.split('/').pop();
-  return `${API_BASE}/api/explorer/thumbnail/${size}/${filename}`;
+  return getThumbUrl(filename, size);
 };
 
 export default function PeopleFavorites() {
@@ -45,15 +44,10 @@ export default function PeopleFavorites() {
 
   const fetchProfile = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/auth/public/${username}`);
-      if (res.ok) {
-        setProfile(await res.json());
-      } else {
-        const err = await res.json();
-        setProfileError(err.message || 'No se pudo cargar el perfil');
-      }
-    } catch {
-      setProfileError('Error al conectar con el servidor');
+      const data = await apiGet(`/api/auth/public/${username}`, { auth: false });
+      setProfile(data);
+    } catch (err) {
+      setProfileError(err.body?.message || 'No se pudo cargar el perfil');
     } finally {
       setProfileLoading(false);
     }
@@ -63,8 +57,8 @@ export default function PeopleFavorites() {
     setObsLoading(true);
     try {
       // Get public favorites of this user
-      const res = await fetch(`${API_BASE}/api/explorer/favorites/feed/user/${encodeURIComponent(username)}`);
-      if (res.ok) setObservations(await res.json());
+      const data = await apiGet(`/api/explorer/favorites/feed/user/${encodeURIComponent(username)}`, { auth: false });
+      setObservations(data);
     } catch (e) { console.error(e); }
     finally { setObsLoading(false); }
   };
@@ -75,24 +69,16 @@ export default function PeopleFavorites() {
     const oid = obsIdKey(obsId);
     setLikeLoading(prev => new Set(prev).add(oid));
     try {
-      const res = await fetch(`${API_BASE}/api/explorer/favorites/${encodeURIComponent(oid)}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.status === 401) {
+      const { liked } = await apiPost(`/api/explorer/favorites/${encodeURIComponent(oid)}`, {});
+      if (!liked) {
+        setObservations(prev => prev.filter(o => obsIdKey(o.id) !== oid));
+      }
+    } catch (err) {
+      if (err.status === 401) {
         localStorage.removeItem('anura_token');
         setGuestModal(true);
-        return;
       }
-      if (res.ok) {
-        const { liked } = await res.json();
-
-        if (!liked) {
-          setObservations(prev => prev.filter(o => obsIdKey(o.id) !== oid));
-        }
-      }
-    } catch { /* silent */ }
-    finally {
+    } finally {
       setLikeLoading(prev => { const n = new Set(prev); n.delete(oid); return n; });
     }
   };
@@ -108,8 +94,8 @@ export default function PeopleFavorites() {
   if (profileLoading) return <LoadingSpinner text={`Cargando favoritos de ${username}…`} />;
   if (profileError) return (
     <div className="people-error">
-      <p><FaTriangleExclamation aria-hidden /> {profileError}</p>
-      <button onClick={() => navigate('/explorer')} className="btn-back">Volver al Explorador</button>
+      <p><MdWarning aria-hidden /> {profileError}</p>
+      <button onClick={() => navigate('/inicio')} className="btn-back">Volver al inicio</button>
     </div>
   );
 
@@ -126,41 +112,28 @@ export default function PeopleFavorites() {
   const HeartBtn = ({ obs }) => {
     const busy = likeLoading.has(obsIdKey(obs.id));
     return (
-      <button
-        type="button"
-        className="po-heart-btn liked"
-        onClick={e => handleHeart(e, obs.id)}
+      <FavoriteHeartButton
+        liked
         disabled={!isProfileOwner || busy}
+        onClick={e => handleHeart(e, obs.id)}
         title={
           isProfileOwner
             ? (busy ? 'Quitando…' : 'Quitar de mis favoritos')
             : `En favoritos de ${username}`
         }
-        aria-label={
-          isProfileOwner
-            ? 'Quitar de mis favoritos'
-            : `Favorito de ${username}`
-        }
-      >
-        <FaHeart aria-hidden />
-      </button>
+        ariaLabel={isProfileOwner ? 'Quitar de mis favoritos' : `Favorito de ${username}`}
+      />
     );
   };
 
   return (
     <div className="people-view theme-aware">
       {guestModal && (
-        <div className="po-modal-overlay" onClick={() => setGuestModal(false)}>
-          <div className="po-modal-card" onClick={e => e.stopPropagation()}>
-            <button className="po-modal-close" onClick={() => setGuestModal(false)}><FaXmark /></button>
-            <FaHeart aria-hidden className="po-modal-icon" />
-            <h2>Guarda tus favoritos</h2>
-            <p>Para guardar observaciones en favoritos necesitas iniciar sesión.</p>
-            <button className="btn-primary po-modal-login" onClick={() => { window.location.href = `${API_BASE}/api/auth/google`; }}>
-              <FaGoogle aria-hidden /> Continuar con Google
-            </button>
-          </div>
-        </div>
+        <GuestLoginModal
+          onClose={() => setGuestModal(false)}
+          description="Para guardar observaciones en favoritos necesitas iniciar sesión."
+          showCancel={false}
+        />
       )}
 
       <div className="people-header-banner">
@@ -168,18 +141,18 @@ export default function PeopleFavorites() {
           <div className="people-profile-summary">
             <div className="people-avatar-large">
               {user.profile_image && !avatarLoadError ? (
-                <img src={`${API_BASE}${user.profile_image}`} alt={user.username} onError={() => setAvatarLoadError(true)} />
+                <img src={mediaUrl(user.profile_image)} alt={user.username} onError={() => setAvatarLoadError(true)} />
               ) : (
-                <span className="avatar-placeholder"><FaUser aria-hidden /></span>
+                <span className="avatar-placeholder"><MdPerson aria-hidden /></span>
               )}
             </div>
             <div className="people-identity">
               <h1>{user.username}</h1>
               <p className="people-meta">
                 Unido: {fmtDate(stats.joined)}
-                <span className="separator"><FaCircle aria-hidden /></span>
+                <span className="separator"><MdCircle aria-hidden /></span>
                 Última actividad: {fmtDate(stats.last_activity)}
-                <span className="separator"><FaCircle aria-hidden /></span>
+                <span className="separator"><MdCircle aria-hidden /></span>
                 {stats.observations} observaciones
               </p>
             </div>
@@ -199,7 +172,7 @@ export default function PeopleFavorites() {
 
       <div className="po-controls container">
         <div className="po-search-wrap">
-          <FaMagnifyingGlass aria-hidden className="po-search-icon" />
+          <MdSearch aria-hidden className="po-search-icon" />
           <input
             type="text" className="po-search-input"
             placeholder="Buscar en favoritos…"
@@ -207,8 +180,8 @@ export default function PeopleFavorites() {
           />
         </div>
         <div className="po-switcher">
-          <button className={subview === 'grid' ? 'po-sw-btn active' : 'po-sw-btn'} onClick={() => setSubview('grid')}><FaTableCells /></button>
-          <button className={subview === 'list' ? 'po-sw-btn active' : 'po-sw-btn'} onClick={() => setSubview('list')}><FaList /></button>
+          <button className={subview === 'grid' ? 'po-sw-btn active' : 'po-sw-btn'} onClick={() => setSubview('grid')}><MdGridView /></button>
+          <button className={subview === 'list' ? 'po-sw-btn active' : 'po-sw-btn'} onClick={() => setSubview('list')}><MdFormatListBulleted /></button>
         </div>
       </div>
 
@@ -216,20 +189,20 @@ export default function PeopleFavorites() {
         {obsLoading ? (
           <LoadingSpinner text="Cargando favoritos…" />
         ) : filtered.length === 0 ? (
-          <div className="po-empty"><FaHeart className="po-empty-icon" /><p>{search ? `Sin resultados para "${search}"` : `${username} no tiene favoritos públicos.`}</p></div>
+          <div className="po-empty"><MdFavorite className="po-empty-icon" /><p>{search ? `Sin resultados para "${search}"` : `${username} no tiene favoritos públicos.`}</p></div>
         ) : subview === 'grid' ? (
           <div className="po-grid">
             {filtered.map(obs => (
               <div key={obsIdKey(obs.id)} className="po-card" onClick={() => navigate(`/explorer/${obsIdKey(obs.id)}`)}>
                 <div className="po-card-img">
-                  <img src={getImageUrl(obs.thumbnail_key, 'medium')} alt={obs.common_name} onError={e => e.target.style.display='none'} />
+                  <Thumb src={getImageUrl(obs.thumbnail_key, 'medium')} alt={obs.common_name} audioOnly={isAudioOnly(obs)} />
                   <HeartBtn obs={obs} />
                 </div>
                 <div className="po-card-body">
                   <strong className="po-common">{obs.common_name || 'Sin identificar'}</strong>
                   <small className="po-sci">{obs.ai_class?.replace(/_/g, ' ')}</small>
-                  <span className="po-date"><FaCalendarDays /> {fmtDate(obs.recorded_at || obs.created_at)}</span>
-                  {obs.place_guess && <span className="po-place"><FaLocationDot /> {obs.place_guess}</span>}
+                  <span className="po-date"><MdCalendarToday /> {fmtDate(obs.recorded_at || obs.created_at)}</span>
+                  {obs.place_guess && <span className="po-place"><MdLocationOn /> {obs.place_guess}</span>}
                 </div>
               </div>
             ))}
@@ -238,12 +211,12 @@ export default function PeopleFavorites() {
           <div className="po-list">
             {filtered.map(obs => (
               <div key={obsIdKey(obs.id)} className="po-list-item" onClick={() => navigate(`/explorer/${obsIdKey(obs.id)}`)}>
-                <div className="po-list-thumb"><img src={getImageUrl(obs.thumbnail_key, 'small')} alt={obs.common_name} /></div>
+                <div className="po-list-thumb"><Thumb src={getImageUrl(obs.thumbnail_key, 'small')} alt={obs.common_name} audioOnly={isAudioOnly(obs)} /></div>
                 <div className="po-list-info">
                   <strong>{obs.common_name || 'Sin identificar'}</strong>
                   <div className="po-list-meta">
-                    <span><FaCalendarDays /> {fmtDate(obs.recorded_at || obs.created_at)}</span>
-                    {obs.place_guess && <span><FaLocationDot /> {obs.place_guess}</span>}
+                    <span><MdCalendarToday /> {fmtDate(obs.recorded_at || obs.created_at)}</span>
+                    {obs.place_guess && <span><MdLocationOn /> {obs.place_guess}</span>}
                   </div>
                 </div>
                 <div className="po-list-end"><HeartBtn obs={obs} /></div>

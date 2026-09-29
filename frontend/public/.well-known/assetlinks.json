@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "me.juanlabs.anura",
+      "sha256_cert_fingerprints": [
+        "9B:23:64:86:AB:DB:6C:B5:29:BE:BF:BB:B8:C6:EF:BE:72:87:93:52:BA:4F:D6:16:CE:FC:07:3B:92:BF:47:9A"
+      ]
+    }
+  }
+]

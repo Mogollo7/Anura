@@ -18,32 +18,56 @@
 /* ── Header with Back Button and Titles ── */
 .taxon-header {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
   padding-top: 1.5rem;
   padding-bottom: 1rem;
 }
 
+@media (min-width: 640px) {
+  .taxon-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}
+
 .taxon-header-titles {
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+}
+
+@media (min-width: 640px) {
+  .taxon-header-titles {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
 }
 
 .taxon-header-common {
   font-size: var(--text-2xl);
   font-weight: 700;
-  color: var(--primary);
+  color: var(--text);
   margin: 0;
   line-height: 1.2;
 }
 
 .taxon-header-sci {
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   color: var(--muted);
   font-style: italic;
   font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .taxon-header-sci {
+    font-size: var(--text-base);
+  }
 }
 
 .taxon-gallery-section {
@@ -53,9 +77,16 @@
 
 .taxon-gallery-grid {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
   align-items: stretch;
+}
+
+@media (min-width: 1024px) {
+  .taxon-gallery-grid {
+    grid-template-columns: 1.2fr 1fr;
+    gap: 1.5rem;
+  }
 }
 
 .taxon-gallery-stack {
@@ -80,8 +111,10 @@
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  height: clamp(300px, 45vh, 500px);
-  border-radius: 16px;
+  /* Fluido en vez de saltar por breakpoint: crece con el viewport entre
+     220px (teléfono) y 500px (escritorio grande). */
+  height: clamp(220px, 28vw, 500px);
+  border-radius: var(--r-card);
   background: var(--surface-2);
 }
 
@@ -95,6 +128,10 @@
 
 .taxon-hero-slot:hover .taxon-hero-img {
   transform: scale(1.04);
+}
+
+.taxon-hero-fallback .img-fallback-icon {
+  font-size: 3rem;
 }
 
 .taxon-hero-placeholder {
@@ -115,12 +152,20 @@
   opacity: 0.3;
 }
 
-/* Thumbnails grid (5 + 1 CTA) */
+/* Thumbnails grid (5 + 1 CTA) — 3 columnas en teléfono (más grandes, más
+   fáciles de tocar), 6 desde tablet donde ya entran de a una fila completa. */
 .taxon-thumbs-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
   background: none;
+}
+
+@media (min-width: 768px) {
+  .taxon-thumbs-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+  }
 }
 
 .taxon-thumb-slot {
@@ -128,8 +173,14 @@
   overflow: hidden;
   cursor: pointer;
   background: var(--surface-2);
-  border-radius: 10px;
+  border-radius: 8px;
   aspect-ratio: 3/2;
+}
+
+@media (min-width: 768px) {
+  .taxon-thumb-slot {
+    border-radius: 10px;
+  }
 }
 
 .taxon-thumb-img {
@@ -161,7 +212,7 @@
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.65);
-  color: #fff;
+  color: var(--label-on-photo);
   transition: background 0.2s;
 }
 
@@ -198,21 +249,36 @@
 .taxon-facts-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  padding: 1.5rem 0 0.5rem;
+  gap: 0.5rem;
+  padding: 1.25rem 0 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .taxon-facts-bar {
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+  }
 }
 
 .taxon-fact-chip {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.6rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 0.65rem 1rem;
+  padding: 0.5rem 0.75rem;
   box-shadow: var(--shadow-soft);
   flex: 1;
-  min-width: 160px;
+  min-width: 130px;
+}
+
+@media (min-width: 640px) {
+  .taxon-fact-chip {
+    gap: 0.65rem;
+    padding: 0.65rem 1rem;
+    min-width: 160px;
+  }
 }
 
 .taxon-fact-chip svg {
@@ -244,9 +310,17 @@
 
 .taxon-content-grid {
   display: grid;
-  grid-template-columns: 1fr 1.1fr;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .taxon-content-grid {
+    grid-template-columns: 1fr 1.1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
 }
 
 .taxon-left-col,
@@ -380,7 +454,7 @@
 .iucn-code {
   font-size: var(--text-xl);
   font-weight: 800;
-  color: #fff;
+  color: var(--label-on-accent);
 }
 
 .iucn-label {
@@ -410,7 +484,7 @@
 }
 
 .threat-list li svg {
-  color: #c0392b;
+  color: var(--danger);
   flex-shrink: 0;
 }
 
@@ -433,7 +507,7 @@
 }
 
 .taxon-curiosity svg {
-  color: #f59e0b;
+  color: var(--warning);
   font-size: 1.1rem;
   flex-shrink: 0;
   margin-top: 0.1rem;
@@ -456,9 +530,16 @@
 /* ── Ecology ── */
 .taxon-eco-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.9rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+  .taxon-eco-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.9rem;
+  }
 }
 
 .eco-item {
@@ -507,30 +588,32 @@
 
 /* ── Obs counter card ── */
 .taxon-obs-summary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  background: var(--cta-bg);
   border: none;
-  color: #fff;
+  color: var(--cta-fg);
 }
 
 .taxon-obs-summary .taxon-section-title {
-  color: rgba(255,255,255,0.9);
-  border-color: rgba(255,255,255,0.2);
+  color: var(--cta-fg);
+  opacity: 0.9;
+  border-color: color-mix(in srgb, var(--cta-fg) 20%, transparent);
 }
 
 .taxon-obs-summary .taxon-section-title svg {
-  color: #fff;
+  color: var(--cta-fg);
 }
 
 .taxon-obs-count {
   font-size: var(--text-sm);
-  color: rgba(255,255,255,0.85);
+  color: var(--cta-fg);
+  opacity: 0.85;
   margin-bottom: 1rem;
 }
 
 .taxon-obs-count span {
   font-size: var(--text-3xl);
   font-weight: 800;
-  color: #fff;
+  color: var(--cta-fg);
   display: block;
   line-height: 1.1;
 }
@@ -539,10 +622,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255,255,255,0.18);
-  border: 1.5px solid rgba(255,255,255,0.35);
-  border-radius: 10px;
-  color: #fff;
+  min-height: var(--touch);
+  background: color-mix(in srgb, var(--cta-fg) 18%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--cta-fg) 35%, transparent);
+  border-radius: var(--r-button);
+  color: var(--cta-fg);
   font-size: var(--text-sm);
   font-weight: 600;
   padding: 0.65rem 1.1rem;
@@ -552,7 +636,7 @@
 }
 
 .btn-browse-all:hover {
-  background: rgba(255,255,255,0.28);
+  background: color-mix(in srgb, var(--cta-fg) 28%, transparent);
   transform: translateY(-1px);
 }
 
@@ -587,8 +671,15 @@
 
 .taxon-obs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .taxon-obs-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+    gap: 1.25rem;
+  }
 }
 
 .taxon-obs-card {
@@ -601,9 +692,16 @@
   box-shadow: var(--shadow-soft);
 }
 
-.taxon-obs-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow);
+/* El lift-on-hover es un affordance de mouse; en touch (móvil/tablet chico)
+   no aporta y solo genera jank, así que solo se activa donde hay hover real. */
+@media (hover: hover) and (min-width: 640px) {
+  .taxon-obs-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+  }
+  .taxon-obs-card:hover .taxon-obs-img img {
+    transform: scale(1.06);
+  }
 }
 
 .taxon-obs-img {
@@ -619,28 +717,42 @@
   transition: transform 0.3s;
 }
 
-.taxon-obs-card:hover .taxon-obs-img img {
-  transform: scale(1.06);
-}
-
 .taxon-obs-body {
-  padding: 0.9rem;
+  padding: 0.55rem 0.6rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
 .taxon-obs-body strong {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* Metadatos (fecha, lugar) ocultos en móvil por espacio — visibles desde
+   tablet, donde la tarjeta ya tiene aire para mostrarlos. */
 .obs-meta {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.35rem;
   font-size: var(--text-xs);
   color: var(--muted);
+}
+
+@media (min-width: 640px) {
+  .taxon-obs-body {
+    padding: 0.9rem;
+  }
+  .taxon-obs-body strong {
+    font-size: var(--text-sm);
+    white-space: normal;
+  }
+  .obs-meta {
+    display: flex;
+  }
 }
 
 /* ── Map Section ── */
@@ -650,9 +762,9 @@
 }
 
 .taxon-map-wrapper {
-  height: 400px;
+  height: clamp(260px, 40vw, 400px);
   width: 100%;
-  border-radius: 16px;
+  border-radius: var(--r-card);
   overflow: hidden;
   margin-top: 1rem;
   background: var(--surface-2);
@@ -699,9 +811,9 @@
 }
 
 .map-ctrl-btn.active {
-  background: rgba(116, 172, 0, 0.1);
-  color: #74AC00;
-  border-color: rgba(116, 172, 0, 0.3);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  border-color: color-mix(in srgb, var(--accent-ink) 30%, transparent);
 }
 
 /* ── Error state ── */
@@ -718,95 +830,6 @@
 .taxon-error svg {
   font-size: 2.5rem;
   color: var(--danger);
-}
-
-/* ════════════════════════════════════
-   RESPONSIVE
-════════════════════════════════════ */
-@media (max-width: 900px) {
-  .taxon-content-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .taxon-gallery-grid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-
-  .taxon-hero-slot {
-    height: clamp(240px, 35vh, 400px);
-  }
-}
-
-@media (max-width: 600px) {
-  .taxon-facts-bar {
-    gap: 0.5rem;
-  }
-
-  .taxon-fact-chip {
-    min-width: 130px;
-    padding: 0.5rem 0.75rem;
-  }
-
-  .taxon-eco-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .taxon-obs-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-  }
-
-  /* En móvil: tarjeta solo imagen + nombre común */
-  .taxon-obs-card:hover {
-    transform: none;
-    box-shadow: var(--shadow-soft);
-  }
-  .taxon-obs-card:hover .taxon-obs-img img {
-    transform: none;
-  }
-  .taxon-obs-body {
-    padding: 0.55rem 0.6rem;
-  }
-  /* Ocultar metadatos (fecha, lugar) en móvil */
-  .taxon-obs-body .obs-meta {
-    display: none;
-  }
-  .taxon-obs-body strong {
-    font-size: var(--text-xs);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .taxon-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  .taxon-header-titles {
-    flex-direction: column;
-    gap: 0.1rem;
-    align-items: flex-start;
-  }
-
-  .taxon-header-sci {
-    font-size: var(--text-sm);
-  }
-
-  .taxon-thumbs-grid {
-    gap: 4px;
-  }
-
-  .taxon-hero-slot {
-    height: 220px;
-    border-radius: 12px;
-  }
-
-  .taxon-thumb-slot {
-    border-radius: 6px;
-  }
 }
 
 /* Custom Leaflet Popup */
@@ -931,4 +954,38 @@
 .square-marker-icon {
   background: none !important;
   border: none !important;
+}
+
+/* Bioacústica — cantos de referencia, mismas filas que species_sheet_audio_*
+   en la app (AudioRingButton + waveform). */
+.taxon-bioacoustics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Ficha publicada (Admin → Contenido): foto principal con su crédito y la fuente de cada dato. */
+.taxon-hero-figure {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.taxon-hero-credit {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: var(--text-xs, 12px);
+}
+
+.taxon-published-note,
+.taxon-source {
+  margin-top: 12px;
+  font-size: var(--text-xs, 12px);
+  color: var(--muted);
 }

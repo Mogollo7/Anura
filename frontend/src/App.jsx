@@ -1,63 +1,79 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom'
-import { FaCircleNotch, FaEye, FaEyeSlash, FaFrog, FaGoogle, FaTriangleExclamation } from 'react-icons/fa6'
-import { BsIncognito } from 'react-icons/bs'
 import './App.css'
-import Camera from './pages/Camera'
-import Preferences from './pages/Preferences'
+// La web es para navegar lo que se registra en la app móvil (observaciones,
+// especies, perfiles, salidas de campo); no identifica especies.
+import Home from './pages/Home'
 import Explorer from './pages/Explorer'
-import Profile from './pages/Profile'
 import ObservationDetail from './pages/ObservationDetail'
 import People from './pages/People'
 import PeopleObservations from './pages/PeopleObservations'
 import PeopleFavorites from './pages/PeopleFavorites'
+import Settings from './pages/Settings'
+import EditProfile from './pages/EditProfile'
+import Packages from './pages/Packages'
+import FieldTrips from './pages/FieldTrips'
+import FieldTripDetail from './pages/FieldTripDetail'
+import Search from './pages/Search'
 import TaxonDetail from './pages/TaxonDetail'
 import TaxonPhotoBrowse from './pages/TaxonPhotoBrowse'
-import Search from './pages/Search'
+import DemoData from './pages/DemoData'
 import AuthenticatedLayout from './layouts/AuthenticatedLayout'
 import { usePreferencesStore } from './store/preferencesStore'
-import { obsIdKey } from './lib/observationIds'
+import { API_BASE, apiGet, apiPost } from './services/api'
+import LoadingSpinner from './components/LoadingSpinner'
 
-const API_BASE = import.meta.env.VITE_API_URL || ''
+// ── Protected route ──────────────────────────────────────────────
+function ProtectedRoute({ children, token }) {
+  const { loadPreferences, fetchPreferences } = usePreferencesStore()
 
-const GUEST_LS_KEY = 'anura_guest'
+  useEffect(() => {
+    loadPreferences()
+    if (token) fetchPreferences()
+  }, [token]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!token) return <Navigate to="/login" />
+  return children
+}
+
+// ── Redirección a mi propio perfil ──────────────────────────────────
+// People.jsx (Profile(userId) en Android) es la única vista de perfil real;
+// esto solo resuelve "quién soy" y reenvía, para no duplicar esa pantalla.
+function OwnProfileRedirect() {
+  const [target, setTarget] = useState(null)
+  useEffect(() => {
+    apiGet('/api/auth/me')
+      .then((data) => setTarget(`/people/${data.user.username}`))
+      .catch(() => setTarget('/ajustes'))
+  }, [])
+  if (!target) return <LoadingSpinner text="Cargando tu perfil..." />
+  return <Navigate to={target} replace />
+}
 
 // ── Login ────────────────────────────────────────────────────────
-function Login({ setToken, onContinueAsGuest }) {
+function Login({ setToken }) {
   const [email, setEmail]         = useState('')
   const [password, setPassword]   = useState('')
   const [rememberMe, setRememberMe] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError]         = useState(null)
   const [loading, setLoading]     = useState(false)
   const navigate = useNavigate()
   const { initializeFromBackend } = usePreferencesStore()
-
-  const handleGuest = () => {
-    onContinueAsGuest?.()
-    navigate('/explorer', { replace: true })
-  }
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     try {
-      const res  = await fetch(`${API_BASE}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, rememberMe }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Error de autenticación')
+      const data = await apiPost('/api/auth/login', { email, password, rememberMe }, { auth: false })
 
       localStorage.setItem('anura_token', data.token)
       setToken(data.token)
 
       if (data.preferences) initializeFromBackend(data.preferences)
-      
-      const prefsCompleted = data.preferences?.preferences_completed ?? false
-      navigate(prefsCompleted ? '/home/camara' : '/preferences')
+
+      const prefsCompleted = localStorage.getItem('anura_preferencesCompleted') === 'true'
+      navigate(prefsCompleted ? '/inicio' : '/ajustes')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -68,43 +84,19 @@ function Login({ setToken, onContinueAsGuest }) {
   return (
     <div className="auth-view">
       <div className="auth-card card">
-        <h1 className="auth-title"><FaFrog aria-hidden /> Bienvenido</h1>
+        <h1>🐸 Bienvenido</h1>
         <p className="subtitle">Inicia sesión en Anura</p>
 
-        <div className="auth-oauth-stack">
-          <button type="button" onClick={() => { window.location.href = `${API_BASE}/api/auth/google` }} className="btn-google">
-            <FaGoogle className="google-icon" aria-hidden />
-            Continuar con Google
-          </button>
-
-          <button type="button" className="btn-guest" onClick={handleGuest}>
-            <BsIncognito className="guest-icon" aria-hidden />
-            Empezar como invitado
-          </button>
-          <p className="guest-hint">Explora observaciones en modo solo lectura. Para publicar observaciones o guardar datos, inicia sesión.</p>
-        </div>
+        <button onClick={() => { window.location.href = `${API_BASE}/api/auth/google` }} className="btn-google">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="google-icon" />
+          Continuar con Google
+        </button>
 
         <div className="divider"><span>o usa tu email</span></div>
 
         <form onSubmit={handleLogin} className="auth-form">
           <input type="email"    placeholder="Correo electrónico" required value={email}    onChange={e => setEmail(e.target.value)} />
-          <div className="password-input-wrapper">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Contraseña"
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              className="password-toggle"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-            >
-              {showPassword ? <FaEyeSlash aria-hidden /> : <FaEye aria-hidden />}
-            </button>
-          </div>
+          <input type="password" placeholder="Contraseña"         required value={password} onChange={e => setPassword(e.target.value)} />
 
           <div className="auth-options">
             <label className="checkbox-label">
@@ -118,58 +110,40 @@ function Login({ setToken, onContinueAsGuest }) {
           </button>
         </form>
 
-        {error && <div className="error-box"><FaTriangleExclamation aria-hidden /> {error}</div>}
+        {error && <div className="error-box">⚠️ {error}</div>}
 
-        <div className="auth-footer" role="note">
-          <span>¿No tienes cuenta?</span>{' '}
-          <Link to="/register" className="text-link font-bold">Regístrate</Link>
-        </div>
+        <p className="auth-footer">
+          ¿No tienes cuenta? <Link to="/register" className="text-link font-bold">Regístrate</Link>
+        </p>
       </div>
     </div>
   )
 }
 
 // ── Register ─────────────────────────────────────────────────────
-function Register({ setToken, onContinueAsGuest }) {
+function Register({ setToken }) {
   const [username, setUsername] = useState('')
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
-  const [biography, setBiography] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError]       = useState(null)
   const [loading, setLoading]   = useState(false)
   const navigate = useNavigate()
-
-  const handleGuest = () => {
-    onContinueAsGuest?.()
-    navigate('/explorer', { replace: true })
-  }
 
   const handleRegister = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     try {
-      const res  = await fetch(`${API_BASE}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, biography }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Error al registrar')
+      await apiPost('/api/auth/register', { username, email, password }, { auth: false })
 
-      const loginRes  = await fetch(`${API_BASE}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-      const loginData = await loginRes.json()
-      if (loginRes.ok) {
+      // Auto-login
+      try {
+        const loginData = await apiPost('/api/auth/login', { email, password }, { auth: false })
         localStorage.setItem('anura_token', loginData.token)
         localStorage.removeItem('anura_preferencesCompleted')
         setToken(loginData.token)
-        navigate('/preferences')
-      } else {
+        navigate('/ajustes')
+      } catch {
         navigate('/login')
       }
     } catch (err) {
@@ -182,57 +156,31 @@ function Register({ setToken, onContinueAsGuest }) {
   return (
     <div className="auth-view">
       <div className="auth-card card">
-        <h1 className="auth-title"><FaFrog aria-hidden /> Únete a Anura</h1>
+        <h1>🐸 Únete a Anura</h1>
         <p className="subtitle">Crea tu cuenta de explorador</p>
 
-        <div className="auth-oauth-stack">
-          <button type="button" onClick={() => { window.location.href = `${API_BASE}/api/auth/google` }} className="btn-google">
-            <FaGoogle className="google-icon" aria-hidden />
-            Registrarse con Google
-          </button>
-
-          <button type="button" className="btn-guest" onClick={handleGuest}>
-            <BsIncognito className="guest-icon" aria-hidden />
-            Empezar como invitado
-          </button>
-          <p className="guest-hint">Explora observaciones en modo solo lectura. Para publicar observaciones o guardar datos, inicia sesión.</p>
-        </div>
+        <button onClick={() => { window.location.href = `${API_BASE}/api/auth/google` }} className="btn-google">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="google-icon" />
+          Registrarse con Google
+        </button>
 
         <div className="divider"><span>o usa tu email</span></div>
 
         <form onSubmit={handleRegister} className="auth-form">
           <input type="text"     placeholder="Nombre de usuario (opcional)" value={username} onChange={e => setUsername(e.target.value)} />
           <input type="email"    placeholder="Correo electrónico" required   value={email}    onChange={e => setEmail(e.target.value)} />
-          <textarea              placeholder="Biografía (opcional)" value={biography} onChange={e => setBiography(e.target.value)} />
-          <div className="password-input-wrapper">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Contraseña"
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              className="password-toggle"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-            >
-              {showPassword ? <FaEyeSlash aria-hidden /> : <FaEye aria-hidden />}
-            </button>
-          </div>
+          <input type="password" placeholder="Contraseña"         required   value={password} onChange={e => setPassword(e.target.value)} />
 
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </button>
         </form>
 
-        {error && <div className="error-box"><FaTriangleExclamation aria-hidden /> {error}</div>}
+        {error && <div className="error-box">⚠️ {error}</div>}
 
-        <div className="auth-footer" role="note">
-          <span>¿Ya tienes cuenta?</span>{' '}
-          <Link to="/login" className="text-link font-bold">Inicia Sesión</Link>
-        </div>
+        <p className="auth-footer">
+          ¿Ya tienes cuenta? <Link to="/login" className="text-link font-bold">Inicia Sesión</Link>
+        </p>
       </div>
     </div>
   )
@@ -247,59 +195,18 @@ function AuthCallback({ setToken }) {
     const token  = params.get('token')
     if (token) {
       localStorage.setItem('anura_token', token)
-      localStorage.removeItem(GUEST_LS_KEY)
+      localStorage.removeItem('anura_preferencesCompleted')
       setToken(token)
-
-      const checkPrefs = async () => {
-        // Execute pending favorite if any
-        const pendingFav = localStorage.getItem('anura_pending_favorite')
-        if (pendingFav) {
-          localStorage.removeItem('anura_pending_favorite')
-          const oid = obsIdKey(pendingFav)
-          if (oid) {
-            try {
-              await fetch(`${API_BASE}/api/explorer/favorites/${encodeURIComponent(oid)}`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` }
-              })
-            } catch { /* silent */ }
-          }
-        }
-
-        // Determine redirect: pending URL > preferences check
-        const pendingUrl = localStorage.getItem('anura_pending_url')
-        localStorage.removeItem('anura_pending_url')
-
-        try {
-          const res = await fetch(`${API_BASE}/api/preferences`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-          if (res.ok) {
-            const data = await res.json()
-            usePreferencesStore.getState().initializeFromBackend(data)
-            const completed = data.preferences_completed
-            if (pendingUrl) {
-              navigate(completed ? pendingUrl : '/preferences', { replace: true })
-            } else {
-              navigate(completed ? '/home/camara' : '/preferences', { replace: true })
-            }
-          } else {
-            navigate(pendingUrl || '/preferences', { replace: true })
-          }
-        } catch (err) {
-          navigate(pendingUrl || '/preferences', { replace: true })
-        }
-      }
-      checkPrefs()
+      navigate('/ajustes')
     } else {
-      navigate('/login', { replace: true })
+      navigate('/login')
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="auth-view">
       <div className="auth-card card" style={{ textAlign: 'center' }}>
-        <p className="loading-inline"><FaCircleNotch aria-hidden /> Procesando autenticación...</p>
+        <p>⏳ Procesando autenticación...</p>
       </div>
     </div>
   )
@@ -308,100 +215,75 @@ function AuthCallback({ setToken }) {
 // ── Root App ─────────────────────────────────────────────────────
 export default function App() {
   const [token, setToken] = useState(localStorage.getItem('anura_token'))
-  const [guest, setGuest] = useState(() => {
-    if (localStorage.getItem('anura_token')) return false
-    return localStorage.getItem(GUEST_LS_KEY) === 'true'
-  })
-
-  const sessionActive = Boolean(token) || guest
-
-  useEffect(() => {
-    if (token) {
-      localStorage.removeItem(GUEST_LS_KEY)
-      setGuest(false)
-
-      // Reclamar observación pendiente si existe
-      const pendingStashId = localStorage.getItem('anura_pending_stash')
-      if (pendingStashId) {
-        const claimObservation = async () => {
-          try {
-            const res = await fetch(`${API_BASE}/api/observations/claim`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-              },
-              body: JSON.stringify({ stash_id: pendingStashId })
-            })
-            if (res.ok) {
-              console.log('Observación reclamada con éxito')
-              localStorage.removeItem('anura_pending_stash')
-              alert('¡Tu observación de invitado ha sido guardada en tu cuenta!')
-            }
-          } catch (err) {
-            console.error('Error al reclamar observación:', err)
-          }
-        }
-        claimObservation()
-      }
-    }
-  }, [token])
-
-  const handleContinueAsGuest = () => {
-    localStorage.removeItem('anura_token')
-    localStorage.setItem(GUEST_LS_KEY, 'true')
-    setToken(null)
-    setGuest(true)
-    usePreferencesStore.getState().loadPreferences()
-  }
 
   const handleLogout = () => {
     localStorage.removeItem('anura_token')
-    localStorage.removeItem(GUEST_LS_KEY)
+    localStorage.removeItem('anura_preferencesCompleted')
     setToken(null)
-    setGuest(false)
-    usePreferencesStore.getState().loadPreferences()
-    window.location.href = '/login'
   }
-
-  const guestBlock = <Navigate to="/explorer" replace />
 
   return (
     <Router>
       <main className="app">
         <Routes>
-          <Route
-            path="/login"
-            element={token ? <Navigate to="/" replace /> : <Login setToken={setToken} onContinueAsGuest={handleContinueAsGuest} />}
-          />
-          <Route
-            path="/register"
-            element={token ? <Navigate to="/" replace /> : <Register setToken={setToken} onContinueAsGuest={handleContinueAsGuest} />}
-          />
+          {/* Root — Inicio es el punto de entrada real (equivalente a la app),
+              no la lista de observaciones. */}
+          <Route path="/" element={<Navigate to="/inicio" />} />
+
+          {/* Auth */}
+          <Route path="/login"         element={!token ? <Login    setToken={setToken} /> : <Navigate to="/" />} />
+          <Route path="/register"      element={!token ? <Register setToken={setToken} /> : <Navigate to="/" />} />
           <Route path="/auth/callback" element={<AuthCallback setToken={setToken} />} />
 
-          <Route element={<AuthenticatedLayout token={token} guest={guest} onLogout={handleLogout} />}>
+          {/* Aplicación autenticada — navegación/social. `guest` se pasa
+              siempre para que Home/Explorer/People/Search/Taxon* muestren su
+              propio UI de invitado con la chrome (TopBar/Navbar) puesta;
+              antes la chrome desaparecía sin querer para visitantes. */}
+          <Route element={<AuthenticatedLayout token={token} guest onLogout={handleLogout} />}>
+            <Route path="/inicio" element={<Home token={token} />} />
+            {/* Explorar = observaciones; Observaciones (Listado en app) = especies.
+                Los rótulos de Navbar no se tocan — solo el contenido de cada ruta. */}
+            <Route path="/explorar" element={<Explorer scope="observations" />} />
+            <Route path="/observaciones" element={<Explorer scope="discover" />} />
+            <Route path="/explorer/:id" element={<ObservationDetail />} />
+            <Route path="/paquetes" element={<Packages />} />
+            {/* Salidas de campo: las sube la app móvil; la web solo las navega. */}
+            <Route path="/salidas-de-campo" element={<FieldTrips />} />
+            <Route path="/salidas-de-campo/:id" element={<FieldTripDetail />} />
             <Route
-              path="/"
+              path="/ajustes"
               element={
-                !sessionActive ? <Navigate to="/login" replace />
-                  : guest && !token ? <Navigate to="/explorer" replace />
-                  : <Navigate to="/home/camara" replace />
+                <ProtectedRoute token={token}>
+                  <Settings onLogout={handleLogout} />
+                </ProtectedRoute>
               }
             />
-            <Route path="/preferences" element={!sessionActive ? <Navigate to="/login" replace /> : guest && !token ? guestBlock : <Navigate to="/home/profile?new=true" replace />} />
-            <Route path="/home/camara" element={!sessionActive ? <Navigate to="/login" replace /> : <Camera />} />
-            <Route path="/home/profile" element={!sessionActive ? <Navigate to="/login" replace /> : <Profile />} />
-            <Route path="/explorer" element={!sessionActive ? <Navigate to="/login" replace /> : <Explorer />} />
-            <Route path="/explorer/:id" element={<ObservationDetail />} />
+            <Route
+              path="/perfil"
+              element={
+                <ProtectedRoute token={token}>
+                  <OwnProfileRedirect />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ajustes/perfil/editar"
+              element={
+                <ProtectedRoute token={token}>
+                  <EditProfile />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/people/:username" element={<People />} />
             <Route path="/people/:username/observaciones" element={<PeopleObservations />} />
             <Route path="/people/:username/favoritos" element={<PeopleFavorites />} />
-            <Route path="/taxa/:taxonIdSlug" element={<TaxonDetail />} />
-            <Route path="/taxa/:taxonIdSlug/browse_photos" element={<TaxonPhotoBrowse />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/taxa/:taxonIdSlug" element={<TaxonDetail />} />
+            <Route path="/taxa/:taxonIdSlug/fotos" element={<TaxonPhotoBrowse />} />
+            {import.meta.env.DEV && <Route path="/datos-de-prueba" element={<DemoData />} />}
           </Route>
 
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

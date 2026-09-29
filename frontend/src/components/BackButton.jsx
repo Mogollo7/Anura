@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { FaArrowLeft } from 'react-icons/fa6';
+import { MdArrowBack } from 'react-icons/md';
 import './BackButton.css';
 
 export default function BackButton({ to, onClick, className = '', noWrapper = false }) {
@@ -17,7 +17,7 @@ export default function BackButton({ to, onClick, className = '', noWrapper = fa
 
   const button = (
     <button className={`btn-back ${!noWrapper ? '' : className}`} onClick={handleBack}>
-      <FaArrowLeft aria-hidden /> Volver
+      <MdArrowBack aria-hidden /> Volver
     </button>
   );
 

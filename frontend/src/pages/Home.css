@@ -1,0 +1,253 @@
+.home-view {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.home-greeting {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 0;
+}
+
+.home-greeting-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.home-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.home-brand {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.home-greeting-inner h1 {
+  margin: 0;
+  font-size: var(--text-2xl);
+}
+
+.home-content {
+  padding: 1.75rem 0 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Atajos de navegación — Inicio organiza a dónde ir, no reemplaza a
+   Observaciones/Explorar. */
+.home-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 0.85rem;
+}
+
+.home-shortcut-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.home-shortcut-card:hover {
+  border-color: var(--accent-ink);
+  background: var(--accent-wash);
+  transform: translateY(-2px);
+}
+
+.home-shortcut-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-tint);
+  color: var(--label-on-accent);
+  font-size: 1.3rem;
+}
+
+.home-shortcut-card strong {
+  display: block;
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+
+.home-shortcut-card small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.home-shortcut-arrow {
+  margin-left: auto;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.home-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.home-section-header h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.home-see-all {
+  background: none;
+  border: none;
+  color: var(--accent-ink);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.home-see-all:hover {
+  text-decoration: underline;
+}
+
+.home-empty-hint {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+/* Actividad reciente: observaciones sincronizadas desde el celular. */
+.home-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.home-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.home-recent-item:hover {
+  border-color: var(--accent-ink);
+  transform: translateY(-1px);
+}
+
+.home-recent-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface-2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-recent-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-recent-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.home-recent-info strong {
+  color: var(--text);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-recent-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.home-recent-meta .avatar-micro {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.home-recent-username {
+  font-weight: 600;
+  color: var(--label-secondary-aa);
+}
+
+.home-recent-sep {
+  opacity: 0.6;
+}
+
+.home-recent-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.home-recent-place {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+/* Tablet: tres tarjetas en fila; sin flecha y con menos relleno para que
+   "Observaciones" no se parta. */
+@media (min-width: 601px) and (max-width: 1100px) {
+  .home-shortcut-card {
+    padding: 1rem;
+    gap: 0.7rem;
+  }
+
+  .home-shortcut-arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-shortcuts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-recent-place {
+    display: none !important;
+  }
+}

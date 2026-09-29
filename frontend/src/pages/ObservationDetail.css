@@ -1,6 +1,6 @@
 .obs-detail-view {
   min-height: 100vh;
-  background: var(--bg, #f4f6f0);
+  background: var(--bg);
   font-family: var(--font-main, 'Inter', sans-serif);
 }
 
@@ -46,6 +46,7 @@
   margin-left: auto;
   display: flex;
   align-items: center;
+  gap: 0.25rem;
 }
 
 .heart-header-btn {
@@ -58,16 +59,39 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  width: var(--touch);
+  height: var(--touch);
+  padding: 0;
 }
 
 .heart-header-btn:hover {
   transform: scale(1.1);
-  color: #ff4757;
+  color: var(--danger);
 }
 
 .heart-header-btn.liked {
-  color: #ff4757;
+  color: var(--danger);
+}
+
+/* Confirmación en línea (antes era un alert()). */
+.detail-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 1500;
+  padding: 0.65rem 1.1rem;
+  border-radius: 999px;
+  background: var(--label-primary);
+  color: var(--bg-base);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  box-shadow: var(--sh-float);
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .detail-toast { bottom: 2rem; }
 }
 
 .detail-scientific-text-standard {
@@ -91,69 +115,6 @@
   text-decoration: underline;
 }
 
-.detail-accordions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-}
-
-.educational-accordion {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.accordion-summary {
-  padding: 1rem;
-  cursor: pointer;
-  background: var(--surface-2);
-  user-select: none;
-}
-
-.accordion-content {
-  padding: 1rem;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.educational-table-wrapper {
-  overflow-x: auto;
-  margin-bottom: 2rem;
-}
-
-.educational-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.educational-table th, .educational-table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-}
-
-.educational-table th {
-  background: var(--surface-2);
-  width: 30%;
-}
-
-.educational-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.educational-img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  object-fit: cover;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
 .detail-main-title {
   font-size: var(--text-2xl);
   margin: 0;
@@ -170,7 +131,7 @@
 
 .detail-user-link {
   cursor: pointer;
-  color: var(--primary, #74ac00);
+  color: var(--accent-ink);
 }
 
 .detail-user-link:hover {
@@ -249,7 +210,7 @@
   margin-top: -20px;
   margin-left: -20px;
   border: 4px solid rgba(255, 255, 255, 0.1);
-  border-left-color: #74AC00;
+  border-left-color: var(--accent-ink);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   z-index: 2;
@@ -267,7 +228,7 @@
 }
 
 .taxon-link-hover:hover {
-  color: #74AC00;
+  color: var(--accent-ink);
   text-decoration: underline;
 }
 
@@ -282,7 +243,7 @@
   text-transform: uppercase;
   font-size: var(--text-2xs);
   font-weight: 800;
-  color: #74AC00;
+  color: var(--accent-ink);
   letter-spacing: 0;
   margin-bottom: 0.5rem;
 }
@@ -290,21 +251,33 @@
 .detail-common-name {
   font-size: var(--text-2xl);
   margin: 0;
-  color: var(--text, #1a2e0a);
+  color: var(--label-primary);
 }
 
 .detail-scientific-name {
   font-size: var(--text-lg);
-  color: #666;
+  color: var(--muted);
   margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+}
+
+.detail-ai-prob {
+  font-style: normal;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--label-primary);
+  letter-spacing: 0.01em;
 }
 
 .taxonomical-hierarchy {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
-  background: rgba(116, 172, 0, 0.05);
+  background: var(--accent-wash);
   padding: 1.5rem;
   border-radius: 12px;
 }
@@ -313,13 +286,13 @@
   display: block;
   font-size: var(--text-2xs);
   text-transform: uppercase;
-  color: #888;
+  color: var(--label-secondary);
   margin-bottom: 0.2rem;
 }
 
 .tax-item strong {
   font-size: var(--text-base);
-  color: var(--text, #333);
+  color: var(--label-primary);
 }
 
 .user-sidebar-card {
@@ -386,7 +359,7 @@
 .detail-map-wrapper {
   height: 300px;
   width: 100%;
-  background: var(--surface-2, #eee);
+  background: var(--bg-subtle);
 }
 
 .geo-stats {
@@ -394,7 +367,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
   padding: 1.5rem;
-  background: var(--surface-2, #fdfdfd);
+  background: var(--bg-elevated);
 }
 
 .stat {
@@ -404,12 +377,12 @@
 .stat span {
   display: block;
   font-size: var(--text-2xs);
-  color: #999;
+  color: var(--muted);
 }
 
 .stat strong {
   font-size: var(--text-base);
-  color: var(--text, #1b300a);
+  color: var(--label-primary);
 }
 
 .notes-card {
@@ -419,7 +392,7 @@
 .notes-card h3 {
   margin-top: 0;
   font-size: var(--text-lg);
-  color: var(--text, #1b300a);
+  color: var(--label-primary);
   display: flex;
   align-items: center;
   gap: 0.45rem;
@@ -432,94 +405,16 @@
 }
 
 .obs-notes-text {
-  color: var(--muted, #555);
+  color: var(--label-secondary-aa);
   line-height: 1.6;
   font-style: italic;
 }
 
-/* ── Mode-specific identification (educational / scientific) ───────────── */
-.detail-mode-block {
-  margin-top: 1.25rem;
-  padding-top: 1.0rem;
-  border-top: 1px dashed rgba(116, 172, 0, 0.35);
-}
-
-.detail-mode-title {
-  margin: 0 0 0.75rem 0;
-  font-weight: 900;
-  color: var(--primary, #74AC00);
-  text-transform: none;
-}
-
-.detail-mode-text {
-  color: var(--muted, #555);
-  line-height: 1.6;
-  margin-top: -0.25rem;
-}
-
-.detail-steps {
-  margin: 0.75rem 0 0 1.15rem;
-  padding: 0;
-}
-
-.detail-steps li {
-  margin: 0.85rem 0;
-}
-
-.detail-step-sub {
-  color: var(--muted, #555);
-  line-height: 1.55;
-  margin-top: 0.25rem;
-}
-
-.detail-curiosity {
-  margin-top: 1rem;
-}
-
-.detail-alert {
-  background: rgba(255, 165, 0, 0.14);
-  border: 1px solid rgba(255, 165, 0, 0.35);
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  margin: 0.75rem 0 1.0rem 0;
-  color: var(--text, #1a2e0a);
-  font-weight: 700;
-}
-
-.scientific-tax-grid {
-  margin-top: 0.75rem;
-  margin-bottom: 1.5rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.75rem;
-  background: rgba(0, 0, 0, 0.02);
-  padding: 0.9rem;
-  border-radius: 12px;
-}
-
-.scientific-row {
-  display: flex;
-  flex-direction: column;
-  padding: 0.25rem 0.35rem;
-}
-
-.scientific-row span {
-  font-size: var(--text-2xs);
-  color: #888;
-  text-transform: uppercase;
-  font-weight: 800;
-}
-
-.scientific-row strong {
-  font-size: var(--text-base);
-  color: var(--text, #333);
-}
-
-/* ── Standard mode (name, status, location, actions) ─────────────── */
+/* ── Ficha de identificación (siempre la misma presentación) ─────────── */
 .detail-standard-block {
   margin-top: 1.25rem;
   padding-top: 1.0rem;
-  border-top: 1px solid rgba(116, 172, 0, 0.25);
+  border-top: 1px solid var(--separator);
 }
 
 .detail-standard-row {
@@ -534,7 +429,7 @@
   font-size: var(--text-2xs);
   text-transform: uppercase;
   font-weight: 800;
-  color: #888;
+  color: var(--label-secondary);
 }
 
 .detail-standard-actions {
@@ -551,45 +446,6 @@
   font-size: var(--text-sm);
 }
 
-.btn-secondary {
-  flex: unset;
-  width: auto;
-  padding: 0.6rem 0.9rem;
-  background: var(--surface, #ffffff);
-  color: var(--muted, #5c6b4a);
-  border: 1.5px solid var(--border, #dde6cc);
-  border-radius: 10px;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.18s, border-color 0.18s, color 0.18s;
-}
-
-.btn-secondary:hover {
-  background: rgba(116, 172, 0, 0.05);
-  border-color: #74AC00;
-  color: #74AC00;
-}
-
-.detail-scientific-template {
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 0.85rem 1rem;
-  background: rgba(116, 172, 0, 0.05);
-  border: 1px solid rgba(116, 172, 0, 0.18);
-  border-radius: 12px;
-}
-
-.detail-scientific-text {
-  color: var(--muted, #555);
-  line-height: 1.6;
-  white-space: pre-wrap;
-  margin: 0;
-}
-
 .detail-loading, .detail-error {
   display: flex;
   flex-direction: column;
@@ -597,24 +453,12 @@
   justify-content: center;
   height: 100vh;
   gap: 1rem;
-  color: #666;
-}
-
-[data-theme='dark'] .detail-card,
-[data-theme='dark'] .geo-stats {
-  background: var(--surface);
-  color: var(--text);
-}
-
-[data-theme='dark'] .detail-scientific-name,
-[data-theme='dark'] .date-detail,
-[data-theme='dark'] .stat span {
-  color: var(--muted);
+  color: var(--label-secondary);
 }
 
 @media (max-width: 900px) {
   .detail-main-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .detail-image-wrapper {
     height: 400px;
@@ -622,21 +466,11 @@
 }
 
 @media (max-width: 560px) {
-  /* Margen lateral 16px en el header y full-width en el contenedor del detalle */
-  .detail-container.container {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    box-sizing: border-box !important;
-  }
-
-  .detail-header .container {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    box-sizing: border-box !important;
-  }
-
+  /* El margen lateral lo pone .container (mismo gutter que el resto de la
+     app); las tarjetas quedan insertadas y redondeadas, no de borde a borde. */
   .detail-container {
-    padding: 0.75rem 0 !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
     overflow-x: hidden !important;
   }
 
@@ -644,23 +478,18 @@
     padding: 0.75rem 0;
   }
 
-  /* Evitar desvío del card en móvil haciendo las tarjetas de ancho completo y sin borde lateral */
   .detail-card.card.glassmorphism,
   .user-sidebar-card,
   .map-card-detail,
   .notes-card {
     max-width: 100% !important;
     width: 100% !important;
-    box-sizing: border-box !important;
-    border-left: none !important;
-    border-right: none !important;
-    border-radius: 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
   }
 
   .detail-main-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: minmax(0, 1fr) !important;
     gap: 1rem !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -678,16 +507,16 @@
   /* El botón de volver se posiciona a la izquierda y el corazón a la derecha */
   .btn-back.header-back-inline {
     position: absolute !important;
-    left: 1rem !important;
+    left: var(--page-gutter) !important;
     top: 0 !important;
     bottom: 0 !important;
     margin: auto 0 !important;
-    height: 38px !important;
+    height: var(--touch) !important;
     transform: none !important;
     padding: 0 !important;
     font-size: 0 !important;
     min-width: unset !important;
-    width: 38px !important;
+    width: var(--touch) !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -700,11 +529,11 @@
 
   .header-actions {
     position: absolute !important;
-    right: 1rem !important;
+    right: var(--page-gutter) !important;
     top: 0 !important;
     bottom: 0 !important;
     margin: auto 0 !important;
-    height: 38px !important;
+    height: var(--touch) !important;
     transform: none !important;
     display: flex !important;
     align-items: center !important;
@@ -717,7 +546,7 @@
     justify-content: center !important;
     align-items: center !important;
     width: 100% !important;
-    padding: 0 3.5rem !important;
+    padding: 0 5.75rem !important;
     box-sizing: border-box !important;
   }
   .detail-title-link {
@@ -728,9 +557,11 @@
     width: 100% !important;
   }
 
+  /* 17px + guiones del idioma: el hueco entre botones es de ~100px a 320px. */
   .detail-main-title {
-    font-size: var(--text-lg) !important;
-    word-break: break-word !important;
+    font-size: var(--text-base) !important;
+    overflow-wrap: normal !important;
+    hyphens: auto;
     margin: 0 !important;
   }
 
@@ -769,27 +600,6 @@
   .tax-item strong {
     font-size: var(--text-sm) !important;
     word-break: break-all !important;
-  }
-
-  .scientific-tax-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    padding: 0.75rem !important;
-    gap: 0.5rem !important;
-  }
-
-  .scientific-row strong {
-    font-size: var(--text-sm) !important;
-    word-break: break-all !important;
-  }
-
-  .educational-gallery {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 0.5rem !important;
-  }
-
-  .educational-img {
-    height: 110px !important;
-    object-fit: cover !important;
   }
 
   .geo-stats {

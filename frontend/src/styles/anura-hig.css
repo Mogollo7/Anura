@@ -1,0 +1,340 @@
+/* =============================================================================
+   ANURA · Sistema de estilos HIG
+   Registro, identificación y estudio de anuros. Móvil primero (393 pt).
+   Fuente de verdad visual: Penpot › archivo ANURA › página "Mockup Final".
+
+   Temas sobre los MISMOS nombres de token:
+     :root                      → Claro
+     [data-theme="dark"]        → Oscuro
+     [data-theme="system"]      → según prefers-color-scheme
+   (La app móvil tiene además "luz roja" para salidas nocturnas; la web no
+   lo incluye porque no se usa en campo.)
+
+   ---------------------------------------------------------------------------
+   NOTA SOBRE EL VERDE (por qué hay una rampa y no un solo #34C759)
+   #34C759 es el matiz de marca, pero como TINTA sobre fondo claro no es
+   legible: 2.22:1 sobre blanco. Un botón verde con texto blanco a 2.2:1 es
+   ilegible a pleno sol, que es exactamente donde se usa esta app. Por eso el
+   verde vive en cuatro pasos, todos "verde rana", cada uno medido:
+     --green-500 #34C759  matiz de marca · switches, pistas, tintes 12 %
+     --green-600 #2AA84A  glifos blancos sobre relleno (3.09:1 ✓ no textual)
+     --green-700 #1E7A34  TINTA: texto verde, iconos, CTA con texto blanco
+                          5.40:1 sobre blanco ✓ AA
+     --green-dark #30D158 modo oscuro (8.6:1 sobre #1C1C1E ✓ AAA)
+   Regla: sobre claro se usa la tinta; sobre oscuro o foto, el vivo.
+   ---------------------------------------------------------------------------
+   Contraste del texto secundario: #8E8E93 mide 3.26:1 sobre #FFFFFF y 2.92:1
+   sobre #F2F2F7. Es el systemGray de Apple y es el valor pedido para
+   metadatos, pero NO llega a AA. Para texto pequeño que deba leerse en campo
+   está --label-secondary-aa (#6C6C70, 5.4:1). Cambiar el sistema entero es
+   una línea: redefinir --label-secondary.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- primitivas */
+:root {
+  --green-500:#34C759; --green-600:#2AA84A; --green-700:#1E7A34;
+  --green-800:#175E28; --green-dark:#30D158;
+
+  /* fondo atmosférico para tramos inmersivos (audio nocturno, visor de
+     captura) — oscuro siempre, sin importar el tema claro/oscuro activo */
+  --bg-immersive: radial-gradient(120% 70% at 50% -8%, #14251A 0%, #071A10 46%, #010503 100%);
+
+  --sys-red:#FF3B30;    --sys-red-ink:#D70015;  --sys-orange:#FF9500;
+  --sys-yellow:#FFCC00; --sys-blue:#007AFF;     --sys-teal:#30B0C7;
+  --sys-purple:#AF52DE;
+
+  --gray-1:#8E8E93; --gray-2:#AEAEB2; --gray-3:#C7C7CC;
+  --gray-4:#D1D1D6; --gray-5:#E5E5EA; --gray-6:#F2F2F7;
+
+  /* radios · 12 botón y miniatura · 16 tarjeta · 20 modal · cápsula */
+  --r-button:12px; --r-thumb:12px; --r-card:16px; --r-modal:20px; --r-capsule:999px;
+
+  /* retícula de 4 · márgenes laterales de 20 */
+  --gutter:20px; --gap:12px; --section:24px; --touch:44px;
+
+  /* escala tipográfica iOS (rem: escala con el tamaño de texto del sistema) */
+  --f-large-title:2.125rem; --f-title1:1.75rem; --f-title2:1.375rem;
+  --f-title3:1.25rem;       --f-body:1.0625rem; --f-callout:1rem;
+  --f-subhead:0.9375rem;    --f-footnote:0.8125rem; --f-caption:0.6875rem;
+
+  --ease:cubic-bezier(.32,.72,0,1); --dur:.28s;
+}
+
+/* ------------------------------------------------------------------- claro */
+:root {
+  color-scheme: light;
+  --bg-base:#EFF4F0;      /* fondo de pantalla · verde rana al 2 %, nunca blanco plano */
+  --bg-elevated:#FFFFFF;  /* tarjetas y contenedores */
+  --bg-subtle:#E5E5EA;    /* campos, marcadores de imagen */
+  --separator:#C6C6C8;
+
+  --label-primary:#1C1C1E;
+  --label-secondary:#8E8E93;
+  --label-secondary-aa:#6C6C70;
+  --label-tertiary:#C7C7CC;
+  --label-on-accent:#FFFFFF;
+
+  --accent-tint:var(--green-500);
+  --accent-icon:var(--green-600);
+  --accent-ink:var(--green-700);
+  --accent-pressed:var(--green-800);
+  --accent-wash:rgba(52,199,89,.12);
+
+  /* pares relleno/etiqueta: en claro la etiqueta es blanca, en oscuro es tinta
+     oscura sobre verde claro. Nunca blanco sobre #30D158 (2.02:1). */
+  --cta-bg:var(--green-700);  --cta-fg:#FFFFFF;   /* 5.40:1 ✓ */
+  --fab-bg:var(--green-600);  --fab-fg:#FFFFFF;   /* 3.09:1 ✓ objeto gráfico */
+  --fab-ring:none;
+
+  --danger:var(--sys-red-ink); --danger-fg:#FFFFFF;   /* 5.39:1 ✓ */
+  --warning:var(--sys-orange);
+  --info:var(--sys-blue);      --success:var(--green-700);
+
+  --ph-thumb:#E5E5EA;     /* marcador de miniatura */
+  --ph-hero:#6E6E73;      /* marcador de foto de cabecera: soporta texto blanco */
+
+  /* elevación · el contenedor flota, no se dibuja con bordes duros */
+  --sh-card:0 1px 2px rgba(0,0,0,.04), 0 4px 14px rgba(0,0,0,.06);
+  --sh-float:0 2px 6px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.12);
+  --sh-modal:0 4px 10px rgba(0,0,0,.08), 0 16px 40px rgba(0,0,0,.18);
+
+  --material:rgba(255,255,255,.72);
+  --material-blur:blur(20px) saturate(180%);
+  --scrim:linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0));
+}
+
+/* ------------------------------------------------------------------ oscuro */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    color-scheme: dark;
+    --bg-base:#000000; --bg-elevated:#1C1C1E; --bg-subtle:#2C2C2E; --separator:#48484A;
+    --label-primary:#FFFFFF; --label-secondary:#8E8E93; --label-secondary-aa:#AEAEB2;
+    --label-tertiary:#636366; --label-on-accent:#0B2B14;
+    --accent-tint:var(--green-dark); --accent-icon:var(--green-dark);
+    --accent-ink:var(--green-dark);  --accent-pressed:var(--green-500);
+    --accent-wash:rgba(48,209,88,.16);
+    --danger:#FF453A; --warning:#FF9F0A; --info:#0A84FF; --success:var(--green-dark);
+    --cta-bg:var(--green-dark); --cta-fg:#062B12;   /* 7.96:1 ✓ */
+    --fab-bg:var(--green-dark); --fab-fg:#062B12;   /* 7.96:1 ✓ */
+    --fab-ring:none; --danger-fg:#2B0300;           /* 5.52:1 ✓ */
+    --ph-thumb:#2C2C2E; --ph-hero:#3A3A3C;
+    --sh-card:0 2px 8px rgba(0,0,0,.40);
+    --sh-float:0 4px 16px rgba(0,0,0,.55);
+    --sh-modal:0 16px 40px rgba(0,0,0,.65);
+    --material:rgba(28,28,30,.72);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-base:#000000; --bg-elevated:#1C1C1E; --bg-subtle:#2C2C2E; --separator:#48484A;
+  --label-primary:#FFFFFF; --label-secondary:#8E8E93; --label-secondary-aa:#AEAEB2;
+  --label-tertiary:#636366; --label-on-accent:#0B2B14;
+  --accent-tint:var(--green-dark); --accent-icon:var(--green-dark);
+  --accent-ink:var(--green-dark);  --accent-pressed:var(--green-500);
+  --accent-wash:rgba(48,209,88,.16);
+  --danger:#FF453A; --warning:#FF9F0A; --info:#0A84FF; --success:var(--green-dark);
+  --cta-bg:var(--green-dark); --cta-fg:#062B12;   /* 7.96:1 ✓ */
+  --fab-bg:var(--green-dark); --fab-fg:#062B12;   /* 7.96:1 ✓ */
+  --fab-ring:none; --danger-fg:#2B0300;           /* 5.52:1 ✓ */
+  --ph-thumb:#2C2C2E; --ph-hero:#3A3A3C;
+  --sh-card:0 2px 8px rgba(0,0,0,.40);
+  --sh-float:0 4px 16px rgba(0,0,0,.55);
+  --sh-modal:0 16px 40px rgba(0,0,0,.65);
+  --material:rgba(28,28,30,.72);
+}
+
+/* ------------------------------------------------------------------- base */
+body {
+  margin:0; background:var(--bg-base); color:var(--label-primary);
+  font:var(--f-body)/1.29 -apple-system, BlinkMacSystemFont, "SF Pro Text",
+       system-ui, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.a-screen { padding-inline:var(--gutter); padding-bottom:calc(96px + env(safe-area-inset-bottom)); }
+
+/* ---------------------------------------------------------- tipografía */
+.a-large-title{font-size:var(--f-large-title);line-height:1.21;font-weight:700;letter-spacing:.011em}
+.a-title1     {font-size:var(--f-title1);line-height:1.21;font-weight:700}
+.a-title2     {font-size:var(--f-title2);line-height:1.27;font-weight:700}
+.a-title3     {font-size:var(--f-title3);line-height:1.25;font-weight:600}
+.a-headline   {font-size:var(--f-body);line-height:1.29;font-weight:600}
+.a-body       {font-size:var(--f-body);line-height:1.29}
+.a-callout    {font-size:var(--f-callout);line-height:1.31}
+.a-subhead    {font-size:var(--f-subhead);line-height:1.33}
+.a-footnote   {font-size:var(--f-footnote);line-height:1.38;color:var(--label-secondary)}
+.a-caption    {font-size:var(--f-caption);line-height:1.18;color:var(--label-secondary)}
+.a-sci        {font-style:italic}                     /* nombre científico */
+.a-secondary  {color:var(--label-secondary)}
+.a-accent     {color:var(--accent-ink)}
+
+/* ------------------------------------------------------------- barras */
+.a-navbar, .a-tabbar { position:fixed; left:0; right:0; z-index:10; }
+
+/* el encabezado va SIEMPRE opaco: color sólido + línea divisoria de 1 px.
+   Nunca sombra ni desenfoque difuminándose sobre el contenido — eso es lo
+   que rompía el contraste cuando el header flotaba sobre una foto. */
+.a-navbar{ top:0; min-height:var(--touch); display:flex; align-items:center;
+  gap:var(--gap); padding:8px var(--gutter); padding-top:calc(8px + env(safe-area-inset-top));
+  background:var(--bg-elevated);
+  box-shadow:inset 0 -0.5px 0 var(--separator); }
+.a-navbar__title{ font-size:var(--f-body); font-weight:600; color:var(--label-primary);
+  flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.a-tabbar{ bottom:calc(12px + env(safe-area-inset-bottom)); left:16px; right:16px;
+  display:flex; justify-content:space-around; align-items:center;
+  min-height:64px; border-radius:var(--r-capsule); box-shadow:var(--sh-float);
+  background:var(--material);
+  -webkit-backdrop-filter:var(--material-blur); backdrop-filter:var(--material-blur); }
+.a-tab{ display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:var(--touch); min-height:var(--touch); justify-content:center;
+  color:var(--label-secondary); font-size:var(--f-caption); background:none; border:0; }
+.a-tab[aria-selected="true"]{ color:var(--accent-ink); font-weight:600; }
+/* la píldora flotante del tab bar sí es material translúcido; si el sistema
+   pide menos transparencia, se vuelve opaca */
+@media (prefers-reduced-transparency: reduce) {
+  .a-tabbar { background:var(--bg-elevated); backdrop-filter:none;
+    -webkit-backdrop-filter:none; }
+}
+
+/* ----------------------------------------------------------- contenedores */
+.a-card{
+  background:var(--bg-elevated); border-radius:var(--r-card);
+  box-shadow:var(--sh-card); padding:var(--gutter);
+}
+.a-card--flush{ padding:0; overflow:hidden; }
+/* estado destacado: la salida de campo activa es la única tarjeta del
+   sistema que usa el verde vivo como superficie — el resto lo reserva a
+   tinta (ver nota de contraste al principio del archivo) */
+.a-card--trip{
+  background:var(--accent-wash);
+  box-shadow:var(--sh-card), inset 0 0 0 1px var(--accent-tint);
+}
+.a-card--trip .a-headline{ display:flex; align-items:center; gap:8px; min-width:0;
+  color:var(--accent-ink); }
+.a-card--trip .a-headline span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.a-card--trip .a-progress{ background:rgba(30,122,52,.16); }
+.a-card--trip .a-progress__fill{ background:var(--accent-ink); }
+.a-trip-dot{ width:8px; height:8px; border-radius:50%; flex:0 0 auto;
+  background:var(--accent-tint); box-shadow:0 0 0 4px var(--accent-wash); }
+.a-list{ background:var(--bg-elevated); border-radius:var(--r-card);
+  box-shadow:var(--sh-card); overflow:hidden; }
+.a-list__row{ display:flex; align-items:center; gap:var(--gap);
+  min-height:var(--touch); padding:12px var(--gutter); }
+.a-list__row + .a-list__row{ box-shadow:inset 0 .5px 0 var(--separator); }
+/* el nombre común o científico puede ser largo — el hijo flex no encoge
+   por debajo de su contenido sin min-width:0, y ahí es donde se salía del
+   contenedor por encima del distintivo */
+.a-list__text{ flex:1; min-width:0; }
+.a-list__text .a-body, .a-list__text .a-caption{
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.a-sheet{
+  background:var(--bg-elevated); border-radius:var(--r-modal) var(--r-modal) 0 0;
+  box-shadow:var(--sh-modal); padding:var(--gutter);
+  padding-bottom:calc(var(--gutter) + env(safe-area-inset-bottom));
+}
+.a-sheet__handle{ width:48px; height:5px; border-radius:var(--r-capsule);
+  background:var(--separator); margin:0 auto 16px; }
+
+/* --------------------------------------------------------------- botones */
+.a-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:50px; min-width:var(--touch); padding:0 20px;
+  border-radius:var(--r-button); border:0;
+  font-size:var(--f-body); font-weight:600; cursor:pointer;
+  transition:background-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.a-btn--primary  { background:var(--cta-bg); color:var(--cta-fg); }
+.a-btn--primary:active   { background:var(--accent-pressed); transform:scale(.98); }
+.a-btn--secondary{ background:var(--bg-base); color:var(--accent-ink); }
+.a-btn--outline  { background:transparent; color:var(--accent-ink);
+                   box-shadow:inset 0 0 0 1.5px var(--accent-ink); }
+.a-btn--plain    { background:none; color:var(--accent-ink); }
+.a-btn--danger   { background:var(--danger); color:var(--danger-fg); }
+.a-btn[disabled] { background:var(--bg-subtle); color:var(--label-tertiary); pointer-events:none; }
+.a-fab{
+  width:80px; height:80px; border-radius:50%; border:0;
+  background:var(--fab-bg); color:var(--fab-fg);
+  box-shadow:var(--sh-float), var(--fab-ring); display:grid; place-items:center;
+}
+
+/* ------------------------------------------------- chips, distintivos, IUCN */
+.a-chip{ display:inline-flex; align-items:center; gap:6px; height:34px;
+  padding:0 14px; border-radius:var(--r-capsule);
+  background:var(--bg-elevated); box-shadow:var(--sh-card);
+  font-size:var(--f-subhead); color:var(--label-primary); }
+.a-chip[aria-pressed="true"]{ background:var(--cta-bg); color:var(--cta-fg); box-shadow:none; }
+.a-badge{ display:inline-flex; align-items:center; gap:4px; height:24px;
+  padding:0 10px; border-radius:var(--r-capsule);
+  font-size:var(--f-caption); font-weight:600; color:#FFFFFF; }
+/* la señal va en la FORMA (icono + texto); el color sólo refuerza */
+.a-badge--toxic  { background:var(--danger); }
+.a-badge--neutral{ background:#48484A; }                                 /* 8.6:1 con blanco */
+.a-badge--cr{background:#D70015} .a-badge--en{background:#C1440E}
+.a-badge--vu{background:#8A6100} .a-badge--nt{background:#3F6E52}
+.a-badge--lc{background:#1E7A34} .a-badge--dd{background:#48484A}
+
+/* ------------------------------------------------------------- imágenes */
+.a-thumb, .a-hero, .a-photo{ display:block; object-fit:cover; background:var(--ph-thumb); }
+.a-thumb{ width:80px; height:80px; border-radius:var(--r-thumb); flex:0 0 auto; }
+.a-photo{ width:100%; aspect-ratio:4/3; border-radius:var(--r-card); }
+.a-hero { width:100%; aspect-ratio:16/9; background:var(--ph-hero); }
+.a-media{ position:relative; isolation:isolate; }
+.a-media__scrim{ position:absolute; inset:auto 0 0 0; height:55%;
+  background:var(--scrim); pointer-events:none; }
+.a-media__caption{ position:absolute; left:16px; right:16px; bottom:12px; color:#FFFFFF; }
+/* contenedor vacío: gris neutro, nunca un degradado */
+.a-thumb:not([src]), .a-photo:not([src]), .a-hero:not([src]){ background:var(--ph-thumb); }
+
+/* --------------------------------------------------- tramos inmersivos
+   Pantallas de captura/registro (audio nocturno, visor de cámara): fondo
+   oscuro atmosférico fijo, igual que ya hace el visor de foto/audio en el
+   mockup, sin importar el tema claro/oscuro activo. Las variables se
+   redefinen LOCALMENTE, así que .a-card, .a-list, .a-navbar, .a-chip, etc.
+   heredan la superficie oscura sin duplicar ni una regla.                */
+.a-immersive{
+  background:var(--bg-immersive); color:#FFFFFF; min-height:100%;
+  --bg-elevated:rgba(255,255,255,.08);
+  --label-primary:#FFFFFF;
+  --label-secondary:rgba(255,255,255,.68);
+  --label-secondary-aa:rgba(255,255,255,.82);
+  --separator:rgba(255,255,255,.16);
+  --sh-card:0 2px 12px rgba(0,0,0,.45);
+}
+.a-waveform{ display:flex; align-items:center; justify-content:center; gap:3px;
+  height:64px; margin:28px 0; }
+.a-waveform span{ display:block; width:3px; border-radius:2px;
+  background:var(--accent-tint); opacity:.85; }
+.a-record{ display:grid; place-items:center; margin:0 auto; width:76px; height:76px;
+  border-radius:50%; border:0; background:var(--fab-bg); color:var(--fab-fg);
+  font-size:22px; box-shadow:0 0 0 10px var(--accent-wash), var(--sh-float); }
+
+/* ---------------------------------------------------- campos e interruptores */
+.a-field{ width:100%; min-height:var(--touch); padding:12px 16px;
+  background:var(--bg-elevated); border:0; border-radius:var(--r-button);
+  box-shadow:var(--sh-card); color:var(--label-primary); font-size:var(--f-body); }
+.a-field::placeholder{ color:var(--label-secondary); }
+.a-field:focus-visible, .a-btn:focus-visible, .a-tab:focus-visible, .a-chip:focus-visible{
+  outline:3px solid var(--accent-ink); outline-offset:2px; }
+.a-switch{ appearance:none; width:51px; height:31px; border-radius:var(--r-capsule);
+  background:var(--gray-4); position:relative; transition:background var(--dur) var(--ease); }
+.a-switch:checked{ background:var(--accent-tint); }      /* aquí sí el verde vivo */
+.a-switch::after{ content:""; position:absolute; top:2px; left:2px; width:27px; height:27px;
+  border-radius:50%; background:#FFFFFF; box-shadow:0 3px 8px rgba(0,0,0,.15);
+  transition:transform var(--dur) var(--ease); }
+.a-switch:checked::after{ transform:translateX(20px); }
+.a-progress{ height:6px; border-radius:var(--r-capsule); background:var(--bg-subtle); overflow:hidden; }
+.a-progress__fill{ height:100%; background:var(--accent-ink); border-radius:inherit; }
+
+/* --------------------------------------------------------- accesibilidad */
+@media (prefers-contrast: more) {
+  :root{ --label-secondary:var(--label-secondary-aa); --separator:#8E8E93;
+         --accent-ink:var(--green-800); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important; }
+  .a-btn--primary:active{ transform:none; }
+}
+.a-touch{ min-width:var(--touch); min-height:var(--touch); }  /* piso ergonómico iOS */

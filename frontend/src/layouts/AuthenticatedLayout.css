@@ -2,8 +2,10 @@
 .app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   background: var(--bg);
   color: var(--text);
 }
@@ -13,12 +15,13 @@
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  /* espacio para la barra inferior fija */
-  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  /* espacio para la cápsula flotante (.a-tabbar), misma medida que .a-screen
+     en anura-hig.css: 96px + safe area */
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (min-width: 768px) {
   .app-shell-scroll {
-    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: 0;
   }
 }

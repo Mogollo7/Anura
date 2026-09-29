@@ -1,0 +1,333 @@
+.settings-view {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.settings-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 1.5rem 0;
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: 800;
+}
+
+.settings-container {
+  max-width: 560px;
+  padding: 1.75rem 0 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Desktop: una sola columna, igual que la app móvil (mismo orden: cuenta →
+   Paquetes → Apariencia → Notificaciones → Cerrar sesión), solo más ancha y
+   con más aire — no dos columnas repartidas por espacio disponible en vez de
+   por relación entre el contenido. */
+@media (min-width: 768px) {
+  .settings-container {
+    max-width: 640px;
+  }
+}
+
+.new-user-badge {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Filas tipo lista (cabecera de perfil, editar, cerrar sesión) */
+.settings-profile-row,
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 0;
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+}
+
+.settings-profile-row:focus-visible,
+.settings-row:focus-visible {
+  outline: 3px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+
+.settings-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.settings-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.settings-profile-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.settings-profile-text strong {
+  font-size: var(--text-base);
+}
+
+.settings-profile-text small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.settings-row-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.settings-row-text {
+  flex: 1;
+  font-weight: 600;
+}
+
+.settings-row-arrow {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.settings-logout {
+  color: var(--danger);
+  /* Salir va al final, separado de las preferencias: no es un ajuste más. */
+  margin-top: 0.75rem;
+}
+
+.settings-logout .settings-row-icon {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+
+.settings-logout .settings-row-text {
+  color: var(--danger);
+}
+
+/* Sección Apariencia */
+.settings-section {
+  padding: 1.5rem;
+  border-radius: 16px;
+}
+
+.settings-section h2 {
+  margin: 0 0 0.25rem;
+  font-size: var(--text-lg);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings-section-desc {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  margin: 0 0 1.25rem;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.option-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  background: var(--surface-2);
+  transition: all 0.2s ease-in-out;
+  text-align: center;
+}
+
+.option-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.option-card:hover {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+.option-card.selected,
+.option-card:has(input:checked) {
+  border-color: var(--accent-ink);
+  background: var(--accent-wash);
+  box-shadow: 0 0 0 4px var(--accent-wash);
+}
+
+.theme-icon {
+  font-size: 1.6rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  display: inline-flex;
+}
+
+.option-label {
+  font-weight: 700;
+  font-size: var(--text-xs);
+  color: var(--text);
+  /* una palabra nunca se parte a la mitad ("Automáti-co" a 375px) */
+  overflow-wrap: normal;
+}
+
+.option-desc {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+@media (max-width: 420px) {
+  .options-grid { gap: 0.5rem; }
+  .option-card { padding: 1rem 0.25rem; }
+}
+
+@media (max-width: 360px) {
+  .options-grid { grid-template-columns: minmax(0, 1fr); }
+  .option-card {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    min-height: var(--touch);
+    padding: 0.6rem 1rem;
+    text-align: left;
+  }
+  .theme-icon { margin-bottom: 0; font-size: 1.3rem; }
+  .option-desc { margin-top: 0; flex-basis: 100%; padding-left: calc(1.3rem + 0.75rem); }
+}
+
+/* Sección Notificaciones — misma jerarquía visual que las filas de cuenta
+   (icono circular + texto), pero con un interruptor en vez de una flecha. */
+.settings-toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.settings-toggle-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.settings-toggle-text strong {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.settings-toggle-text small {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* Interruptor tipo iOS/Material (mismo control que ya usa Android en
+   AppearanceToggleRow) en vez del checkbox cuadrado por defecto. */
+.switch-input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 44px;
+  height: 26px;
+  margin: 0;
+  border-radius: var(--r-capsule);
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease);
+}
+
+.switch-input::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--label-on-accent, #fff);
+  box-shadow: var(--sh-card);
+  transition: transform var(--dur) var(--ease);
+}
+
+.switch-input:checked {
+  background: var(--accent-ink);
+}
+
+.switch-input:checked::before {
+  transform: translateX(18px);
+}
+
+.switch-input:focus-visible {
+  outline: 3px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+
+.settings-actions {
+  margin-top: 0.5rem;
+}
+
+.settings-actions .btn-primary {
+  width: 100%;
+}
+
+

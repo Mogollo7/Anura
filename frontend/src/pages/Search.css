@@ -27,7 +27,7 @@
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: sticky;
-  top: 61px; /* Just below top-bar */
+  top: calc(3.5rem + 1px); /* alto de .top-bar-inner + su borde */
   z-index: 100;
 }
 
@@ -55,6 +55,12 @@
   gap: 0.5rem;
   white-space: nowrap;
   transition: color 0.2s;
+}
+
+@media (max-width: 480px) {
+  .search-tabs {
+    gap: 1.1rem;
+  }
 }
 
 .search-tabs button:hover {
@@ -187,6 +193,7 @@
   font-size: var(--text-xs);
   color: var(--muted);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.35rem;
   text-transform: uppercase;
@@ -232,4 +239,10 @@
   .search-card-stats {
     display: none; /* Hide stats pill on mobile to save space */
   }
+}
+
+/* Cada rango taxonómico se mantiene entero; si no caben, pasan a otra línea. */
+.search-card-meta span {
+  white-space: nowrap;
+  overflow-wrap: normal;
 }

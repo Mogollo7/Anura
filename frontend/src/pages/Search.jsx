@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { FaUser, FaFrog, FaCalendarDays, FaMapLocationDot } from 'react-icons/fa6'
+import { MdPerson, MdCalendarToday, MdMap } from 'react-icons/md'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { API_BASE, apiGet, getThumbUrl } from '../services/api'
 import './Search.css'
-
-const API_BASE = import.meta.env.VITE_API_URL || ''
+import Thumb from '../components/Thumb'
 
 const mediaUrl = (path) => {
   if (!path) return ''
@@ -17,7 +17,7 @@ const mediaUrl = (path) => {
 const getImageUrl = (key, size = 'medium') => {
   if (!key) return ''
   const filename = key.split('/').pop()
-  return `${API_BASE}/api/explorer/thumbnail/${size}/${filename}`
+  return getThumbUrl(filename, size)
 }
 
 export default function Search() {
@@ -34,11 +34,8 @@ export default function Search() {
     const fetchResults = async () => {
       setLoading(true)
       try {
-        const res = await fetch(`${API_BASE}/api/explorer/search?q=${encodeURIComponent(query)}`)
-        if (res.ok) {
-          const data = await res.json()
-          setResults(data)
-        }
+        const data = await apiGet(`/api/explorer/search?q=${encodeURIComponent(query)}`, { auth: false })
+        setResults(data)
       } catch (e) {
         console.error('Error fetching search results:', e)
       } finally {
@@ -56,11 +53,7 @@ export default function Search() {
       {taxa.map(t => (
         <div key={t.id} className="search-card" onClick={() => navigate(`/taxa/${t.slug}`)}>
           <div className="search-card-img">
-            {t.thumbnail_key ? (
-              <img src={getImageUrl(t.thumbnail_key, 'small')} alt={t.scientific_name} />
-            ) : (
-              <div className="placeholder-img"><FaFrog aria-hidden /></div>
-            )}
+            <Thumb src={getImageUrl(t.thumbnail_key, 'small')} alt={t.scientific_name} />
           </div>
           <div className="search-card-info">
             <h3 className="search-card-title">{t.common_name || 'Sin nombre común'}</h3>
@@ -70,7 +63,7 @@ export default function Search() {
             </div>
           </div>
           <div className="search-card-stats">
-            <span className="stat-pill"><FaMapLocationDot aria-hidden /> {t.obs_count} obs</span>
+            <span className="stat-pill"><MdMap aria-hidden /> {t.obs_count} obs</span>
           </div>
         </div>
       ))}
@@ -86,17 +79,17 @@ export default function Search() {
             {u.profile_image ? (
               <img src={mediaUrl(u.profile_image)} alt={u.username} />
             ) : (
-              <div className="placeholder-img"><FaUser aria-hidden /></div>
+              <div className="placeholder-img"><MdPerson aria-hidden /></div>
             )}
           </div>
           <div className="search-card-info">
             <h3 className="search-card-title">{u.username}</h3>
             <div className="search-card-meta">
-              <FaCalendarDays aria-hidden /> Miembro desde {new Date(u.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+              <MdCalendarToday aria-hidden /> Miembro desde {new Date(u.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
             </div>
           </div>
           <div className="search-card-stats">
-            <span className="stat-pill"><FaMapLocationDot aria-hidden /> {u.obs_count} obs</span>
+            <span className="stat-pill"><MdMap aria-hidden /> {u.obs_count} obs</span>
           </div>
         </div>
       ))}

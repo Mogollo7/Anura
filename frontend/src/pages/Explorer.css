@@ -1,6 +1,6 @@
 .explorer-view {
   min-height: 100vh;
-  background: var(--bg, #f4f6f0);
+  background: var(--bg);
   color: var(--text);
 }
 
@@ -8,14 +8,6 @@
   background: var(--surface);
   padding: 1rem 0;
   border-bottom: 1px solid var(--border);
-}
-
-.container {
-  width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding-left: clamp(1.25rem, 7vw, 6.5rem);
-  padding-right: clamp(1.25rem, 7vw, 6.5rem);
 }
 
 .hide-mobile {
@@ -41,11 +33,6 @@
   }
 }
 
-[data-theme='dark'] .explorer-header {
-  background: var(--surface);
-  border-color: var(--border);
-}
-
 .header-flex {
   display: flex;
   justify-content: space-between;
@@ -61,124 +48,14 @@
   margin: 0;
 }
 
-[data-theme='dark'] .logo-text {
-  color: var(--text);
-}
-
-.search-group {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.search-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: var(--surface-2, #fff);
-  border: 1px solid var(--border, #ccc);
-  border-radius: 10px;
-  padding: 0 0.5rem;
-}
-
-.search-input-wrapper input {
-  border: none;
-  background: transparent;
-  color: var(--text);
-  padding: 0.5rem;
-  outline: none;
-  width: 150px;
-}
-
-.btn-search {
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-filters {
-  background: var(--surface-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-  padding: 0.5rem 1rem;
-  border-radius: 10px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-
-/* Stats Bar */
-.explorer-stats-bar {
-  background: #454545;
-  color: #fff;
-}
-
-.stats-flex {
-  display: flex;
-  align-items: stretch;
-  flex-wrap: nowrap;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.stat-box {
-  flex: 1 1 160px;
-  min-width: 0;
-  padding: 1rem clamp(0.75rem, 3vw, 2rem);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  cursor: pointer;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background 0.2s;
-}
-
-.stat-box:first-child {
-  border-left: none;
-}
-
-.stat-box:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.stat-box.active {
-  box-shadow: inset 0 -4px 0 #fff;
-}
-
-.green-box {
-  background: #74AC00;
-}
-
-.green-box.active {
-  background: #8BC34A;
-}
-
-.grey-box {
-  background: #555555;
-}
-
-.grey-box.active {
-  background: #666666;
-}
-
-.stat-number {
-  font-size: var(--text-xl);
-  font-weight: 800;
-  display: block;
-}
-
-.stat-box .stat-label {
-  font-size: var(--text-2xs);
+/* Recuento textual bajo el título — antes era un selector de 3 cajas de
+   color (Observaciones/Especies/Observadores) al estilo iNaturalist que
+   duplicaba la navegación real: esas dos áreas ahora son rutas propias
+   (/observaciones, /explorar), así que aquí solo queda información. */
+.explorer-count {
+  color: var(--label-secondary-aa);
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: #ffffff !important;
-  opacity: 1 !important;
-  letter-spacing: 0;
 }
 
 @media (max-width: 720px) {
@@ -190,191 +67,103 @@
     flex-direction: column;
     align-items: stretch;
   }
-
-  .search-input-wrapper input {
-    width: min(140px, 42vw);
-  }
-
-  .stat-number {
-    font-size: var(--text-lg);
-  }
-
-  .stat-label {
-    font-size: clamp(0.55rem, 2vw, 0.7rem);
-  }
-
-  .stat-box {
-    flex: 1 1 calc(50% - 0px);
-    padding: 0.75rem 0.85rem;
-  }
 }
 
-@media (max-width: 380px) {
-  .explorer-stats-bar .stats-flex {
-    flex-direction: column;
-    flex-wrap: nowrap;
-    padding-left: max(0.5rem, env(safe-area-inset-left));
-    padding-right: max(0.5rem, env(safe-area-inset-right));
-  }
-
-  .stat-box {
-    flex: 1 1 auto;
-    border-left: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    align-items: center;
-    text-align: center;
-    padding: 0.85rem 1rem;
-  }
-
-  .stat-box:last-child {
-    border-bottom: none;
-  }
-
-  .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    justify-content: flex-start;
-    padding-left: 0;
-  }
-
-  .tabs button {
-    flex: 1 1 auto;
-    min-width: min(100%, 140px);
-    border-radius: 4px !important;
-  }
-}
-
-/* View Switcher */
-
-
-
+/* View Switcher — pestañas Mapa/Cuadrícula/Lista (u observaciones: Especies/
+   Observadores) + filtro local, en la misma barra */
 .switcher-flex {
-  padding-top: 2.375rem;
-  padding-bottom: 1.375rem;
-}
-
-.tabs {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.tabs button {
+/* Filtro local sobre la lista ya cargada (no es la búsqueda global del
+   TopBar, que consulta el backend y navega a /search). */
+.explorer-filter-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 220px;
+  max-width: 320px;
+}
+
+.explorer-filter-icon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  pointer-events: none;
+}
+
+.explorer-filter-input {
+  width: 100%;
+  padding: 0.55rem 0.75rem 0.55rem 2.1rem;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  padding: 0.6rem 1.6rem;
-  cursor: pointer;
+  border-radius: 10px;
+  color: var(--text);
   font-size: var(--text-sm);
-  color: var(--muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
 }
 
-.tabs button:first-child {
-  border-radius: 4px 0 0 4px;
-}
-
-.tabs button:last-child {
-  border-radius: 0 4px 4px 0;
-}
-
-.tabs button.active {
-  background: color-mix(in srgb, var(--primary) 14%, var(--surface));
-  font-weight: bold;
-  color: var(--primary);
+.explorer-filter-input:focus {
+  outline: none;
+  border-color: var(--accent-ink);
+  background: var(--surface);
 }
 
 /* Species Grid */
 .species-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
   gap: 1.25rem;
   padding: 2rem 0;
 }
 
+/* minmax(0, 1fr): con `1fr` a secas un texto nowrap largo (usuario sin
+   espacios) ensanchaba la columna más allá de la pantalla. */
 @media (max-width: 1000px) {
   .species-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 600px) {
-  .species-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
-.species-card {
-  background: var(--surface);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
 
-.card-no-border {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.species-img-wrapper {
-  position: relative;
-  width: 100%;
-  padding-top: 100%;
-  /* Square */
-}
-
-.species-img-wrapper img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+/* .species-card / .species-img-wrapper / .species-info ahora viven en
+   styles/species-card.css (compartido con Home.jsx). */
 
 .obs-overlay-bar {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.65);
-  color: #fff;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  z-index: 1;
+  color: var(--label-on-photo);
   font-size: var(--text-2xs);
-  padding: 0.4rem 0.6rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .obs-time-overlay {
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  margin-left: auto;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
-.species-info {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.species-common {
-  font-weight: 700;
-  color: var(--text);
-  font-size: var(--text-base);
-}
-
-.species-scientific {
-  font-style: italic;
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-
-/* Observers and Species Grid Pull-up */
-.observers-list, .species-view-pullup {
-  margin-top: -3.5rem; /* Pull up to hide the gap left by visibility: hidden on switcher-bar */
-  position: relative;
-  z-index: 2;
+.obs-username-small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .observers-table {
@@ -417,30 +206,54 @@
 /* Observation Grid Pro (Matches Species Grid) */
 .obs-grid-pro {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.25rem;
   padding: 2rem 0;
 }
 
 @media (max-width: 1000px) {
   .obs-grid-pro {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
+/* Teléfono: 2 columnas como ObservationCard.kt (167 dp de ancho = media
+   pantalla); a 1 columna cada tarjeta 167:196 ocupaba la pantalla entera. */
 @media (max-width: 600px) {
-  .obs-grid-pro {
-    grid-template-columns: 1fr;
+  .obs-grid-pro,
+  .species-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 1rem 0;
   }
+}
+
+.species-count-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--r-capsule);
+  background: var(--accent-ink);
+  color: var(--label-on-accent);
+  font-size: var(--f-caption);
+  font-weight: 600;
 }
 
 .obs-user-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  font-size: var(--text-xs);
-  color: var(--muted);
+  min-width: 0;
+  overflow: hidden;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  font-size: var(--text-2xs);
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .avatar-micro {
@@ -466,9 +279,6 @@
 .obs-list-pro {
   margin-top: 2rem;
   overflow-x: auto;
-  padding-left: 1.5rem; /* 24px default side padding */
-  padding-right: 1.5rem;
-  transition: padding 200ms ease;
 }
 
 .obs-table-full {
@@ -542,38 +352,174 @@
   justify-content: center;
 }
 
-.map-wrapper {
-  overflow: hidden;
+/* Vista de mapa en escritorio: panel de lista + mapa lado a lado, en vez de
+   un mapa a todo lo ancho sin aprovechar el espacio disponible. En móvil
+   colapsa a solo el mapa (el panel no cabe ni aporta en esa pantalla). */
+.map-split-view {
+  display: block;
 }
 
-@media (max-width: 720px) {
-  .search-group {
+.map-side-list {
+  display: none;
+}
+
+.map-wrapper {
+  overflow: hidden;
+  height: 540px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.geo-map-header {
+  padding: 0.85rem 1.1rem 0.75rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.geo-map-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.geo-map-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.geo-map-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  background: rgba(255, 122, 26, 0.12);
+  color: #FF7A1A;
+  border: 1px solid rgba(255, 122, 26, 0.25);
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+}
+
+.geo-map-subtitle {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0.3rem 0 0;
+  line-height: 1.35;
+}
+
+.geo-map-canvas {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  position: relative;
+}
+
+.geo-map-canvas .leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* Leaflet pinta .leaflet-div-icon con fondo blanco y borde: sin esto los
+   cuadrados de densidad parecen pines. */
+.square-marker-icon {
+  background: none !important;
+  border: none !important;
+}
+
+@media (min-width: 1024px) {
+  .map-split-view {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    width: 100%;
+    grid-template-columns: 340px 1fr;
+    gap: 1.25rem;
+    align-items: stretch;
   }
 
-  .search-input-wrapper {
-    width: 100%;
-  }
-
-  .search-input-wrapper input {
-    width: 100%;
-    min-width: 0;
-  }
-  
-  .search-group button {
-    width: 100%;
-    justify-content: center;
-    margin: 0;
-  }
-
-  /* Center the Mapa/Cuadrícula/Lista tabs */
-  .switcher-flex {
+  .map-side-list {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: 0.6rem;
+    height: 620px;
+    overflow-y: auto;
+    padding-right: 0.35rem;
   }
+
+  .map-wrapper {
+    height: 620px;
+  }
+}
+
+.map-side-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.map-side-item:hover {
+  border-color: var(--accent-ink);
+  transform: translateX(2px);
+}
+
+.map-side-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-2);
+  flex-shrink: 0;
+}
+
+.map-side-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.map-side-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.map-side-info strong {
+  font-size: var(--text-sm);
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-side-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.map-side-prob {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--label-primary);
+}
+
+/* Tabla solo en escritorio: con 6 columnas en tablet partía los nombres. */
+@media (max-width: 1199px) {
+  .explorer-filter-wrapper {
+    max-width: none;
+    width: 100%;
+  }
+
 
   /* ── Observations List: Card-based layout ── */
   .obs-table-full thead {
@@ -729,7 +675,7 @@
 
   .user-stats-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 1rem;
   }
 
@@ -906,7 +852,7 @@
 }
 
 .po-heart-btn.liked {
-  color: #e44;
+  color: var(--danger);
   animation: po-heart-pop 0.3s ease;
 }
 
@@ -916,78 +862,28 @@
   100% { transform: scale(1.1); }
 }
 
-/* Positioning in grid */
+/* Positioning in grid — 44px de zona táctil, igual al corazón de
+   ObservationCard.kt (visualmente ~30px, ampliado por accesibilidad) */
 .species-img-wrapper .po-heart-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 4px;
+  right: 4px;
+  width: var(--touch);
+  height: var(--touch);
   background: transparent !important;
-  color: #fff;
+  color: var(--label-on-photo);
   z-index: 10;
   font-size: 1.3rem;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
 .species-img-wrapper .po-heart-btn.liked {
-  color: #e44;
-}
-
-/* Modal styles (shared) */
-.po-modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(5px);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-}
-
-.po-modal-card {
-  background: var(--surface);
-  border-radius: 20px;
-  padding: 2.5rem;
-  width: 100%;
-  max-width: 420px;
-  text-align: center;
-  position: relative;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-  animation: po-modal-in 0.3s ease-out;
-}
-
-@keyframes po-modal-in {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.po-modal-close {
-  position: absolute;
-  top: 1.2rem; right: 1.2rem;
-  background: none; border: none;
-  font-size: 1.2rem; color: var(--muted);
-  cursor: pointer;
-}
-
-.po-modal-icon {
-  font-size: 3.5rem;
-  color: #e44;
-  margin-bottom: 1.5rem;
-}
-
-.po-modal-login {
-  width: 100%;
-  margin-top: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 0.85rem;
+  color: var(--danger);
 }
 
 /* Mobile adjustments for list actions */
-@media (max-width: 720px) {
+/* Tabla solo en escritorio: con 6 columnas en tablet partía los nombres. */
+@media (max-width: 1199px) {
   .obs-table-full tr {
     position: relative;
   }
@@ -1005,55 +901,24 @@
   }
 }
 
-/* Fluid padding between 450px and 401px (don't touch <=400px rules) */
-@media (min-width: 401px) and (max-width: 450px) {
-  .obs-list-pro {
-    /* interpolate padding from 24px @450px down to ~8px @401px */
-    padding-left: clamp(8px, calc(32vw - 120px), 24px);
-    padding-right: clamp(8px, calc(32vw - 120px), 24px);
-  }
-}
-
-/* ── Mobile Optimizations (390px and below) ── */
+/* ── Teléfonos estrechos (≤400px) ──
+   El margen lateral lo pone .container (16px); aquí solo se compacta la
+   fila. Texto alineado al inicio, como una lista HIG (antes se centraba, lo
+   que dificulta escanear una lista). */
 @media (max-width: 400px) {
-  .container {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    margin: 0 !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-  }
-
-  .explorer-main, .obs-list-pro {
-    padding: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    width: 100% !important;
-  }
-
-  /* List view items edge-to-edge and NO overflow */
   .obs-table-full tr {
     display: grid !important;
-    grid-template-columns: 90px minmax(0, 1fr) !important; /* minmax(0, 1fr) previene el desbordamiento */
-    border-radius: 0 !important;
-    margin-bottom: 0 !important;
+    grid-template-columns: 90px minmax(0, 1fr) !important;
+    margin-bottom: 0.5rem !important;
     width: 100% !important;
-    border-bottom: 1px solid var(--border);
-    overflow: hidden; /* Evita que el contenido se salga */
-  }
-
-  /* Center content in cards */
-  .name-stack, .user-stack {
-    text-align: center !important;
-    align-items: center !important;
-    width: 100%;
     overflow: hidden;
   }
 
-  .species-info {
+  .name-stack, .user-stack, .species-info {
     text-align: left !important;
     align-items: flex-start !important;
     width: 100%;
+    min-width: 0;
     overflow: hidden;
   }
 
@@ -1062,11 +927,11 @@
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Pone puntos suspensivos si es muy largo */
+    text-overflow: ellipsis;
   }
 
   .obs-user-row {
-    justify-content: center !important;
+    justify-content: flex-start !important;
   }
 
   /* Force image to fill its column correctly */
@@ -1081,15 +946,37 @@
     min-height: 100px;
   }
 
-  /* Compact Stats Bar */
-  .stat-box {
-    padding: 1rem !important;
-  }
+}
+/* Error de carga: distinto de "vacío" (antes el fallo se mostraba como
+   "0 registradas" + lista vacía). */
+.explorer-load-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--muted);
+}
 
-  /* Search bar spacing and centering */
-  .search-group {
-    padding: 1rem !important;
-    width: 100%;
-    box-sizing: border-box;
-  }
+.explorer-load-error svg {
+  font-size: 2.5rem;
+  color: var(--label-secondary);
+}
+
+.explorer-load-error strong {
+  color: var(--text);
+}
+
+.explorer-load-error .btn-secondary {
+  min-width: 140px;
+}
+
+/* Tabla de escritorio: la especie y la fecha no se parten; el lugar (texto
+   libre, a veces larguísimo) cede espacio. */
+@media (min-width: 1200px) {
+  .obs-table-full td[data-mobile-type="name"] { min-width: 13rem; }
+  .obs-table-full td[data-mobile-type="date"],
+  .obs-table-full td[data-mobile-type="added"] { white-space: nowrap; }
+  .obs-table-full td[data-mobile-type="place"] { min-width: 10rem; max-width: 16rem; }
 }

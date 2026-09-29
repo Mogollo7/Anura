@@ -1,0 +1,97 @@
+/* Antes duplicado (con valores distintos que se pisaban) en Explorer.css y
+   PeopleObservations.css. */
+.po-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--page-gutter);
+}
+
+.po-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: 2.25rem 1.5rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-modal, 20px);
+  box-shadow: var(--sh-modal, 0 20px 60px rgba(0, 0, 0, 0.25));
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+  animation: po-modal-in 0.25s ease-out;
+}
+
+@keyframes po-modal-in {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .po-modal-card { animation: none; }
+}
+
+.po-modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: var(--touch);
+  height: var(--touch);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.po-modal-close:hover { background: var(--surface-2); }
+
+.po-modal-icon {
+  align-self: center;
+  font-size: 2.5rem;
+  color: var(--accent-ink);
+  margin-bottom: 0.25rem;
+}
+
+.po-modal-card h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--text);
+}
+
+.po-modal-card p {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.po-modal-login,
+.po-modal-skip {
+  width: 100%;
+}
+
+.po-modal-cancel {
+  min-height: var(--touch);
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.po-modal-cancel:hover { color: var(--text); }

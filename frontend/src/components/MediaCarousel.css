@@ -1,0 +1,99 @@
+/* Carrusel de medios — geometría real (ObservationMediaCarousel.kt):
+   contenedor 16px de radio, HorizontalPager de 1 slide por vista (scroll-snap
+   web = mismo efecto), píldora de índice "n/total" tipo vidrio abajo-centro. */
+.a-media-carousel {
+  position: relative;
+  width: 100%;
+  border-radius: var(--r-card);
+  overflow: hidden;
+  background: var(--ph-hero);
+}
+
+/* Sin fotos: fondo de marcador + glifo, como las miniaturas (Thumb.jsx).
+   Antes era --ph-hero con texto secundario: casi ilegible en tema claro. */
+.a-media-carousel--empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 240px;
+  background: var(--ph-thumb);
+}
+
+.a-media-carousel-empty-icon {
+  font-size: 2.75rem;
+  color: var(--label-secondary);
+}
+
+.a-media-carousel-empty-label {
+  color: var(--label-secondary-aa);
+  font-size: var(--f-subhead);
+  font-weight: 600;
+}
+
+.a-media-carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  gap: 12px;
+}
+
+.a-media-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.a-media-carousel-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+.a-media-carousel-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Slide cuya imagen falló en cargar (404/500, archivo vacío): mismo look
+   que el estado "sin medios" de arriba, en vez de los tokens genéricos de
+   FallbackImage. */
+.a-media-carousel-slide .img-fallback {
+  background: var(--ph-thumb);
+  color: var(--label-secondary-aa);
+}
+
+.a-media-carousel-slide .img-fallback-icon {
+  font-size: 2.75rem;
+  color: var(--label-secondary);
+  opacity: 1;
+}
+
+.a-media-carousel-slide .img-fallback-label {
+  font-size: var(--f-subhead);
+  font-weight: 600;
+}
+
+.a-media-carousel-index {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--r-button);
+  background: var(--material);
+  -webkit-backdrop-filter: var(--material-blur);
+  backdrop-filter: var(--material-blur);
+  color: var(--label-on-accent);
+  font-size: var(--f-caption);
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
