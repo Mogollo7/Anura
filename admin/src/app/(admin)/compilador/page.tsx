@@ -8,7 +8,8 @@ export default function CompiladorPage() {
         <p className="text-sm text-label-secondary">
           El servidor compila el paquete de una subregión (sqlite de identificación y su manifiesto) con los vectores,
           centroides, umbral OSR y Ficha de hoy. Solo compila si la validación está lista. Para que la app lo descargue
-          necesita dos aprobaciones de cuentas distintas, científica y técnica, y después se publica.
+          necesita dos aprobaciones, científica y técnica: las dan dos cuentas distintas y una cuenta super puede darlas las dos.
+          Después se publica. Una versión anterior se puede restaurar sin repetir el proceso.
         </p>
       </div>
       <CompilerConsole />

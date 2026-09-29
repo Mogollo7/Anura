@@ -306,6 +306,30 @@ function construirClave(crudas) {
   return { caracteres: conGanancia, especies };
 }
 
+/**
+ * Cuántas especies tienen dato en cada carácter. Lo que la clave sabe hoy, sin suponer nada de lo que falta:
+ * una especie sin dato sigue siendo compatible con todas las respuestas.
+ */
+function cobertura(caracteres, especies) {
+  return {
+    especies: especies.length,
+    caracteres: caracteres.map((c) => ({ id: c.id, especies_con_dato: especies.filter((s) => (s.estados[c.id] || []).length > 0).length })),
+  };
+}
+
+/** Texto que avisa cuando la clave separa poco. Null si hay datos suficientes para que ayude. */
+function avisoDe(caracteres, especies) {
+  if (especies.length < 2) return null;
+  if (!caracteres.length) {
+    return 'Con los datos de hoy ninguna pregunta separa estas especies: la clave no puede ayudar a distinguirlas. Faltan altitud, sustrato, actividad, morfos o tamaño en sus fichas.';
+  }
+  const conDato = new Set(especies.filter((s) => Object.values(s.estados).some((e) => e.length)).map((s) => s.taxon_id));
+  if (conDato.size * 2 < especies.length) {
+    return `Solo ${conDato.size} de ${especies.length} especies tienen algún dato para responder las preguntas: la clave separa poco. Las que no tienen dato quedan compatibles con cualquier respuesta.`;
+  }
+  return null;
+}
+
 // ── Lectura de la base ────────────────────────────────────────────────────────────────────
 
 /**
@@ -317,7 +341,7 @@ async function paqueteDe(db, subregion, version) {
   const v = version == null || version === '' ? null : Number(version);
   if (v !== null && !Number.isInteger(v)) throw falla('version debe ser un número entero');
   const { rows: [p] } = await db.query(`
-    SELECT p.id, p.region_id, p.version, p.sha256, p.estado, p.manifiesto, p.subregion_id, s.nombre AS subregion
+    SELECT p.id, p.region_id, p.version, p.sha256, p.estado, p.origen, p.manifiesto, p.subregion_id, s.nombre AS subregion
     FROM packages.regional_packages p JOIN dataset.subregion s ON s.id = p.subregion_id
     WHERE (p.region_id = $1 OR p.subregion_id::text = $1)
       AND (($2::int IS NULL AND p.estado = 'publicado') OR (p.version = $2::int AND p.estado IN ('publicado', 'retirado')))
@@ -384,11 +408,13 @@ async function deSubregion(db, subregion, version) {
   const huella = crypto.createHash('sha256').update(JSON.stringify({ caracteres, especies })).digest('hex');
   return {
     formato: FORMATO,
-    paquete: { id: p.region_id, version: p.version, sha256: p.sha256, estado: p.estado },
+    paquete: { id: p.region_id, version: p.version, sha256: p.sha256, estado: p.estado, origen: p.origen },
     subregion: { id: p.subregion_id, nombre: p.subregion },
     generado: new Date().toISOString(),
     huella,
     min_individuos_sustrato: MIN_PUNTOS,
+    cobertura: cobertura(caracteres, especies),
+    aviso: avisoDe(caracteres, especies),
     caracteres,
     especies,
   };

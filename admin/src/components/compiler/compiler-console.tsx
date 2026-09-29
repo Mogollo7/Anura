@@ -11,10 +11,12 @@ import { Table, THead, TBody, TRow, TH, TD } from "@/components/ui/table";
 import { DataState } from "@/components/app-data/data-state";
 import { Motivos } from "@/components/release/motivos";
 import { SubregionPicker, subregionInicial } from "@/components/release/subregion-picker";
+import { EtiquetaImportado, RestaurarVersion } from "@/components/release/restaurar-version";
 import { useAppResource } from "@/lib/app-data/app-client";
 import { usePanelSession } from "@/lib/session/panel-session";
 import {
   ESTADO_PAQUETE,
+  REGLA_APROBACIONES,
   TIPO_APROBACION,
   ReleaseError,
   fecha,
@@ -30,8 +32,9 @@ import { plural } from "@/lib/utils";
 
 /**
  * Release: compilar el paquete de una subregión en el servidor, reunir las dos aprobaciones
- * (científica y técnica, de cuentas distintas) y publicarlo para la app. El servidor valida
- * cada paso; los botones solo evitan pedir lo que ya se sabe que va a rechazar.
+ * (científica y técnica; dos cuentas distintas, o una cuenta super que da las dos) y publicarlo para la
+ * app. También se puede volver a una versión anterior (restaurar). El servidor valida cada paso; los
+ * botones solo evitan pedir lo que ya se sabe que va a rechazar.
  */
 export function CompilerConsole() {
   const resumen = useAppResource(releaseApi.resumen);
@@ -98,7 +101,19 @@ function Detalle({ subregiones }: { subregiones: ResumenSubregion[] }) {
   const sub = subregiones.find((s) => s.id === id);
   const listo = validacion && validacion.subregion.id === id && paquetes;
   const canGenerar = session.can("generarPaquete");
+  const esSuper = !!session.acting?.isSuperAdmin;
   const ultimo = paquetes?.[0] ?? null;
+  const vigente = paquetes?.find((p) => p.estado === "publicado") ?? null;
+  const restaurada = (mensaje: string) => {
+    setError(null);
+    setAviso(mensaje);
+    if (id != null) void cargar(id).catch(() => undefined);
+  };
+  const noRestaurada = (mensaje: string) => {
+    setAviso(null);
+    setError({ message: mensaje, motivos: [] });
+    if (id != null) void cargar(id).catch(() => undefined);
+  };
 
   return (
     <div className="space-y-6">
@@ -132,7 +147,7 @@ function Detalle({ subregiones }: { subregiones: ResumenSubregion[] }) {
           variant="primary"
           disabled={!canGenerar || !validacion?.lista || ocupado !== null}
           title={!canGenerar ? 'Falta el permiso "Generar paquete"' : undefined}
-          onClick={() => id != null && accion("compilar", () => releaseApi.compilar(id), "Paquete compilado. Ahora necesita dos aprobaciones de cuentas distintas.")}
+          onClick={() => id != null && accion("compilar", () => releaseApi.compilar(id), `Paquete compilado. ${REGLA_APROBACIONES}`)}
         >
           {canGenerar ? <PackageCheck size={14} aria-hidden /> : <Lock size={14} aria-hidden />}
           {ocupado === "compilar" ? "Compilando…" : "Compilar paquete"}
@@ -164,9 +179,7 @@ function Detalle({ subregiones }: { subregiones: ResumenSubregion[] }) {
           <Card>
             <CardHeader className="mb-2">
               <CardTitle>Versiones de esta subregión</CardTitle>
-              {paquetes.find((p) => p.estado === "publicado") && (
-                <Badge tone="accent">Publicada: versión {paquetes.find((p) => p.estado === "publicado")!.version}</Badge>
-              )}
+              {vigente && <Badge tone="accent">Publicada: versión {vigente.version}</Badge>}
             </CardHeader>
             {paquetes.length === 0 ? (
               <p className="text-sm text-label-secondary">
@@ -191,6 +204,11 @@ function Detalle({ subregiones }: { subregiones: ResumenSubregion[] }) {
                       key={p.id}
                       p={p}
                       yo={yo}
+                      esSuper={esSuper}
+                      subregion={sub?.nombre ?? p.paquete_id}
+                      vigente={vigente}
+                      onRestaurada={restaurada}
+                      onNoRestaurada={noRestaurada}
                       puede={(permiso) => session.can(permiso)}
                       ocupado={ocupado}
                       onAprobar={(tipo) =>
@@ -203,9 +221,9 @@ function Detalle({ subregiones }: { subregiones: ResumenSubregion[] }) {
               </Table>
             )}
             <p className="mt-2 text-[11px] text-label-tertiary">
-              Publicar exige dos aprobaciones de cuentas distintas: la científica (permiso «Aprobar paquete científico») y la técnica
-              (permiso «Publicar paquete»). Quien compila puede dar una, no las dos. Si cambian los centroides, el umbral OSR o la Ficha
-              después de compilar, esa versión queda desactualizada: compila otra.
+              {REGLA_APROBACIONES} La científica pide el permiso «Aprobar paquete científico» y la técnica el permiso «Publicar paquete».
+              Si cambian los centroides, el umbral OSR o la Ficha después de compilar, esa versión queda desactualizada: compila otra.
+              Una versión retirada se puede restaurar: vuelve a entregarse sin nuevas aprobaciones.
             </p>
           </Card>
 
@@ -237,7 +255,9 @@ function Detalle({ subregiones }: { subregiones: ResumenSubregion[] }) {
                       <TD className="text-xs italic">{e.nombre_cientifico}</TD>
                       <TD className="font-mono text-xs">{e.taxon_id}</TD>
                       <TD className="text-right text-xs tabular-nums">{e.referencias}</TD>
-                      <TD className="text-xs">{e.centroide === "regional" ? "regional" : "global prestado"}</TD>
+                      <TD className="text-xs">
+                        {e.centroide === "regional" ? "regional" : e.centroide === "referencias" ? "media de sus referencias" : "global prestado"}
+                      </TD>
                       <TD className="text-xs">{e.contexto?.altitud ? `${e.contexto.altitud.min}–${e.contexto.altitud.max} m` : "—"}</TD>
                       <TD className="text-xs">{e.contexto?.pesos ? `${e.contexto.pesos.wv} / ${e.contexto.pesos.wg} / ${e.contexto.pesos.wm}` : "—"}</TD>
                     </TRow>
@@ -255,6 +275,11 @@ function Detalle({ subregiones }: { subregiones: ResumenSubregion[] }) {
 function FilaPaquete({
   p,
   yo,
+  esSuper,
+  subregion,
+  vigente,
+  onRestaurada,
+  onNoRestaurada,
   puede,
   ocupado,
   onAprobar,
@@ -262,6 +287,12 @@ function FilaPaquete({
 }: {
   p: Paquete;
   yo: string | null;
+  /** La cuenta super puede dar las dos aprobaciones de un mismo paquete. */
+  esSuper: boolean;
+  subregion: string;
+  vigente: Paquete | null;
+  onRestaurada: (mensaje: string) => void;
+  onNoRestaurada: (mensaje: string) => void;
   puede: (permiso: "aprobarCientifico" | "publicarPaquete") => boolean;
   ocupado: string | null;
   onAprobar: (tipo: TipoAprobacion) => void;
@@ -274,14 +305,17 @@ function FilaPaquete({
     <TRow>
       <TD className="font-mono text-xs">{p.version}</TD>
       <TD>
-        <Badge tone={p.desactualizado ? "warning" : estado.tone}>{p.desactualizado ? "Desactualizado: compila otra" : estado.label}</Badge>
+        <div className="flex flex-wrap items-center gap-1">
+          <Badge tone={p.desactualizado ? "warning" : estado.tone}>{p.desactualizado ? "Desactualizado: compila otra" : estado.label}</Badge>
+          <EtiquetaImportado p={p} />
+        </div>
       </TD>
       <TD className="text-right text-xs tabular-nums">{p.especies}</TD>
       <TD className="text-right text-xs tabular-nums">{tamano(p.size_bytes)}</TD>
       <TD className="text-xs">{p.compilado_nombre ?? "—"} · {fecha(p.compilado)}</TD>
       <TD className="text-xs">
         {p.aprobaciones.length === 0
-          ? "—"
+          ? p.origen === "legado" ? "Ya validado antes" : "—"
           : p.aprobaciones.map((a) => (
             <span key={a.tipo} className="block">
               {TIPO_APROBACION[a.tipo].label}: {a.nombre ?? a.cuenta}
@@ -301,8 +335,12 @@ function FilaPaquete({
                   key={tipo}
                   variant="outline"
                   className="text-xs"
-                  disabled={!permitido || yaAprobe || ocupado !== null}
-                  title={yaAprobe ? "Tu cuenta ya aprobó este paquete: la otra aprobación la da otra cuenta" : !permitido ? `Falta el permiso de aprobación ${t.label.toLowerCase()}` : undefined}
+                  disabled={!permitido || (yaAprobe && !esSuper) || ocupado !== null}
+                  title={
+                    yaAprobe && !esSuper
+                      ? "Tu cuenta ya aprobó este paquete: la otra aprobación la da otra cuenta"
+                      : !permitido ? `Falta el permiso de aprobación ${t.label.toLowerCase()}` : undefined
+                  }
                   onClick={() => onAprobar(tipo)}
                 >
                   {permitido ? <ShieldCheck size={12} aria-hidden /> : <Lock size={12} aria-hidden />} Aprobar ({t.label.toLowerCase()})
@@ -314,6 +352,7 @@ function FilaPaquete({
               {puede("publicarPaquete") ? <CheckCircle2 size={12} aria-hidden /> : <Lock size={12} aria-hidden />} Publicar
             </Button>
           )}
+          <RestaurarVersion p={p} subregion={subregion} vigente={vigente} ocupado={ocupado !== null} onHecho={onRestaurada} onError={onNoRestaurada} />
         </div>
       </TD>
     </TRow>

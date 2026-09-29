@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Smartphone } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, Smartphone, XCircle } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, THead, TBody, TRow, TH, TD } from "@/components/ui/table";
 import { DataState } from "@/components/app-data/data-state";
 import { appApi, useAppResource, type PaqueteNodo } from "@/lib/app-data/app-client";
-import { ESTADO_PAQUETE, TIPO_APROBACION, fecha, releaseApi, tamano } from "@/lib/release/release-client";
+import { EtiquetaImportado, RestaurarVersion } from "@/components/release/restaurar-version";
+import { ESTADO_PAQUETE, REGLA_APROBACIONES, TIPO_APROBACION, fecha, releaseApi, tamano } from "@/lib/release/release-client";
 
 type NodoPublicado = PaqueteNodo & { publicado?: string | null; manifiesto_url?: string | null };
 
@@ -24,6 +26,12 @@ function subregiones(nodos: NodoPublicado[], departamento = ""): { nodo: NodoPub
 export function ReleaseDelivery() {
   const publico = useAppResource(appApi.packages);
   const historial = useAppResource(() => releaseApi.paquetes());
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const recargar = () => {
+    publico.reload();
+    historial.reload();
+  };
   // El id interno del paquete ("05.VALLE_DE_ABURRA") no es para leer: se muestra la subregión.
   const nombres = useAppResource(() => releaseApi.resumen());
   const subregionDe = new Map(
@@ -35,7 +43,8 @@ export function ReleaseDelivery() {
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight text-label-primary">Actualizaciones</h1>
         <p className="text-sm text-label-secondary">
-          Los paquetes que la app puede descargar, uno por subregión. Solo aparece lo publicado en Release con sus dos aprobaciones.
+          Los paquetes que la app puede descargar, uno por subregión. Solo aparece lo publicado en Release con sus dos aprobaciones
+          (o una versión anterior que se restauró). {REGLA_APROBACIONES}
         </p>
       </div>
 
@@ -87,6 +96,9 @@ export function ReleaseDelivery() {
         </DataState>
       </Card>
 
+      {aviso && <Card className="flex items-center gap-1.5 text-sm text-accent-ink"><CheckCircle2 size={14} aria-hidden /> {aviso}</Card>}
+      {error && <Card className="flex items-center gap-1.5 text-sm font-medium text-danger"><XCircle size={14} aria-hidden /> {error}</Card>}
+
       <Card>
         <CardHeader className="mb-2">
           <CardTitle>Historial de versiones</CardTitle>
@@ -108,30 +120,49 @@ export function ReleaseDelivery() {
                     <TH>Compilado</TH>
                     <TH>Aprobaciones</TH>
                     <TH>Publicado</TH>
+                    <TH></TH>
                   </tr>
                 </THead>
                 <TBody>
-                  {paquetes.map((p) => (
-                    <TRow key={p.id}>
-                      <TD className="text-xs">{(p.subregion_id != null && subregionDe.get(p.subregion_id)) || p.paquete_id}</TD>
-                      <TD className="font-mono text-xs">{p.version}</TD>
-                      <TD>
-                        <Badge tone={p.desactualizado ? "warning" : ESTADO_PAQUETE[p.estado].tone}>
-                          {p.desactualizado ? "Desactualizado" : ESTADO_PAQUETE[p.estado].label}
-                        </Badge>
-                      </TD>
-                      <TD className="text-xs">{p.compilado_nombre ?? "—"} · {fecha(p.compilado)}</TD>
-                      <TD className="text-xs">
-                        {p.aprobaciones.length
-                          ? p.aprobaciones.map((a) => `${TIPO_APROBACION[a.tipo].label}: ${a.nombre ?? a.cuenta}`).join(" · ")
-                          : "—"}
-                      </TD>
-                      <TD className="text-xs">
-                        {p.publicado ? `${p.publicado_nombre ?? "—"} · ${fecha(p.publicado)}` : "—"}
-                        {p.retirado && <span className="block text-label-tertiary">Retirado {fecha(p.retirado)}</span>}
-                      </TD>
-                    </TRow>
-                  ))}
+                  {paquetes.map((p) => {
+                    const nombre = (p.subregion_id != null && subregionDe.get(p.subregion_id)) || p.paquete_id;
+                    return (
+                      <TRow key={p.id}>
+                        <TD className="text-xs">{nombre}</TD>
+                        <TD className="font-mono text-xs">{p.version}</TD>
+                        <TD>
+                          <div className="flex flex-wrap items-center gap-1">
+                            <Badge tone={p.desactualizado ? "warning" : ESTADO_PAQUETE[p.estado].tone}>
+                              {p.desactualizado ? "Desactualizado" : ESTADO_PAQUETE[p.estado].label}
+                            </Badge>
+                            <EtiquetaImportado p={p} />
+                          </div>
+                        </TD>
+                        <TD className="text-xs">{p.origen === "legado" ? "Importado" : p.compilado_nombre ?? "—"} · {fecha(p.compilado)}</TD>
+                        <TD className="text-xs">
+                          {p.aprobaciones.length
+                            ? p.aprobaciones.map((a) => `${TIPO_APROBACION[a.tipo].label}: ${a.nombre ?? a.cuenta}`).join(" · ")
+                            : p.origen === "legado" ? "Ya validado antes" : "—"}
+                        </TD>
+                        <TD className="text-xs">
+                          {p.publicado ? `${p.publicado_nombre ?? "—"} · ${fecha(p.publicado)}` : "—"}
+                          {p.retirado && <span className="block text-label-tertiary">Retirado {fecha(p.retirado)}</span>}
+                        </TD>
+                        <TD>
+                          <div className="flex justify-end">
+                            <RestaurarVersion
+                              p={p}
+                              subregion={nombre}
+                              vigente={paquetes.find((x) => x.paquete_id === p.paquete_id && x.estado === "publicado") ?? null}
+                              ocupado={false}
+                              onHecho={(m) => { setError(null); setAviso(m); recargar(); }}
+                              onError={(m) => { setAviso(null); setError(m); recargar(); }}
+                            />
+                          </div>
+                        </TD>
+                      </TRow>
+                    );
+                  })}
                 </TBody>
               </Table>
             )

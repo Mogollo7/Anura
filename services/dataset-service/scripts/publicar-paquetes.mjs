@@ -2,7 +2,7 @@
  * CLI del mismo compilador que usa Admin → Release (src/release.js + src/paqueteSqlite.js).
  * Antes este script copiaba a mano el sqlite empaquetado en el APK; ahora el paquete se compila
  * desde la base y se publica desde el Admin. Aquí solo se puede validar y compilar un borrador:
- * aprobar y publicar exigen dos cuentas del panel distintas y se hacen en el Admin.
+ * aprobar y publicar exigen dos aprobaciones (dos cuentas distintas, o una cuenta super que da las dos) y se hacen en el Admin.
  *
  *   node scripts/publicar-paquetes.mjs validar  <subregion_id>
  *   node scripts/publicar-paquetes.mjs compilar <subregion_id> <user_id_del_panel>

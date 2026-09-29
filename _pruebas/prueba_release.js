@@ -28,8 +28,10 @@ const CUENTAS = {
   'aaaaaaaa-0000-4000-8000-000000000002': { id: 'acc-herp', name: 'Herpetóloga', isSuperAdmin: false, permissions: permisos(['verEspecies', 'aprobarCientifico']) },
   'aaaaaaaa-0000-4000-8000-000000000003': { id: 'acc-tec', name: 'Técnico', isSuperAdmin: false, permissions: permisos(['verEspecies', 'publicarPaquete']) },
   'aaaaaaaa-0000-4000-8000-000000000004': { id: 'acc-lector', name: 'Lector', isSuperAdmin: false, permissions: permisos(['verEspecies']) },
+  // No es super pero tiene los dos permisos: no puede dar las dos aprobaciones (solo la cuenta super puede).
+  'aaaaaaaa-0000-4000-8000-000000000005': { id: 'acc-doble', name: 'Doble permiso', isSuperAdmin: false, permissions: permisos(['verEspecies', 'aprobarCientifico', 'publicarPaquete']) },
 };
-const [ADMIN, HERP, TEC, LECTOR] = Object.keys(CUENTAS);
+const [ADMIN, HERP, TEC, LECTOR, DOBLE] = Object.keys(CUENTAS);
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const token = (id) => `Bearer ${b64({ alg: 'HS256', typ: 'JWT' })}.${b64({ id })}.firma`;
 
@@ -258,22 +260,27 @@ async function esperarSalud() {
     espera(await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, HERP, { tipo: 'tecnica' }), 403, 'herpetóloga no aprueba lo técnico');
     espera(await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, LECTOR, { tipo: 'cientifica' }), 403, 'lector no aprueba');
     espera(await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, ADMIN, { tipo: 'otra' }), 400, 'tipo inválido');
-    // Quien compila da una aprobación…
-    r = await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, ADMIN, { tipo: 'cientifica' });
-    espera(r, 201, 'aprobación científica del que compila');
+    // Una cuenta que NO es super da una aprobación (aunque tenga los dos permisos)…
+    r = await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, DOBLE, { tipo: 'cientifica' });
+    espera(r, 201, 'aprobación científica de una cuenta con los dos permisos');
     assert.strictEqual(r.body.estado, 'borrador');
-    // …pero no cuenta dos veces.
-    r = await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, ADMIN, { tipo: 'tecnica' });
-    espera(r, 409, 'misma cuenta dos veces');
-    console.log('ok 6 · misma cuenta dos veces →', r.status, r.body.message);
+    assert.strictEqual(r.body.aprobaciones[0].es_super, false);
+    // …pero no cuenta dos veces: la otra la da otra cuenta.
+    r = await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, DOBLE, { tipo: 'tecnica' });
+    espera(r, 409, 'misma cuenta (no super) dos veces');
+    assert.ok(/ya aprobó este paquete/.test(r.body.message) && /una cuenta super puede darlas las dos/.test(r.body.message), r.body.message);
+    console.log('ok 6 · misma cuenta (no super) dos veces →', r.status, r.body.message);
     espera(await api('POST', `/api/dataset/releases/${v1.id}/publicar`, TEC), 409, 'publicar con una sola aprobación');
+    // La base también lo impide aunque alguien salte el servidor: índice parcial para las cuentas que no son super.
+    await assert.rejects(q(`INSERT INTO packages.aprobacion (paquete_id, tipo, cuenta, es_super) VALUES ($1, 'tecnica', 'acc-doble', FALSE)`, [v1.id]),
+      /aprobacion_cuenta_no_super_idx/);
     r = await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, TEC, { tipo: 'tecnica' });
     espera(r, 201, 'aprobación técnica');
     assert.strictEqual(r.body.estado, 'aprobado');
-    assert.deepStrictEqual(r.body.aprobaciones.map((a) => a.cuenta).sort(), ['acc-admin', 'acc-tec']);
+    assert.deepStrictEqual(r.body.aprobaciones.map((a) => a.cuenta).sort(), ['acc-doble', 'acc-tec']);
     espera(await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, HERP, { tipo: 'cientifica' }), 409, 'ya aprobado');
-    // La base también lo impide aunque alguien salte el servidor.
-    await assert.rejects(q(`INSERT INTO packages.aprobacion (paquete_id, tipo, cuenta) VALUES ($1, 'tecnica', 'acc-admin')`, [v1.id]), /duplicate key/);
+    // Una sola aprobación por tipo también en la base (PK).
+    await assert.rejects(q(`INSERT INTO packages.aprobacion (paquete_id, tipo, cuenta) VALUES ($1, 'tecnica', 'acc-otra')`, [v1.id]), /duplicate key/);
 
     // 8) Publicar: sin permiso 403; con permiso 200.
     espera(await api('POST', `/api/dataset/releases/${v1.id}/publicar`, HERP), 403, 'publicar sin permiso');
@@ -346,11 +353,13 @@ async function esperarSalud() {
     espera(r, 409, 'aprobar desactualizado');
     console.log('ok 9 · borrador desactualizado:', r.body.message);
 
-    // 11) v3 fresco: dos aprobaciones y publicar → v1 queda retirado.
+    // 11) v3 fresco: dos aprobaciones (caso mixto: otra cuenta da la científica y la super la técnica) y publicar → v1 retirado.
     r = await api('POST', '/api/dataset/releases', ADMIN, { subregion_id: sub.id });
     const v3 = r.body;
     espera(await api('POST', `/api/dataset/releases/${v3.id}/aprobaciones`, HERP, { tipo: 'cientifica' }), 201, 'v3 científica');
-    espera(await api('POST', `/api/dataset/releases/${v3.id}/aprobaciones`, ADMIN, { tipo: 'tecnica' }), 201, 'v3 técnica (quien compiló)');
+    r = await api('POST', `/api/dataset/releases/${v3.id}/aprobaciones`, ADMIN, { tipo: 'tecnica' });
+    espera(r, 201, 'v3 técnica (cuenta super)');
+    assert.deepStrictEqual(r.body.aprobaciones.map((a) => `${a.cuenta}:${a.es_super}`), ['acc-herp:false', 'acc-admin:true']);
     r = await api('POST', `/api/dataset/releases/${v3.id}/publicar`, TEC);
     espera(r, 200, 'publicar v3');
     assert.strictEqual(r.body.reemplazado.version, 1);
@@ -358,14 +367,51 @@ async function esperarSalud() {
     assert.deepStrictEqual(estados.map((e) => `${e.version}:${e.estado}`), ['1:retirado', '2:borrador', '3:publicado']);
     r = await api('GET', '/api/dataset/publico/paquetes');
     assert.strictEqual(r.body.paises[0].hijos[0].hijos[0].version, '3');
-    console.log('ok 10 · v3 publicada, v1 retirada');
+    console.log('ok 10 · v3 publicada (científica de otra cuenta + técnica de la super), v1 retirada');
+
+    // 11b) La cuenta SUPER puede dar las dos aprobaciones de un mismo paquete y publicarlo.
+    r = await api('POST', '/api/dataset/releases', ADMIN, { subregion_id: sub.id });
+    espera(r, 201, 'compilar v4');
+    const v4 = r.body;
+    r = await api('POST', `/api/dataset/releases/${v4.id}/aprobaciones`, ADMIN, { tipo: 'cientifica' });
+    espera(r, 201, 'v4 científica (super)');
+    assert.strictEqual(r.body.estado, 'borrador');
+    espera(await api('POST', `/api/dataset/releases/${v4.id}/aprobaciones`, ADMIN, { tipo: 'cientifica' }), 409, 'la misma aprobación dos veces (super)');
+    espera(await api('POST', `/api/dataset/releases/${v4.id}/publicar`, TEC), 409, 'publicar con una sola aprobación (super)');
+    r = await api('POST', `/api/dataset/releases/${v4.id}/aprobaciones`, ADMIN, { tipo: 'tecnica' });
+    espera(r, 201, 'v4 técnica (la misma cuenta super)');
+    assert.strictEqual(r.body.estado, 'aprobado');
+    assert.deepStrictEqual(r.body.aprobaciones.map((a) => `${a.tipo}:${a.cuenta}:${a.es_super}`), ['cientifica:acc-admin:true', 'tecnica:acc-admin:true']);
+    r = await api('POST', `/api/dataset/releases/${v4.id}/publicar`, TEC);
+    espera(r, 200, 'publicar v4 con las dos aprobaciones de la super');
+    assert.strictEqual(r.body.reemplazado.version, 3);
+    const { rows: [conteo] } = await q(`SELECT count(*) FILTER (WHERE estado = 'publicado')::int AS publicados FROM packages.regional_packages WHERE region_id = '05.VALLE_DE_ABURRA'`);
+    assert.strictEqual(conteo.publicados, 1, 'sigue habiendo un solo publicado por subregión');
+    const { rows: [audSuper] } = await q(`SELECT metadata FROM audit.log WHERE action = 'dataset.paquete.aprobado' AND target_id = $1 AND metadata->>'tipo' = 'tecnica'`, [String(v4.id)]);
+    assert.strictEqual(audSuper.metadata.misma_cuenta, true);
+    assert.strictEqual(audSuper.metadata.es_super, true);
+    const { rows: [audPub] } = await q(`SELECT metadata FROM audit.log WHERE action = 'dataset.paquete.publicado' AND target_id = $1`, [String(v4.id)]);
+    assert.strictEqual(audPub.metadata.misma_cuenta, true);
+    const { rows: [audMixta] } = await q(`SELECT metadata FROM audit.log WHERE action = 'dataset.paquete.publicado' AND target_id = $1`, [String(v3.id)]);
+    assert.strictEqual(audMixta.metadata.misma_cuenta, false);
+    // Publicar exige una de cada tipo Y cuentas distintas salvo que la cuenta sea super: dos filas de la MISMA cuenta que no es
+    // super (solo posible saltándose el servidor y el índice) no bastan.
+    r = await api('POST', '/api/dataset/releases', ADMIN, { subregion_id: sub.id });
+    const v5 = r.body;
+    await q(`INSERT INTO packages.aprobacion (paquete_id, tipo, cuenta, es_super) VALUES ($1, 'cientifica', 'acc-doble', FALSE)`, [v5.id]);
+    await q(`INSERT INTO packages.aprobacion (paquete_id, tipo, cuenta, es_super) VALUES ($1, 'tecnica', 'acc-doble', TRUE)`, [v5.id]);
+    await q(`UPDATE packages.regional_packages SET estado = 'aprobado' WHERE id = $1`, [v5.id]);
+    r = await api('POST', `/api/dataset/releases/${v5.id}/publicar`, TEC);
+    espera(r, 409, 'misma cuenta con una fila sin es_super');
+    assert.ok(/Las dan dos cuentas distintas; una cuenta super puede darlas las dos/.test(r.body.message), r.body.message);
+    console.log('ok 10b · la cuenta super da las dos aprobaciones y publica; la auditoría lo marca (misma_cuenta); un solo publicado');
 
     // 12) Auditoría de cada paso.
     const { rows: aud } = await q(`SELECT action, COUNT(*)::int n, array_agg(DISTINCT actor_id::text) actores
       FROM audit.log WHERE target_type = 'paquete' GROUP BY action ORDER BY action`);
     const por = Object.fromEntries(aud.map((a) => [a.action, a.n]));
     assert.deepStrictEqual(por, {
-      'dataset.paquete.aprobado': 4, 'dataset.paquete.compilado': 3, 'dataset.paquete.publicado': 2, 'dataset.paquete.retirado': 1,
+      'dataset.paquete.aprobado': 6, 'dataset.paquete.compilado': 5, 'dataset.paquete.publicado': 3, 'dataset.paquete.retirado': 2,
     });
     console.log('ok 11 · auditoría:', aud.map((a) => `${a.action}×${a.n}`).join(', '));
 

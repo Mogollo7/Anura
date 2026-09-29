@@ -420,6 +420,12 @@ app.post('/api/dataset/releases/:id/publicar', requirePanelAction('publicarPaque
   res.json(await release.publicar(pool, Number(req.params.id), req.panelAccount, req.userId));
 }));
 
+// Retroceso: una versión retirada (incluida la del paquete anterior importado) vuelve a ser la publicada de su
+// subregión y la vigente pasa a retirada. Sin aprobaciones nuevas: el archivo es inmutable.
+app.post('/api/dataset/releases/:id/restaurar', requirePanelAction('publicarPaquete'), ah(async (req, res) => {
+  res.json(await release.restaurar({ pool, minio, bucket: BUCKET }, Number(req.params.id), req.panelAccount, req.userId));
+}));
+
 app.get('/api/dataset/publico/catalogo', publico, ah(async (req, res) => {
   const cat = await contenido.catalogo(pool);
   const f = await manifiesto.firmado(cat);

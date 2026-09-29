@@ -66,7 +66,14 @@ export type Validacion = {
 export type EstadoPaquete = "borrador" | "aprobado" | "publicado" | "retirado";
 export type TipoAprobacion = "cientifica" | "tecnica";
 
-export type Aprobacion = { tipo: TipoAprobacion; cuenta: string; nombre: string | null; creado: string };
+export type Aprobacion = { tipo: TipoAprobacion; cuenta: string; nombre: string | null; es_super?: boolean; creado: string };
+
+/** De dónde salió una versión: compilada por el servidor, o el paquete anterior que se importó ya validado. */
+export type OrigenPaquete = "compilado" | "legado";
+
+/** La regla real de las aprobaciones, en las palabras que ve la persona. */
+export const REGLA_APROBACIONES =
+  "Publicar necesita dos aprobaciones: científica y técnica. Las dan dos cuentas distintas; una cuenta super puede darlas las dos.";
 
 export type EspecieManifiesto = {
   taxon_id: string;
@@ -74,8 +81,8 @@ export type EspecieManifiesto = {
   genero: string;
   familia: string;
   referencias: number;
-  individuos_en_subregion: number;
-  centroide: "regional" | "global" | null;
+  individuos_en_subregion: number | null;
+  centroide: "regional" | "global" | "referencias" | null;
   contexto: ContextoFicha | null;
 };
 
@@ -85,6 +92,7 @@ export type Paquete = {
   subregion_id: number | null;
   version: number;
   estado: EstadoPaquete;
+  origen?: OrigenPaquete;
   sha256: string;
   size_bytes: string | number;
   especies: number;
@@ -142,7 +150,11 @@ export const releaseApi = {
   compilar: (subregionId: number) => call<Paquete>("POST", "/api/dataset/releases", { subregion_id: subregionId }),
   aprobar: (id: number, tipo: TipoAprobacion) => call<Paquete>("POST", `/api/dataset/releases/${id}/aprobaciones`, { tipo }),
   publicar: (id: number) => call<Paquete & { reemplazado: { id: number; version: number } | null }>("POST", `/api/dataset/releases/${id}/publicar`, {}),
+  /** Vuelve a entregar una versión retirada; la que se entrega ahora pasa a retirada. No pide aprobaciones nuevas. */
+  restaurar: (id: number) => call<Paquete & { reemplazado: { id: number; version: number } | null }>("POST", `/api/dataset/releases/${id}/restaurar`, {}),
 };
+
+export const ETIQUETA_IMPORTADO = "Importado (paquete anterior)";
 
 export const ESTADO_PAQUETE: Record<EstadoPaquete, { label: string; tone: "neutral" | "accent" | "warning" | "info" }> = {
   borrador: { label: "Borrador", tone: "info" },

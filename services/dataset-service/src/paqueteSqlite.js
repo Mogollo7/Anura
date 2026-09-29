@@ -296,4 +296,4 @@ async function construir(db, validacion, meta) {
   }
 }
 
-module.exports = { construir };
+module.exports = { construir, ESQUEMA };
