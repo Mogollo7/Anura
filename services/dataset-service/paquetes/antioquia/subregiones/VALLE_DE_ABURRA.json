@@ -1,0 +1,321 @@
+{
+  "subregion": "VALLE_DE_ABURRA",
+  "department": "ANTIOQUIA",
+  "description": "Valle interandino urbanizado, cordillera Central (1.300-2.800 m)",
+  "municipalities": [
+    "Medellín",
+    "Barbosa",
+    "Bello",
+    "Caldas",
+    "Copacabana",
+    "Envigado",
+    "Girardota",
+    "Itagüí",
+    "La Estrella",
+    "Sabaneta"
+  ],
+  "species_observed": 33,
+  "species_estimated_chao1": 37.6,
+  "completeness": 0.878,
+  "observations": 792,
+  "generated_on": "2026-09-12",
+  "species": [
+    {
+      "scientific_name": "Dendropsophus bogerti",
+      "inaturalist_taxon_id": 65336,
+      "common_name_es": "Ranita de pantano",
+      "observations_in_subregion": 255,
+      "precise_records": 240,
+      "rescued_records": 15,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Pristimantis achatinus",
+      "inaturalist_taxon_id": 66531,
+      "common_name_es": "Cutín común de occidente",
+      "observations_in_subregion": 157,
+      "precise_records": 153,
+      "rescued_records": 4,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Rhinella horribilis",
+      "inaturalist_taxon_id": 517119,
+      "common_name_es": "Sapo gigante",
+      "observations_in_subregion": 142,
+      "precise_records": 142,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Pristimantis paisa",
+      "inaturalist_taxon_id": 66785,
+      "common_name_es": "Cutín paisa",
+      "observations_in_subregion": 84,
+      "precise_records": 66,
+      "rescued_records": 18,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Leucostethus fraterdanieli",
+      "inaturalist_taxon_id": 787625,
+      "common_name_es": "Rana cohete silbadora",
+      "observations_in_subregion": 49,
+      "precise_records": 39,
+      "rescued_records": 10,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Eleutherodactylus johnstonei",
+      "inaturalist_taxon_id": 22333,
+      "common_name_es": "Coqui Antillano",
+      "observations_in_subregion": 21,
+      "precise_records": 21,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Boana pugnax",
+      "inaturalist_taxon_id": 555142,
+      "common_name_es": "Rana Platanera de ojos tornasol",
+      "observations_in_subregion": 10,
+      "precise_records": 10,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Rhinella alata",
+      "inaturalist_taxon_id": 67089,
+      "common_name_es": "Sapo del Obispo",
+      "observations_in_subregion": 10,
+      "precise_records": 10,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Andinobates opisthomelas",
+      "inaturalist_taxon_id": 135045,
+      "common_name_es": "Rana Venenosa Norandina",
+      "observations_in_subregion": 7,
+      "precise_records": 0,
+      "rescued_records": 7,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Gastrotheca nicefori",
+      "inaturalist_taxon_id": 24158,
+      "common_name_es": "Rana Marsupial De Niceforo",
+      "observations_in_subregion": 6,
+      "precise_records": 5,
+      "rescued_records": 1,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Pristimantis permixtus",
+      "inaturalist_taxon_id": 66801,
+      "common_name_es": "Rana De Muslos Naranja",
+      "observations_in_subregion": 5,
+      "precise_records": 4,
+      "rescued_records": 1,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Rhinella ruizi",
+      "inaturalist_taxon_id": 67145,
+      "common_name_es": "Sapito Narizón altoandino",
+      "observations_in_subregion": 5,
+      "precise_records": 0,
+      "rescued_records": 5,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Pristimantis w-nigrum",
+      "inaturalist_taxon_id": 66936,
+      "common_name_es": "Cualita",
+      "observations_in_subregion": 4,
+      "precise_records": 4,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Scinax ruber",
+      "inaturalist_taxon_id": 24322,
+      "common_name_es": "Ranita Listada",
+      "observations_in_subregion": 3,
+      "precise_records": 3,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Leptodactylus fuscus",
+      "inaturalist_taxon_id": 22973,
+      "common_name_es": "Rana Picuda",
+      "observations_in_subregion": 3,
+      "precise_records": 3,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Smilisca phaeota",
+      "inaturalist_taxon_id": 24272,
+      "common_name_es": "rana arborícola enmascarada",
+      "observations_in_subregion": 3,
+      "precise_records": 3,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Leptodactylus colombiensis",
+      "inaturalist_taxon_id": 22939,
+      "common_name_es": "",
+      "observations_in_subregion": 3,
+      "precise_records": 3,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Rhinella nicefori",
+      "inaturalist_taxon_id": 67133,
+      "common_name_es": "Sapito Narizón Montañero",
+      "observations_in_subregion": 3,
+      "precise_records": 0,
+      "rescued_records": 3,
+      "occurrence_evidence": "OCCURRENCE_CONFIRMED"
+    },
+    {
+      "scientific_name": "Niceforonia mantipus",
+      "inaturalist_taxon_id": 803870,
+      "common_name_es": "Rana Terrestre De Dedos Angostos",
+      "observations_in_subregion": 2,
+      "precise_records": 1,
+      "rescued_records": 1,
+      "occurrence_evidence": "OCCURRENCE_PROBABLE"
+    },
+    {
+      "scientific_name": "Dendrobates truncatus",
+      "inaturalist_taxon_id": 21116,
+      "common_name_es": "Rana venenosa de rayas amarillas",
+      "observations_in_subregion": 2,
+      "precise_records": 2,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_PROBABLE"
+    },
+    {
+      "scientific_name": "Pristimantis taeniatus",
+      "inaturalist_taxon_id": 66893,
+      "common_name_es": "",
+      "observations_in_subregion": 2,
+      "precise_records": 2,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_PROBABLE"
+    },
+    {
+      "scientific_name": "Centrolene savagei",
+      "inaturalist_taxon_id": 135068,
+      "common_name_es": "Rana de cristal de labios blancos",
+      "observations_in_subregion": 2,
+      "precise_records": 2,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_PROBABLE"
+    },
+    {
+      "scientific_name": "Pristimantis penelopus",
+      "inaturalist_taxon_id": 66797,
+      "common_name_es": "Rana De Ingles Negras Y Amarillas",
+      "observations_in_subregion": 2,
+      "precise_records": 2,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_PROBABLE"
+    },
+    {
+      "scientific_name": "Hyloscirtus antioquia",
+      "inaturalist_taxon_id": 476704,
+      "common_name_es": "Rana chocolate antioqueña",
+      "observations_in_subregion": 2,
+      "precise_records": 0,
+      "rescued_records": 2,
+      "occurrence_evidence": "OCCURRENCE_PROBABLE"
+    },
+    {
+      "scientific_name": "Centrolene buckleyi",
+      "inaturalist_taxon_id": 21281,
+      "common_name_es": "Rana de cristal altoandina de Buckley",
+      "observations_in_subregion": 2,
+      "precise_records": 0,
+      "rescued_records": 2,
+      "occurrence_evidence": "OCCURRENCE_PROBABLE"
+    },
+    {
+      "scientific_name": "Rheobates pseudopalmatus",
+      "inaturalist_taxon_id": 67083,
+      "common_name_es": "",
+      "observations_in_subregion": 1,
+      "precise_records": 1,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_MARGINAL"
+    },
+    {
+      "scientific_name": "Boana boans",
+      "inaturalist_taxon_id": 555086,
+      "common_name_es": "Rana gladiadora",
+      "observations_in_subregion": 1,
+      "precise_records": 1,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_MARGINAL"
+    },
+    {
+      "scientific_name": "Pristimantis cryptopictus",
+      "inaturalist_taxon_id": 1363699,
+      "common_name_es": "",
+      "observations_in_subregion": 1,
+      "precise_records": 1,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_MARGINAL"
+    },
+    {
+      "scientific_name": "Boana platanera",
+      "inaturalist_taxon_id": 1251425,
+      "common_name_es": "Rana Platanera de Ojos Pálidos",
+      "observations_in_subregion": 1,
+      "precise_records": 1,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_MARGINAL"
+    },
+    {
+      "scientific_name": "Pristimantis gaigei",
+      "inaturalist_taxon_id": 66673,
+      "common_name_es": "",
+      "observations_in_subregion": 1,
+      "precise_records": 1,
+      "rescued_records": 0,
+      "occurrence_evidence": "OCCURRENCE_MARGINAL"
+    },
+    {
+      "scientific_name": "Pristimantis dorsopictus",
+      "inaturalist_taxon_id": 66647,
+      "common_name_es": "Rana Amarilla Y Listas Negras",
+      "observations_in_subregion": 1,
+      "precise_records": 0,
+      "rescued_records": 1,
+      "occurrence_evidence": "OCCURRENCE_MARGINAL"
+    },
+    {
+      "scientific_name": "Phyllomedusa bicolor",
+      "inaturalist_taxon_id": 23746,
+      "common_name_es": "Rana Lemur Gigante",
+      "observations_in_subregion": 1,
+      "precise_records": 0,
+      "rescued_records": 1,
+      "occurrence_evidence": "OCCURRENCE_MARGINAL"
+    },
+    {
+      "scientific_name": "Niceforonia latens",
+      "inaturalist_taxon_id": 803869,
+      "common_name_es": "",
+      "observations_in_subregion": 1,
+      "precise_records": 0,
+      "rescued_records": 1,
+      "occurrence_evidence": "OCCURRENCE_MARGINAL"
+    }
+  ]
+}

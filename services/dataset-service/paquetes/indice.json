@@ -1,0 +1,114 @@
+{
+  "paises": [
+    {
+      "id": "colombia",
+      "nivel": "pais",
+      "nombre": "Colombia",
+      "nota": "Bajar el país baja los paquetes de sus departamentos.",
+      "hijos": [
+        {
+          "id": "ANTIOQUIA",
+          "nivel": "departamento",
+          "nombre": "Antioquia",
+          "version": "1.1.0",
+          "especies": 30,
+          "formato": "sqlite",
+          "archivo": "antioquia/package.sqlite",
+          "nota": "Paquete de identificación (SQLite). Bajar el departamento completo incluye sus subregiones.",
+          "hijos": [
+            {
+              "id": "ANTIOQUIA.VALLE_DE_ABURRA",
+              "nivel": "subregion",
+              "nombre": "Valle de Aburrá",
+              "version": "2026-09-12",
+              "especies": 33,
+              "formato": "json",
+              "archivo": "antioquia/subregiones/VALLE_DE_ABURRA.json",
+              "nota": "Catálogo de especies de la subregión. No reemplaza el paquete de identificación del departamento."
+            },
+            {
+              "id": "ANTIOQUIA.ORIENTE",
+              "nivel": "subregion",
+              "nombre": "Oriente",
+              "version": "2026-09-12",
+              "especies": 78,
+              "formato": "json",
+              "archivo": "antioquia/subregiones/ORIENTE.json",
+              "nota": "Catálogo de especies de la subregión. No reemplaza el paquete de identificación del departamento."
+            },
+            {
+              "id": "ANTIOQUIA.SUROESTE",
+              "nivel": "subregion",
+              "nombre": "Suroeste",
+              "version": "2026-09-12",
+              "especies": 50,
+              "formato": "json",
+              "archivo": "antioquia/subregiones/SUROESTE.json",
+              "nota": "Catálogo de especies de la subregión. No reemplaza el paquete de identificación del departamento."
+            },
+            {
+              "id": "ANTIOQUIA.OCCIDENTE",
+              "nivel": "subregion",
+              "nombre": "Occidente",
+              "version": "2026-09-12",
+              "especies": 51,
+              "formato": "json",
+              "archivo": "antioquia/subregiones/OCCIDENTE.json",
+              "nota": "Catálogo de especies de la subregión. No reemplaza el paquete de identificación del departamento."
+            },
+            {
+              "id": "ANTIOQUIA.NORTE",
+              "nivel": "subregion",
+              "nombre": "Norte",
+              "version": "2026-09-12",
+              "especies": 65,
+              "formato": "json",
+              "archivo": "antioquia/subregiones/NORTE.json",
+              "nota": "Catálogo de especies de la subregión. No reemplaza el paquete de identificación del departamento."
+            },
+            {
+              "id": "ANTIOQUIA.NORDESTE",
+              "nivel": "subregion",
+              "nombre": "Nordeste",
+              "version": "2026-09-12",
+              "especies": 57,
+              "formato": "json",
+              "archivo": "antioquia/subregiones/NORDESTE.json",
+              "nota": "Catálogo de especies de la subregión. No reemplaza el paquete de identificación del departamento."
+            },
+            {
+              "id": "ANTIOQUIA.MAGDALENA_MEDIO",
+              "nivel": "subregion",
+              "nombre": "Magdalena Medio",
+              "version": "2026-09-12",
+              "especies": 43,
+              "formato": "json",
+              "archivo": "antioquia/subregiones/MAGDALENA_MEDIO.json",
+              "nota": "Catálogo de especies de la subregión. No reemplaza el paquete de identificación del departamento."
+            },
+            {
+              "id": "ANTIOQUIA.BAJO_CAUCA",
+              "nivel": "subregion",
+              "nombre": "Bajo Cauca",
+              "version": "2026-09-12",
+              "especies": 25,
+              "formato": "json",
+              "archivo": "antioquia/subregiones/BAJO_CAUCA.json",
+              "nota": "Catálogo de especies de la subregión. No reemplaza el paquete de identificación del departamento."
+            },
+            {
+              "id": "ANTIOQUIA.URABA",
+              "nivel": "subregion",
+              "nombre": "Urabá",
+              "version": "2026-09-12",
+              "especies": 53,
+              "formato": "json",
+              "archivo": "antioquia/subregiones/URABA.json",
+              "nota": "Catálogo de especies de la subregión. No reemplaza el paquete de identificación del departamento."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

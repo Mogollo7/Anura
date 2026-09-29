@@ -1,0 +1,478 @@
+# Servidor liviano de ANURA: nunca carga un modelo ni usa GPU.
+# Hoy corre en este PC; después se muda tal cual a Hostinger (etapa S3).
+# Todo lo pesado está en docker-compose.model.yml (model-service) y se
+# alcanza por HTTP en MODEL_SERVICE_URL. Ver 19_ADMIN/Plan del Backend Real (E0).
+# Proyecto: "anura" (nombre de la carpeta) a propósito: así los volúmenes (postgres_data,
+# minio_data) son los mismos que antes de separar.
+
+services:
+  # ── Cloudflare Tunnel (External Access) ────────────────────────────
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: anura_tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+    depends_on:
+      - npm
+    networks:
+      - anura-net
+
+  # ── Nginx Proxy Manager (Gateway) ──────────────────────────────────
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: anura_npm
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    volumes:
+      - ./gateway/data:/data
+      - ./gateway/letsencrypt:/etc/letsencrypt
+      - ./gateway/conf.d:/data/nginx/anura-conf.d
+    depends_on:
+      - frontend
+    networks:
+      - anura-net
+
+  # ── Databases ──────────────────────────────────────────────────────
+  postgres:
+    # PostGIS 16 + pgvector (M2). Ver infrastructure/postgres/image/Dockerfile.
+    build: ./infrastructure/postgres/image
+    image: anura-postgres:16-3.4-pgvector
+    container_name: anura_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 15s
+    networks:
+      - anura-net
+
+  db-migrate:
+    image: postgres:16-alpine
+    container_name: anura_db_migrate
+    restart: "no"
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      OBSERVATION_DB_PASSWORD: ${OBSERVATION_DB_PASSWORD}
+      EXPLORER_DB_PASSWORD: ${EXPLORER_DB_PASSWORD}
+      GEO_DB_PASSWORD: ${GEO_DB_PASSWORD}
+      THUMBNAIL_DB_PASSWORD: ${THUMBNAIL_DB_PASSWORD}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      DATASET_DB_PASSWORD: ${DATASET_DB_PASSWORD}
+    volumes:
+      - ./infrastructure/postgres/phase2.sql:/sql/phase2.sql:ro
+      - ./infrastructure/postgres/roles.sql:/sql/roles.sql:ro
+      - ./infrastructure/postgres/phase3.sql:/sql/phase3.sql:ro
+      - ./infrastructure/postgres/phase4.sql:/sql/phase4.sql:ro
+      - ./infrastructure/postgres/phase5.sql:/sql/phase5.sql:ro
+      - ./infrastructure/postgres/phase6.sql:/sql/phase6.sql:ro
+      - ./infrastructure/postgres/phase7.sql:/sql/phase7.sql:ro
+      - ./infrastructure/postgres/phase8.sql:/sql/phase8.sql:ro
+      - ./infrastructure/postgres/phase9.sql:/sql/phase9.sql:ro
+      - ./infrastructure/postgres/phase10.sql:/sql/phase10.sql:ro
+      - ./infrastructure/postgres/phase11.sql:/sql/phase11.sql:ro
+      - ./infrastructure/postgres/phase12.sql:/sql/phase12.sql:ro
+      - ./infrastructure/postgres/phase13.sql:/sql/phase13.sql:ro
+      - ./infrastructure/postgres/phase14.sql:/sql/phase14.sql:ro
+      - ./infrastructure/postgres/phase15.sql:/sql/phase15.sql:ro
+      - ./infrastructure/postgres/seed_regiones_antioquia.sql:/sql/seed_regiones_antioquia.sql:ro
+      - ./infrastructure/postgres/03-roles.sh:/sql/03-roles.sh:ro
+    entrypoint: ["/bin/sh", "/sql/03-roles.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - anura-net
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: anura_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - anura-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: anura_redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    networks:
+      - anura-net
+
+  minio:
+    image: quay.io/minio/aistor/minio:latest
+    container_name: aistor-server
+    restart: unless-stopped
+    command: server /mnt/data --console-address ":9001" --license /minio.license
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/mnt/data
+      - ./infrastructure/minio/minio.license:/minio.license
+      - ./infrastructure/minio/certs:/etc/minio/certs
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+    networks:
+      - anura-net
+
+  # Solo crea los buckets. No reinicia MinIO: el init viejo lo hacía y tumbaba
+  # a quien ya estaba subiendo fotos.
+  minio-init:
+    # La misma imagen que el servidor: ya trae `mc` y está en este equipo.
+    # quay.io/minio/mc:latest responde 401 y deja el arranque a medias.
+    image: quay.io/minio/aistor/minio:latest
+    pull_policy: missing
+    container_name: anura_minio_init
+    restart: "no"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        i=0
+        until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do
+          i=$$((i + 1))
+          if [ "$$i" -gt 30 ]; then echo "MinIO no aceptó el alias" >&2; exit 1; fi
+          sleep 2
+        done
+        mc mb --ignore-existing local/anura-images
+        mc mb --ignore-existing local/anura-dataset
+        echo "buckets listos"
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - anura-net
+
+  # ── Application Services ───────────────────────────────────────────
+  frontend:
+    build: ./frontend
+    container_name: anura_frontend
+    restart: unless-stopped
+    # No direct ports: NPM handles it on port 80
+    environment:
+      # model-service vive fuera de este compose (docker-compose.model.yml):
+      # en este PC por host.docker.internal; con el servidor en Hostinger, la URL del túnel.
+      MODEL_SERVICE_URL: ${MODEL_SERVICE_URL:-http://host.docker.internal:8000}
+      MODEL_SERVICE_TOKEN: ${MODEL_SERVICE_TOKEN:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - anura-net
+
+  admin-web:
+    build: ./admin
+    container_name: anura_admin
+    restart: unless-stopped
+    # Módulo administrativo: habla con los microservicios por nombre de red, a través de sus
+    # propias rutas /api/* (admin/src/lib/auth/server-proxy.ts).
+    # Se expone en un puerto propio para pruebas locales; NPM lo enrutará cuando
+    # se defina el subdominio de administración.
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:3001
+      DATASET_SERVICE_URL: http://dataset-service:3008
+      OBSERVATION_SERVICE_URL: http://observation-service:3002
+      NOTIFICATION_SERVICE_URL: http://notification-service:3006
+      THUMBNAIL_SERVICE_URL: http://thumbnail-service:3004
+      GEO_SERVICE_URL: http://geo-service:3003
+      EXPLORER_SERVICE_URL: http://explorer-service:3005
+      VALIDATION_SERVICE_URL: http://validation-service:3007
+      # En este PC: host.docker.internal. En Hostinger: URL del túnel hacia la GPU de este PC.
+      MODEL_SERVICE_URL: ${MODEL_SERVICE_URL:-http://host.docker.internal:8000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:3010:3000"
+    networks:
+      - anura-net
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: anura_auth
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${AUTH_DB_URL}
+      AUTH_DB_URL: ${AUTH_DB_URL}
+      OBSERVATION_SERVICE_URL: http://observation-service:3002
+      REDIS_URL: ${REDIS_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
+    ports:
+      - "127.0.0.1:3001:3001"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/health').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    networks:
+      - anura-net
+
+  observation-service:
+    build: ./services/observation-service
+    container_name: anura_observations
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${OBSERVATION_DB_URL}
+      OBSERVATION_DB_URL: ${OBSERVATION_DB_URL}
+      REDIS_URL: ${REDIS_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      THUMBNAIL_SERVICE_URL: http://thumbnail-service:3004
+      AUTH_SERVICE_URL: http://auth-service:3001
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_PORT: ${MINIO_PORT}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: ${MINIO_BUCKET:-anura-images}
+    ports:
+      - "127.0.0.1:3002:3002"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3002/health').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      thumbnail-service:
+        condition: service_healthy
+    networks:
+      - anura-net
+
+  geo-service:
+    build: ./services/geo-service
+    container_name: anura_geo
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${GEO_DB_URL}
+      GEO_DB_URL: ${GEO_DB_URL}
+    ports:
+      - "127.0.0.1:3003:3003"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3003/health').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+    networks:
+      - anura-net
+
+  thumbnail-service:
+    build: ./services/thumbnail-service
+    container_name: anura_thumbnails
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${THUMBNAIL_DB_URL}
+      THUMBNAIL_DB_URL: ${THUMBNAIL_DB_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_PORT: ${MINIO_PORT}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: ${MINIO_BUCKET:-anura-images}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+    ports:
+      - "127.0.0.1:3004:3004"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3004/health').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+    networks:
+      - anura-net
+
+  explorer-service:
+    build: ./services/explorer-service
+    container_name: anura_explorer
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${EXPLORER_DB_URL}
+      EXPLORER_DB_URL: ${EXPLORER_DB_URL}
+      GEO_DB_URL: ${GEO_DB_URL}
+      GEO_SERVICE_URL: http://geo-service:3003
+      REDIS_URL: ${REDIS_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      AUTH_SERVICE_URL: http://auth-service:3001
+      OBSERVATION_SERVICE_URL: http://observation-service:3002
+      THUMBNAIL_SERVICE_URL: http://thumbnail-service:3004
+      # Recuentos de especies/géneros/familias del Explorador (K): catálogo publicado, no ai.predictions.
+      DATASET_SERVICE_URL: http://dataset-service:3008
+    ports:
+      - "127.0.0.1:3005:3005"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3005/health').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      observation-service:
+        condition: service_healthy
+    networks:
+      - anura-net
+
+  notification-service:
+    build: ./services/notification-service
+    container_name: anura_notifications
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${NOTIFICATION_DB_URL}
+      NOTIFICATION_DB_URL: ${NOTIFICATION_DB_URL}
+      REDIS_URL: ${REDIS_URL}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      AUTH_SERVICE_URL: http://auth-service:3001
+    ports:
+      - "127.0.0.1:3006:3006"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3006/health').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - anura-net
+
+  # M1: dueño del esquema dataset (Postgres) y del bucket anura-dataset (MinIO). En M2
+  # también reparte trabajos a model-service, que los pide por HTTP (solo saliente).
+  dataset-service:
+    build: ./services/dataset-service
+    container_name: anura_dataset
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATASET_DB_URL}
+      AUTH_SERVICE_URL: http://auth-service:3001
+      # Valida la coordenada de una foto subida a mano (límites DANE, sin red externa).
+      GEO_SERVICE_URL: http://geo-service:3003
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      # Dirección de MinIO que ve el navegador (va dentro de la firma de cada URL).
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-http://localhost:9000}
+      DATASET_BUCKET: anura-dataset
+      # M2: model-service pide trabajos con este token (X-Worker-Token).
+      WORKER_TOKEN: ${WORKER_TOKEN:-}
+      # K2: firma Ed25519 del catálogo de contenido público. La clave pública NO va aquí —
+      # va embebida en la app y la web (services/dataset-service/src/manifiesto.js).
+      CONTENT_MANIFEST_PRIVATE_KEY_B64: ${CONTENT_MANIFEST_PRIVATE_KEY_B64:-}
+    ports:
+      - "127.0.0.1:3008:3008"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3008/health').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      auth-service:
+        condition: service_healthy
+      geo-service:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    networks:
+      - anura-net
+
+  validation-service:
+    build: ./services/validation-service
+    container_name: anura_validation
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3007/health').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+    networks:
+      - anura-net
+
+networks:
+  anura-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  minio_data:
