@@ -7,7 +7,6 @@ import 'leaflet/dist/leaflet.css';
 import './TaxonDetail.css';
 import LoadingSpinner from '../components/LoadingSpinner';
 import BackButton from '../components/BackButton';
-import AudioPlayer from '../components/AudioPlayer';
 import FallbackImage from '../components/FallbackImage';
 import { HeatmapLayer, GridDensityLayer } from '../maps/SpeciesDistributionLayers';
 import { usePublishedSpecies, publishedToSpecies } from '../species/publishedCatalog';
@@ -86,14 +85,6 @@ export default function TaxonDetail() {
     ['Actividad', species.activity],
     ['Distribución', species.distribution],
   ].filter(([, v]) => has(v));
-
-  // Duraciones deterministas por especie (mismo criterio que species_sheet_audio_*
-  // en la app: dos cantos de referencia, "diurno" y "de cortejo").
-  const audioSeed = (speciesKey.length * 37) % 1000
-  const bioacousticSamples = [
-    { id: `${speciesKey}-call`, title: 'Canto diurno', meta: `00:${String(10 + (audioSeed % 12)).padStart(2, '0')} · ${(1.8 + (audioSeed % 10) / 10).toFixed(1)} kHz`, durationMs: 10000 + (audioSeed % 12) * 1000 },
-    { id: `${speciesKey}-courtship`, title: 'Canto de cortejo', meta: `00:${String(6 + (audioSeed % 8)).padStart(2, '0')} · ${(1.4 + (audioSeed % 7) / 10).toFixed(1)} kHz`, durationMs: 6000 + (audioSeed % 8) * 1000 },
-  ]
 
   useEffect(() => {
     // `ignore` evita que una llamada obsoleta (StrictMode la dispara dos
@@ -439,19 +430,12 @@ export default function TaxonDetail() {
             </section>
             )}
 
-            {/* ── 2b. Bioacústica — como la pestaña "Bioacústica" de la ficha
-                en la app (species_sheet_tab_bioacoustics). Sin grabaciones
-                reales todavía, así que las duraciones son deterministas por
-                especie en vez de idénticas para todas. */}
+            {/* ── 2b. Bioacústica — todavía no hay grabaciones reales en el catálogo: no se inventan. */}
             <section className="taxon-section card">
               <h2 className="taxon-section-title">
                 <MdGraphicEq /> Bioacústica
               </h2>
-              <div className="taxon-bioacoustics-list">
-                {bioacousticSamples.map((sample) => (
-                  <AudioPlayer key={sample.id} id={sample.id} title={sample.title} meta={sample.meta} durationMs={sample.durationMs} />
-                ))}
-              </div>
+              <p className="taxon-what-is">Aún no hay grabaciones de esta especie. Aparecerán aquí cuando se publiquen.</p>
             </section>
 
             {/* ── 3. Conservation ── */}

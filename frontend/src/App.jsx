@@ -17,7 +17,6 @@ import FieldTripDetail from './pages/FieldTripDetail'
 import Search from './pages/Search'
 import TaxonDetail from './pages/TaxonDetail'
 import TaxonPhotoBrowse from './pages/TaxonPhotoBrowse'
-import DemoData from './pages/DemoData'
 import AuthenticatedLayout from './layouts/AuthenticatedLayout'
 import { usePreferencesStore } from './store/preferencesStore'
 import { API_BASE, apiGet, apiPost } from './services/api'
@@ -280,7 +279,6 @@ export default function App() {
             <Route path="/search" element={<Search />} />
             <Route path="/taxa/:taxonIdSlug" element={<TaxonDetail />} />
             <Route path="/taxa/:taxonIdSlug/fotos" element={<TaxonPhotoBrowse />} />
-            {import.meta.env.DEV && <Route path="/datos-de-prueba" element={<DemoData />} />}
           </Route>
 
           {/* Fallback */}

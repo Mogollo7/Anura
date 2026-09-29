@@ -956,14 +956,6 @@
   border: none !important;
 }
 
-/* Bioacústica — cantos de referencia, mismas filas que species_sheet_audio_*
-   en la app (AudioRingButton + waveform). */
-.taxon-bioacoustics-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
 /* Ficha publicada (Admin → Contenido): foto principal con su crédito y la fuente de cada dato. */
 .taxon-hero-figure {
   position: relative;

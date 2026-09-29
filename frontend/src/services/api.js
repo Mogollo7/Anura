@@ -1,8 +1,6 @@
 // Capa de API compartida. Antes cada página repetía su propio
 // `API_BASE`/`fetch`/helpers de URL de imagen; esto centraliza esas 13 copias.
 
-import { getDemoConfig, demoMediaUrl } from '../lib/demoMode'
-
 export const API_BASE = import.meta.env.VITE_API_URL || ''
 
 class ApiError extends Error {
@@ -25,13 +23,6 @@ function authHeaders() {
  * catch silencioso, otras alert(), otras console.error suelto).
  */
 export async function apiFetch(path, { auth = true, headers, body, ...opts } = {}) {
-  // Modo "datos de prueba" (solo desarrollo; ver lib/demoMode.js). Import
-  // dinámico para que los mocks no entren en el build de producción.
-  if (import.meta.env.DEV && getDemoConfig()) {
-    const { handleDemoRequest } = await import('../mocks/demoApi')
-    return handleDemoRequest(path, { method: opts.method, body })
-  }
-
   const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
   const res = await fetch(`${API_BASE}${path}`, {
     ...opts,
@@ -75,16 +66,12 @@ export const apiDelete = (path, opts) => apiFetch(path, { ...opts, method: 'DELE
 // ObservationDetail.jsx, TaxonDetail.jsx y Search.jsx.
 export function getThumbUrl(filename, size = 'md') {
   if (!filename) return null
-  const demo = demoMediaUrl(filename)
-  if (demo) return demo
   if (/^https?:\/\//.test(filename)) return filename
   return `${API_BASE}/api/explorer/thumbnail/${size}/${encodeURIComponent(filename)}`
 }
 
 export function getFullImageUrl(filename) {
   if (!filename) return null
-  const demo = demoMediaUrl(filename)
-  if (demo) return demo
   if (/^https?:\/\//.test(filename)) return filename
   return `${API_BASE}/api/explorer/thumbnail/original/${encodeURIComponent(filename)}`
 }

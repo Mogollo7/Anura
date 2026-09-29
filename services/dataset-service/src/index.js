@@ -24,6 +24,7 @@ const clusteres = require('./clusteres');
 const osr = require('./osr');
 const evaluacion = require('./evaluacion');
 const simulador = require('./simulador');
+const clave = require('./clave');
 
 const BUCKET = process.env.DATASET_BUCKET || 'anura-dataset';
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -362,6 +363,17 @@ const publico = (_req, res, next) => {
 app.get('/api/dataset/publico/paquetes', publico, ah(async (_req, res) => {
   res.set('Cache-Control', 'no-cache');
   res.json(await paquetes.arbol(pool));
+}));
+
+// «Paso a paso» (src/clave.js): clave de identificación armada con los datos de las especies del
+// paquete de esa subregión. La app la guarda junto al paquete y la recorre sin conexión.
+app.get('/api/dataset/publico/clave', publico, ah(async (req, res) => {
+  const c = await clave.deSubregion(pool, req.query.subregion, req.query.version);
+  const etag = `"${c.huella}"`;
+  res.set('Cache-Control', 'no-cache');
+  res.set('ETag', etag);
+  if (req.headers['if-none-match'] === etag) return res.status(304).end();
+  res.json(c);
 }));
 
 app.get('/api/dataset/publico/paquetes/:id/:parte(archivo|manifiesto)', publico, ah(async (req, res) => {

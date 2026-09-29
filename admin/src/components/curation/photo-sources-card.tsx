@@ -1,6 +1,5 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { REAL } from "@/lib/data/real";
 
 const PASOS: { titulo: string; estado: "existe" | "falta"; detalle: string; donde: string }[] = [
   {
@@ -39,7 +38,7 @@ const PASOS: { titulo: string; estado: "existe" | "falta"; detalle: string; dond
     titulo: "Fotos en el servidor",
     estado: "existe",
     detalle:
-      "Las fotos limpias están en MinIO con su procedencia en Postgres: licencia, observación, coordenada (de records_v1 o de la API de iNaturalist) y partición del manifiesto. Con sesión iniciada, la tarjeta \"Fotos en el servidor\" de abajo las muestra, y excluir una foto o invalidar una observación queda en el servidor con motivo y auditoría. Estadio y morfo siguen en la muestra simulada.",
+      "Las fotos limpias están en MinIO con su procedencia en Postgres: licencia, observación, coordenada (de records_v1 o de la API de iNaturalist) y partición del manifiesto. Con sesión iniciada, la tarjeta \"Fotos en el servidor\" de abajo las muestra, y excluir una foto o invalidar una observación queda en el servidor con motivo y auditoría. Estadio, sustrato y morfo se etiquetan en el servidor.",
     donde: "tools/dataset/import_to_minio.py → MinIO anura-dataset · dataset-service",
   },
 ];
@@ -50,7 +49,6 @@ export function PhotoSourcesCard() {
     <Card>
       <CardHeader className="mb-2">
         <CardTitle>De dónde salen las fotos</CardTitle>
-        <Badge tone="neutral">datos reales al {REAL.generado}</Badge>
       </CardHeader>
       <ol className="space-y-3">
         {PASOS.map((p, i) => (

@@ -48,18 +48,6 @@ export type NavItem = {
   children?: NavItem[];
 };
 
-const SUBREGIONES_NAV: [string, string][] = [
-  ["01_valle_de_aburra", "Valle de Aburrá"],
-  ["02_oriente", "Oriente"],
-  ["03_suroeste", "Suroeste"],
-  ["04_occidente", "Occidente"],
-  ["05_norte", "Norte"],
-  ["06_nordeste", "Nordeste"],
-  ["07_magdalena_medio", "Magdalena Medio"],
-  ["08_bajo_cauca", "Bajo Cauca"],
-  ["09_uraba_antioqueno", "Urabá"],
-];
-
 export type NavSection = {
   /** Etiqueta corta dentro del menú. Vacía si los ítems cuelgan directo. */
   title?: string;
@@ -126,14 +114,7 @@ export const NAV_AREAS: NavArea[] = [
             label: "Regiones",
             icon: Package,
             phase: 16,
-            blurb: "Las 9 subregiones y el borrador por departamento.",
-            children: SUBREGIONES_NAV.map(([id, nombre]) => ({
-              href: `/paquetes?sub=${id}`,
-              label: nombre,
-              icon: Package,
-              phase: 16,
-              blurb: nombre,
-            })),
+            blurb: "Departamentos y subregiones que salen del servidor.",
           },
           { href: "/contenido", label: "Contenido", icon: BookOpen, phase: 25, blurb: "La ficha pública: qué lee la gente, aparte del modelo." },
           { href: "/destacados", label: "Destacados", icon: CalendarDays, phase: 26, blurb: "El carrusel de inicio, día por día." },

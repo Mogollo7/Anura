@@ -1,5 +1,4 @@
 import { getThumbUrl } from '../services/api'
-import { demoMediaUrl } from './demoMode'
 
 /**
  * Resuelve una ruta relativa del backend (ej. profile_image, image_key) a una URL
@@ -13,8 +12,6 @@ import { demoMediaUrl } from './demoMode'
 export function mediaUrl(path) {
   if (!path) return ''
   if (/^(https?:\/\/|data:|blob:)/i.test(path)) return path
-  const demo = demoMediaUrl(path)
-  if (demo) return demo
   const filename = path.split('/').pop()
   return getThumbUrl(filename, 'original') || ''
 }

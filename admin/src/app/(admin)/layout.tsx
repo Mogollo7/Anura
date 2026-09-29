@@ -1,6 +1,5 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
-import { MockBanner } from "@/components/layout/mock-banner";
 import { SessionGate } from "@/components/layout/session-gate";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -10,7 +9,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar />
-          <MockBanner />
           <main className="flex-1 overflow-y-auto p-6">{children}</main>
         </div>
       </div>
