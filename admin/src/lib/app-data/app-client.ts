@@ -64,6 +64,10 @@ export type AppObservation = {
   ai_class: string | null;
   ai_prob: number | null;
   common_name: string | null;
+  /** Salida de campo a la que pertenece (observations.field_trips), si la app la vinculó. */
+  field_trip_id: string | null;
+  field_trip_place: string | null;
+  field_trip_started: string | null;
   /** Comentarios "en desacuerdo" con la identificación (observations.comments.stance). */
   refutaciones: number;
 };

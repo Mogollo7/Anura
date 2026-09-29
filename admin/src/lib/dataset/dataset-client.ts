@@ -184,7 +184,8 @@ export class DatasetError extends Error {
   }
 }
 
-async function send<T>(method: string, path: string, body?: unknown): Promise<T> {
+/** Llamada al dataset-service con la sesión del panel. La usan también los clientes por tema (p. ej. lib/vectores). */
+export async function send<T>(method: string, path: string, body?: unknown): Promise<T> {
   const token = getToken();
   const isForm = body instanceof FormData;
   const res = await fetch(path, {
@@ -240,7 +241,9 @@ export type Trabajo = {
   id: number;
   tipo: "embeddings";
   estado: "pendiente" | "en_curso" | "hecho" | "fallido" | "cancelado";
-  parametros: { encoder_sha256?: string };
+  parametros: { encoder_sha256?: string; especie_id?: number };
+  /** Nombre de la especie cuando el trabajo está acotado a una; null = todas las fotos. */
+  especie: string | null;
   total: number | null;
   hechos: number;
   fallidos: number;
@@ -261,16 +264,34 @@ export type EstadoWorker = {
     info: { proveedor?: string; onnxruntime?: string; ms_por_foto?: number | null };
     visto: string;
     segundos_sin_ver: number;
+    trabajo_en_curso: number | null;
   }[];
-  encoders: { sha256: string; nombre: string; archivo: string; dimension: number; registrado: string; vectores: number }[];
+  encoders: {
+    sha256: string;
+    nombre: string;
+    archivo: string;
+    dimension: number;
+    preprocesado: string;
+    normalizacion: string;
+    registrado: string;
+    vectores: number;
+  }[];
   fotos: number;
+  /** Trabajos en total; `trabajos` trae solo los más recientes. */
+  historial: number;
   latido_vencido_s: number;
+  worker_vivo_s: number;
 };
+
+export type ErrorTrabajo = { sha256: string; error: string; creado: string; archivo_original: string | null; especie: string | null };
 
 export const getTrabajos = () => send<EstadoWorker>("GET", "/api/dataset/trabajos");
 
-export const crearTrabajoEmbeddings = (encoder_sha256?: string) =>
-  send<{ id: number; total: number }>("POST", "/api/dataset/trabajos", { encoder_sha256 });
+export const crearTrabajoEmbeddings = (encoder_sha256?: string, especie_id?: number) =>
+  send<{ id: number; total: number }>("POST", "/api/dataset/trabajos", { encoder_sha256, especie_id });
+
+export const getErroresTrabajo = (id: number) =>
+  send<{ errores: ErrorTrabajo[]; total: number }>("GET", `/api/dataset/trabajos/${id}/errores`);
 
 export const cancelarTrabajo = (id: number) => send<{ ok: true }>("POST", `/api/dataset/trabajos/${id}/cancelar`, {});
 
@@ -521,3 +542,43 @@ export const etiquetarObservacion = (
   observacionId: number,
   cambios: Partial<Pick<import("./etiquetas").EtiquetaObservacion, "estadio" | "sustrato" | "morfo_id">>
 ) => send<import("./etiquetas").EtiquetaObservacion>("PUT", `/api/dataset/observaciones/${observacionId}/etiqueta`, cambios);
+
+// ── Especies: crear y editar (Admin → Especies) ──────────────────────────────────────────
+
+export type EspecieCreada = Pick<DatasetEspecie, "id" | "carpeta" | "nombre_cientifico" | "genero" | "familia" | "taxon_id"> & { creado: string };
+
+/** El género sale del nombre; la carpeta y el taxon_id los asigna el servidor. */
+export const crearEspecie = (input: { nombre_cientifico: string; familia: string }) =>
+  send<EspecieCreada>("POST", "/api/dataset/especies", input);
+
+/** Con aplicar_a_congeneres la familia nueva también se pone a las demás especies del género. */
+export const editarEspecie = (
+  id: number,
+  cambios: { nombre_cientifico?: string; familia?: string; aplicar_a_congeneres?: boolean }
+) => send<EspecieCreada & { congeneres_corregidos: number }>("PUT", `/api/dataset/especies/${id}`, cambios);
+
+// ── OSR, Métricas y Simulador (bloque 6) ─────────────────────────────────────────────────
+
+import { paqueteQuery as paq, type PaqueteId } from "./osr";
+
+export const getPaquetesOsr = () => send<{ paquetes: import("./osr").PaqueteOsr[] }>("GET", "/api/dataset/osr/paquetes");
+export const getOsr = (subregionId: PaqueteId) =>
+  send<import("./osr").EstadoOsr>("GET", `/api/dataset/osr?subregion_id=${paq(subregionId)}`);
+/** El servidor calcula τ y lo deja como propuesta sin validar. */
+export const calibrarOsr = (subregionId: PaqueteId, karObjetivo: number) =>
+  send<import("./osr").EstadoOsr>("POST", "/api/dataset/osr/calibraciones", { subregion_id: subregionId, kar_objetivo: karObjetivo });
+export const validarOsr = (calibracionId: number, tau: number, nota?: string) =>
+  send<import("./osr").EstadoOsr>("POST", "/api/dataset/osr/validaciones", { calibracion_id: calibracionId, tau, nota });
+
+export const getEvaluaciones = () =>
+  send<{ experimento: { id: number; creado: string } | null; paquetes: import("./osr").PaqueteEvaluado[] }>("GET", "/api/dataset/evaluaciones");
+export const getEvaluacion = (id: number) => send<import("./osr").DetalleEvaluacion>("GET", `/api/dataset/evaluaciones/${id}`);
+export const evaluarPaquete = (subregionId: PaqueteId) =>
+  send<import("./osr").DetalleEvaluacion>("POST", "/api/dataset/evaluaciones", { subregion_id: subregionId });
+
+export const getSimulador = (subregionId: PaqueteId) =>
+  send<import("./osr").OpcionesSimulador>("GET", `/api/dataset/simulador?subregion_id=${paq(subregionId)}`);
+export const getFotosSimulador = (especieId: number, offset = 0) =>
+  send<{ fotos: import("./osr").FotoSimulador[] }>("GET", `/api/dataset/simulador/fotos?especie_id=${especieId}&offset=${offset}`);
+export const identificarFoto = (subregionId: PaqueteId, sha256: string, umbral: "validado" | "propuesta") =>
+  send<import("./osr").ResultadoSimulador>("POST", "/api/dataset/simulador/identificar", { subregion_id: subregionId, sha256, umbral });

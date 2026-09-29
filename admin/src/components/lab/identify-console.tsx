@@ -1,441 +1,340 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { Lock, ShieldQuestion } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, Lock } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Field, Input, Select } from "@/components/ui/field";
-import { useAllReleases, type Release } from "@/lib/compiler/release-store";
-import { useClusterStore } from "@/lib/adapters/cluster-store";
-import { clusterFingerprint, trainAdapter } from "@/lib/adapters/adapters";
-import { ANTIOQUIA_SUBREGIONES, speciesForSubregion } from "@/lib/packages/antioquia-subregiones";
-import { calibratePackage, type ClusterGate, type PackageCalib } from "@/lib/osr/osr";
-import { SUBSTRATO_LABEL, type Substrato } from "@/lib/mock/curation";
+import { Field, Select } from "@/components/ui/field";
+import { cn } from "@/lib/utils";
 import { usePanelSession } from "@/lib/session/panel-session";
-import { CICLO } from "@/lib/cycle/stages";
+import { SesionRequerida, pct } from "@/components/vectordb/sesion-requerida";
+import { PaqueteSelect } from "@/components/osr/paquete-select";
+import { getFotosSimulador, getPaquetesOsr, getSimulador, identificarFoto } from "@/lib/dataset/dataset-client";
 import {
-  identificar,
-  listarSondas,
-  sustratoDominante,
-  type IdentifyResult,
-  type ProbeGrupoResumen,
-} from "@/lib/lab/identify";
+  dec,
+  fecha,
+  type FotoSimulador,
+  type OpcionesSimulador,
+  type PaqueteId,
+  type PaqueteOsr,
+  type ResultadoSimulador,
+} from "@/lib/dataset/osr";
 
-function contextoDe(origenId: string, calib: PackageCalib, release: Release, medio: number) {
-  const sp = calib.species.find((s) => s.species.id === origenId);
-  const entry = sp ? release.manifest.species_catalog.find((e) => e.taxon_id === sp.species.taxonId) : undefined;
-  if (!entry) return { origen: origenId, altitud: medio, sustrato: "hojarasca" as Substrato };
-  return {
-    origen: origenId,
-    altitud: Math.round(entry.context_parameters.altitude_mean_msnm),
-    sustrato: sustratoDominante(entry.context_parameters.substrate_priors),
-  };
-}
+const PARTICION: Record<string, string> = { train: "entrenamiento", val: "validación", test: "prueba" };
+const particion = (p: string | null) => (p ? PARTICION[p] ?? p : "fuera del manifiesto");
 
-const GRUPO_LABEL: Record<ProbeGrupoResumen["grupo"], string> = {
-  conocida: "Especie del paquete (foto apartada)",
-  congenere: "Congénere que el paquete no catalogó",
-  genero_nuevo: "Género fuera del catálogo",
-  familia_ausente: "Familia fuera del catálogo",
-  fuera_del_paquete: "Especie del catálogo, de otra subregión",
-};
-
-const CODIGO_TONE: Record<IdentifyResult["codigo"], "accent" | "info" | "warning" | "danger"> = {
-  "00_MATCH_OK": "accent",
-  STATUS_GENUS: "info",
-  STATUS_FAMILY: "info",
-  "01_OSR_GLOBAL": "warning",
-  "02_OSR_CLUSTER": "warning",
-  "03_OSR_GEO_FAIL": "danger",
-};
-
-const sinSuscripcion = () => () => {};
-
+/**
+ * Simulador: una foto contra un paquete, sin modificarlo. Lo calcula el servidor con el vector
+ * que la foto ya tiene (k-NN como el teléfono + rechazo Mahalanobis con el τ validado o propuesto).
+ */
 export function IdentifyConsole() {
-  // El release vive en el navegador. Servidor y primer render del cliente muestran
-  // lo mismo; después se lee el almacenamiento. Si no, React marca un error de hidratación.
-  const listo = useSyncExternalStore(sinSuscripcion, () => true, () => false);
-  const releases = useAllReleases();
-  const publicados = releases.filter((r) => r.estado === "PUBLISHED");
-  const [id, setId] = useState(publicados[0]?.id ?? "");
-  const release = publicados.find((r) => r.id === id) ?? publicados[0] ?? null;
+  const session = usePanelSession();
+  const [paquetes, setPaquetes] = useState<PaqueteOsr[] | null>(null);
+  const [paquete, setPaquete] = useState<PaqueteId>(null);
+  const [opciones, setOpciones] = useState<OpcionesSimulador | null>(null);
+  const [umbral, setUmbral] = useState<"validado" | "propuesta">("validado");
+  const [especieId, setEspecieId] = useState<number | null>(null);
+  const [fotos, setFotos] = useState<FotoSimulador[]>([]);
+  const [hayMas, setHayMas] = useState(false);
+  const [sha, setSha] = useState<string | null>(null);
+  const [resultado, setResultado] = useState<ResultadoSimulador | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [corriendo, setCorriendo] = useState(false);
 
-  if (!listo) {
-    return (
-      <div className="space-y-4">
-        <Ciclo actual="simulador" />
-        <Card className="text-sm text-label-secondary">Leyendo los releases de este navegador…</Card>
-      </div>
-    );
+  useEffect(() => {
+    if (!session.isReal) return;
+    getPaquetesOsr()
+      .then((r) => setPaquetes(r.paquetes))
+      .catch((e: Error) => setError(e.message));
+  }, [session.isReal]);
+
+  useEffect(() => {
+    if (!session.isReal) return;
+    let cancelado = false;
+    setOpciones(null);
+    setResultado(null);
+    setError(null);
+    getSimulador(paquete)
+      .then((o) => {
+        if (cancelado) return;
+        setOpciones(o);
+        setUmbral(o.umbrales.validado ? "validado" : "propuesta");
+        setEspecieId((actual) => (actual && o.especies.some((e) => e.id === actual) ? actual : o.especies.find((e) => e.en_paquete)?.id ?? o.especies[0]?.id ?? null));
+      })
+      .catch((e: Error) => !cancelado && setError(e.message));
+    return () => {
+      cancelado = true;
+    };
+  }, [session.isReal, paquete]);
+
+  useEffect(() => {
+    if (!especieId) {
+      setFotos([]);
+      return;
+    }
+    let cancelado = false;
+    setSha(null);
+    setResultado(null);
+    getFotosSimulador(especieId)
+      .then((r) => {
+        if (cancelado) return;
+        setFotos(r.fotos);
+        setHayMas(r.fotos.length === 24);
+        setSha(r.fotos[0]?.sha256 ?? null);
+      })
+      .catch((e: Error) => !cancelado && setError(e.message));
+    return () => {
+      cancelado = true;
+    };
+  }, [especieId]);
+
+  if (!session.isReal) return <SesionRequerida cargando={session.cargando} que="el simulador" />;
+
+  async function masFotos() {
+    if (!especieId) return;
+    try {
+      const r = await getFotosSimulador(especieId, fotos.length);
+      setFotos((f) => [...f, ...r.fotos]);
+      setHayMas(r.fotos.length === 24);
+    } catch (e) {
+      setError((e as Error).message);
+    }
   }
+
+  async function identificar() {
+    if (!sha) return;
+    setCorriendo(true);
+    setError(null);
+    try {
+      setResultado(await identificarFoto(paquete, sha, umbral));
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setCorriendo(false);
+    }
+  }
+
+  const delPaquete = opciones?.especies.filter((e) => e.en_paquete) ?? [];
+  const ajenas = opciones?.especies.filter((e) => !e.en_paquete) ?? [];
+  const u = opciones ? (umbral === "validado" ? opciones.umbrales.validado : opciones.umbrales.propuesta) : null;
 
   return (
     <div className="space-y-4">
-      <Ciclo actual="simulador" />
-      {release ? (
-        <>
-          <Card className="flex flex-wrap items-end justify-between gap-3">
-            <Field label="Release publicado" hint="Solo entra lo que ya tiene las dos aprobaciones y está vigente. El simulador no publica.">
-              <Select value={release.id} onChange={(e) => setId(e.target.value)} className="min-w-[260px]">
-                {publicados.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.manifest.package_metadata.region_name} · v{r.version}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <p className="text-[11px] text-label-tertiary">
-              {release.manifest.species_catalog.length} especies · encoder {release.manifest.package_metadata.encoder} · publicado por{" "}
-              {release.publicadoPor}
-            </p>
-          </Card>
-          <IdentifyRun key={release.id} release={release} />
-        </>
-      ) : (
-        <SinRelease otros={releases} />
-      )}
-    </div>
-  );
-}
-
-function Ciclo({ actual }: { actual: string }) {
-  return (
-    <ol className="flex gap-1 overflow-x-auto pb-1">
-      {CICLO.map((e, i) => {
-        const on = e.id === actual;
-        return (
-          <li key={e.id} className="flex shrink-0 items-center gap-1">
-            {i > 0 && <span className="text-label-tertiary">→</span>}
-            <Link
-              href={e.href}
-              title={e.cierra}
-              className={
-                on
-                  ? "rounded-full bg-accent-wash px-2.5 py-1 text-xs font-medium text-accent-ink"
-                  : "rounded-full px-2.5 py-1 text-xs text-label-secondary hover:bg-surface-subtle hover:text-label-primary"
-              }
-            >
-              {e.label}
-            </Link>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
-function SinRelease({ otros }: { otros: Release[] }) {
-  return (
-    <Card className="space-y-3">
-      <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-surface-subtle text-label-secondary">
-          <ShieldQuestion size={18} />
-        </span>
-        <div>
-          <h2 className="text-base font-semibold text-label-primary">No hay un release publicado</h2>
-          <p className="mt-1 text-sm text-label-secondary">
-            El simulador identifica contra el JSON que ya salió, no contra la calibración en vivo. Sin un release vigente no hay nada que el teléfono fuera a recibir, y correr igual sería inventar un paquete.
-          </p>
-        </div>
-      </div>
-      <p className="text-sm text-label-secondary">
-        El ciclo para llegar aquí: validar OSR, pasar la validación técnica, compilar, aval científico, aval técnico y publicar.
+      <p className="text-xs text-label-tertiary">
+        El servidor no embebe fotos nuevas (el encoder corre en el worker), así que el simulador usa fotos del dataset que ya tienen vector.
       </p>
-      <Link href="/compilador" className="inline-flex text-sm font-medium text-accent-ink hover:underline">
-        Ir al compilador
-      </Link>
-      {otros.length > 0 && (
-        <ul className="space-y-1 border-t border-border pt-3 text-xs text-label-secondary">
-          {otros.map((r) => (
-            <li key={r.id}>
-              {r.manifest.package_metadata.region_name} v{r.version} está en {r.estado}. Todavía no se simula.
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
-  );
-}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
-function IdentifyRun({ release }: { release: Release }) {
-  const session = usePanelSession();
-  const canDebug = session.can("debugTecnico");
-  const { clusters } = useClusterStore();
-  const [paquete, setPaquete] = useState<{ calib: PackageCalib; gates: ClusterGate[] } | null>(null);
-
-  useEffect(() => {
-    let cancel = false;
-    const t = setTimeout(() => {
-      const calib = calibratePackage(release.subregionId);
-      const species = speciesForSubregion(release.subregionId);
-      const byId = new Map(species.map((s) => [s.id, s]));
-      const gates: ClusterGate[] = clusters
-        .filter(
-          (c) =>
-            c.subregionId === release.subregionId &&
-            c.entrenado?.fingerprint === clusterFingerprint(c) &&
-            c.validado?.fingerprint === clusterFingerprint(c)
-        )
-        .map((c) => {
-          const miembros = c.miembros.map((id) => byId.get(id)).filter((s) => !!s);
-          const r = trainAdapter(c, miembros, species);
-          return {
-            id: c.id,
-            clusterId: c.clusterId,
-            miembros: c.miembros,
-            epsilonPropuesto: r.epsilon,
-            erecMiembros: r.erecMiembros,
-            intrusos: r.intrusos,
-            erec: r.erec,
-          };
-        });
-      if (!cancel) setPaquete({ calib, gates });
-    }, 30);
-    return () => {
-      cancel = true;
-      clearTimeout(t);
-    };
-  }, [release, clusters]);
-
-  if (!paquete) {
-    return <Card className="text-sm text-label-secondary">Preparando la geometría del paquete publicado…</Card>;
-  }
-  return <IdentifyForm release={release} calib={paquete.calib} gates={paquete.gates} canDebug={canDebug} />;
-}
-
-function IdentifyForm({
-  release,
-  calib,
-  gates,
-  canDebug,
-}: {
-  release: Release;
-  calib: PackageCalib;
-  gates: ClusterGate[];
-  canDebug: boolean;
-}) {
-  const sondas = useMemo(() => listarSondas(calib), [calib]);
-  const sub = ANTIOQUIA_SUBREGIONES.find((s) => s.id === release.subregionId);
-  const medio = sub ? Math.round((sub.cotaMin + sub.cotaMax) / 2) : 1500;
-  const inicial = contextoDe(sondas.find((s) => s.grupo === "conocida")?.origen ?? sondas[0]?.origen ?? "", calib, release, medio);
-  const [origen, setOrigen] = useState(inicial.origen);
-  const sonda = sondas.find((s) => s.origen === origen) ?? sondas[0];
-  const [foto, setFoto] = useState(0);
-  const [altitud, setAltitud] = useState(inicial.altitud);
-  const [sustrato, setSustrato] = useState<Substrato>(inicial.sustrato);
-  const [resultado, setResultado] = useState<IdentifyResult | null>(null);
-
-  function aplicarContextoDe(origenId: string) {
-    const ctx = contextoDe(origenId, calib, release, medio);
-    setAltitud(ctx.altitud);
-    setSustrato(ctx.sustrato);
-    setFoto(0);
-    setResultado(null);
-  }
-
-  function correr(alt = altitud, substra = sustrato, fotoIdx = foto, origenId = origen) {
-    setResultado(
-      identificar({
-        manifest: release.manifest,
-        calib,
-        gates,
-        origen: origenId,
-        foto: fotoIdx,
-        altitud: alt,
-        sustrato: substra,
-      })
-    );
-  }
-
-  function fueraDeCota() {
-    const sp = calib.species.find((s) => s.species.id === origen);
-    const entry = sp ? release.manifest.species_catalog.find((e) => e.taxon_id === sp.species.taxonId) : undefined;
-    const mu = entry?.context_parameters.altitude_mean_msnm ?? medio;
-    const sigma = Math.max(80, entry?.context_parameters.altitude_std_dev ?? 200);
-    const alt = Math.round(mu + 4 * sigma);
-    setAltitud(alt);
-    correr(alt, sustrato, foto, origen);
-  }
-
-  if (!sonda) return null;
-
-  const conocidas = sondas.filter((s) => s.grupo === "conocida");
-  const ajenas = sondas.filter((s) => s.grupo !== "conocida");
-
-  return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
-      <Card className="space-y-4">
-        <CardHeader className="mb-0">
-          <CardTitle>Foto de prueba</CardTitle>
-        </CardHeader>
-        <Field label="Qué se le muestra al paquete">
-          <Select
-            value={sonda.origen}
-            onChange={(e) => {
-              setOrigen(e.target.value);
-              aplicarContextoDe(e.target.value);
-            }}
+      <Card className="flex flex-wrap items-end gap-4">
+        {paquetes ? (
+          <PaqueteSelect paquetes={paquetes} value={paquete} onChange={setPaquete} />
+        ) : (
+          <span className="text-sm text-label-secondary">Cargando del servidor…</span>
+        )}
+        {opciones && (
+          <Field
+            label="Umbral de rechazo"
+            hint={u ? `τ ${dec(u.tau, 2)}${u.validado ? ` · validado por ${u.validado_nombre ?? "—"} · ${fecha(u.validado)}` : " · sin validar"}` : undefined}
           >
-            <optgroup label="Del paquete">
-              {conocidas.map((s) => (
-                <option key={s.origen} value={s.origen}>
-                  {s.nombre}
-                </option>
-              ))}
-            </optgroup>
-            <optgroup label="El paquete no las entrenó">
-              {ajenas.map((s) => (
-                <option key={s.origen} value={s.origen}>
-                  {s.nombre} · {GRUPO_LABEL[s.grupo]}
-                </option>
-              ))}
-            </optgroup>
-          </Select>
-        </Field>
-        <p className="text-xs text-label-tertiary">{GRUPO_LABEL[sonda.grupo]}. {sonda.fotos} fotos apartadas.</p>
-        {sonda.fotos > 1 && (
-          <Field label="Foto">
-            <Select
-              value={String(Math.min(foto, sonda.fotos - 1))}
-              onChange={(e) => {
-                setFoto(Number(e.target.value));
-                setResultado(null);
-              }}
-            >
-              {Array.from({ length: sonda.fotos }, (_, i) => (
-                <option key={i} value={i}>
-                  {i + 1} de {sonda.fotos}
-                </option>
-              ))}
+            <Select value={umbral} onChange={(e) => setUmbral(e.target.value as "validado" | "propuesta")} className="min-w-[240px]">
+              <option value="validado" disabled={!opciones.umbrales.validado}>
+                Validado (lo que viaja en el release)
+              </option>
+              <option value="propuesta" disabled={!opciones.umbrales.propuesta}>
+                Propuesta sin validar (borrador)
+              </option>
             </Select>
           </Field>
         )}
-        <Field label="Altitud de la observación (m)" hint="La capa 3 usa esta cota, no el promedio de la ficha.">
-          <Input
-            type="number"
-            value={altitud}
-            onChange={(e) => {
-              setAltitud(Number(e.target.value));
-              setResultado(null);
-            }}
-          />
-        </Field>
-        <Field label="Sustrato">
-          <Select
-            value={sustrato}
-            onChange={(e) => {
-              setSustrato(e.target.value as Substrato);
-              setResultado(null);
-            }}
-          >
-            {(Object.keys(SUBSTRATO_LABEL) as Substrato[]).map((k) => (
-              <option key={k} value={k}>
-                {SUBSTRATO_LABEL[k]}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="primary" onClick={() => correr()}>
-            Identificar
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              aplicarContextoDe(sonda.origen);
-            }}
-          >
-            Cota típica
-          </Button>
-          <Button variant="ghost" onClick={fueraDeCota} disabled={sonda.grupo !== "conocida"}>
-            Fuera de cota
-          </Button>
-        </div>
-        {!release.manifest.decision && (
-          <p className="text-xs text-warning">
-            Este release se compiló antes de congelar la capa 3. El simulador aplica umbral 0,05 y rechazo, el valor inicial del vault. Vuelve a compilar para guardar la política que está en OSR.
-          </p>
-        )}
       </Card>
 
-      <div className="space-y-4">
-        {resultado ? (
-          <ResultadoCard resultado={resultado} canDebug={canDebug} />
-        ) : (
-          <Card className="text-sm text-label-secondary">
-            Elige la foto, la altitud y el sustrato. Identificar recorre las tres capas con los τ de este release y no guarda nada.
+      {opciones && !opciones.umbrales.validado && !opciones.umbrales.propuesta && (
+        <Card className="text-sm text-label-secondary">
+          Este paquete todavía no tiene τ. Sin él la foto recibe nombre pero no se decide si se rechaza. Para empezar, calcula la propuesta en{" "}
+          <Link href="/osr" className="font-medium text-accent-ink hover:underline">OSR</Link>.
+        </Card>
+      )}
+
+      {opciones && (
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
+          <Card className="space-y-3">
+            <CardHeader className="mb-0"><CardTitle>Foto de prueba</CardTitle></CardHeader>
+            {opciones.especies.length === 0 ? (
+              <p className="text-sm text-label-secondary">
+                Aún no hay fotos con vector. Para empezar, procesa el dataset en <Link href="/ia" className="underline">Worker</Link>.
+              </p>
+            ) : (
+              <>
+                <Field label="Especie">
+                  <Select value={especieId ?? ""} onChange={(e) => setEspecieId(Number(e.target.value))}>
+                    <optgroup label={`Del paquete (${delPaquete.length})`}>
+                      {delPaquete.map((e) => (
+                        <option key={e.id} value={e.id}>{e.nombre_cientifico} · {e.fotos} fotos</option>
+                      ))}
+                    </optgroup>
+                    {ajenas.length > 0 && (
+                      <optgroup label="Fuera del paquete (debería rechazarse)">
+                        {ajenas.map((e) => (
+                          <option key={e.id} value={e.id}>{e.nombre_cientifico} · {e.fotos} fotos</option>
+                        ))}
+                      </optgroup>
+                    )}
+                  </Select>
+                </Field>
+                <div className="grid max-h-[360px] grid-cols-4 gap-1.5 overflow-y-auto">
+                  {fotos.map((f) => (
+                    <button
+                      key={f.sha256}
+                      type="button"
+                      onClick={() => {
+                        setSha(f.sha256);
+                        setResultado(null);
+                      }}
+                      title={`Partición: ${particion(f.particion)}`}
+                      className={cn(
+                        "relative aspect-square overflow-hidden rounded-md border-2",
+                        f.sha256 === sha ? "border-accent-ink" : "border-transparent"
+                      )}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={f.url} alt="" className="h-full w-full bg-surface-subtle object-cover" loading="lazy" />
+                      <span className="absolute bottom-0 left-0 right-0 bg-black/55 px-1 text-[10px] text-white">{particion(f.particion)}</span>
+                    </button>
+                  ))}
+                </div>
+                {hayMas && (
+                  <Button variant="ghost" className="text-xs" onClick={masFotos}>Ver más fotos</Button>
+                )}
+                <Button variant="primary" disabled={!sha || corriendo} onClick={identificar}>
+                  {corriendo ? "Identificando…" : "Identificar"}
+                </Button>
+              </>
+            )}
           </Card>
-        )}
-      </div>
+
+          <div>
+            {resultado ? (
+              <ResultadoCard r={resultado} canDebug={session.can("debugTecnico")} />
+            ) : (
+              <Card className="text-sm text-label-secondary">
+                Elige una foto. Identificar vota con los 5 vecinos más cercanos del paquete y decide con la distancia de Mahalanobis frente a τ.
+                No guarda nada.
+              </Card>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function ResultadoCard({ resultado, canDebug }: { resultado: IdentifyResult; canDebug: boolean }) {
-  const r = resultado;
+function ResultadoCard({ r, canDebug }: { r: ResultadoSimulador; canDebug: boolean }) {
+  const ganadora = r.knn.candidatas[0];
+  const nombre = r.codigo === "MATCH_SPECIES" && ganadora ? ganadora.nombre_cientifico : null;
   return (
     <Card className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Badge tone={CODIGO_TONE[r.codigo]}>{r.codigo}</Badge>
-        <Badge tone={r.acierto ? "accent" : "warning"}>{r.acierto ? "Coincide con lo esperado" : "No coincide con lo esperado"}</Badge>
-        {!r.geo.congeladaEnRelease && <Badge tone="warning">Capa 3 no venía en el release</Badge>}
+        {r.codigo ? (
+          <Badge tone={r.codigo === "MATCH_SPECIES" ? "accent" : "warning"}>{r.codigo}</Badge>
+        ) : (
+          <Badge tone="neutral">Sin τ: no se decide el rechazo</Badge>
+        )}
+        {r.acierto !== null && (
+          <Badge tone={r.acierto ? "accent" : "danger"}>{r.acierto ? "Coincide con lo esperado" : "No coincide con lo esperado"}</Badge>
+        )}
+        <Badge tone="neutral">Esperado: {r.esperado === "su especie" ? r.foto.nombre_cientifico : "rechazo"}</Badge>
       </div>
+
       <div>
-        <p className="text-base font-semibold text-label-primary">{r.veLaPersona}</p>
+        <p className="text-base font-semibold text-label-primary">
+          {nombre ? <span className="italic">{nombre}</span> : r.codigo === "OSR_GLOBAL" ? "Fuera del catálogo de este paquete" : ganadora ? <span className="italic">{ganadora.nombre_cientifico}</span> : "Sin vecinos"}
+        </p>
         <p className="mt-1 text-sm text-label-secondary">
-          {r.especie ? <span className="italic">{r.especie}</span> : r.genero ? `Género ${r.genero}` : r.familia ? `Familia ${r.familia}` : "Sin nombre"}
-          {" · "}puntaje {r.puntaje.toFixed(3)}
+          Foto de <span className="italic">{r.foto.nombre_cientifico}</span> ({particion(r.foto.particion)}
+          {r.foto.del_paquete ? ", especie del paquete" : ", especie fuera del paquete"}).
         </p>
       </div>
+
+      {r.foto.particion === "train" && (
+        <p className="flex items-start gap-1.5 text-xs text-warning">
+          <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+          Esta foto es una referencia del paquete: su vecino más cercano es ella misma. Para medir, usa fotos de prueba o validación.
+        </p>
+      )}
+
       <ol className="space-y-2">
-        {r.rama.map((paso) => (
-          <li key={paso.capa + paso.titulo} className="rounded-md border border-border px-3 py-2">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-label-tertiary">
-              {paso.capa}
-              {paso.decidio ? " · decide" : ""}
+        <li className="rounded-md border border-border px-3 py-2">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-label-tertiary">1 · especie (k-NN, k = {r.knn.k})</p>
+          {r.knn.candidatas.length ? (
+            <ul className="mt-1 space-y-0.5 text-xs text-label-secondary">
+              {r.knn.candidatas.map((c) => (
+                <li key={c.especie_id}>
+                  <span className="italic text-label-primary">{c.nombre_cientifico}</span> · {pct(c.parte)} del voto
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-xs text-label-secondary">El paquete no tiene fotos de referencia.</p>
+          )}
+          <p className="mt-1 text-[11px] text-label-tertiary">
+            Vecinos: {r.knn.vecinos.map((v) => `${v.nombre_cientifico} ${dec(1 - v.distancia, 3)}`).join(" · ")} (coseno)
+          </p>
+        </li>
+        <li className="rounded-md border border-border px-3 py-2">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-label-tertiary">
+            2 · rechazo (Mahalanobis){r.rechazo ? " · decide" : ""}
+          </p>
+          {r.rechazo ? (
+            <>
+              <p className="text-sm font-medium text-label-primary">
+                {r.rechazo.acepta ? "Dentro de τ: se acepta" : "Fuera de τ: se rechaza"}
+              </p>
+              <p className="text-xs text-label-secondary">
+                Distancia {dec(r.rechazo.distancia, 2)} {r.rechazo.acepta ? "≤" : ">"} τ {dec(r.rechazo.tau, 2)}
+                {r.rechazo.validado ? ` (validado por ${r.rechazo.validado_nombre ?? "—"})` : " (propuesta sin validar)"}. Media más cercana:{" "}
+                <span className="italic">{r.rechazo.especie_mas_cercana.nombre_cientifico ?? "—"}</span>.
+              </p>
+              {r.rechazo.otro_lote && (
+                <p className="mt-1 text-xs text-warning">Este τ se calibró con otro lote de centroides. Recalibra en OSR.</p>
+              )}
+            </>
+          ) : (
+            <p className="text-xs text-label-secondary">Este paquete no tiene τ de ese tipo todavía.</p>
+          )}
+        </li>
+        <li className="rounded-md border border-border px-3 py-2">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-label-tertiary">Centroides más parecidos</p>
+          <p className="text-xs text-label-secondary">
+            {r.centroides.map((c) => `${c.nombre_cientifico} ${dec(c.coseno, 3)}`).join(" · ")}
+          </p>
+        </li>
+        {r.altitud && (
+          <li className="rounded-md border border-border px-3 py-2">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-label-tertiary">3 · altitud (informativa, no decide)</p>
+            <p className="text-xs text-label-secondary">
+              {r.altitud.observacion_m == null
+                ? "La observación de esta foto no tiene altitud."
+                : `Observación a ${Math.round(r.altitud.observacion_m).toLocaleString("es-CO")} m.`}{" "}
+              {r.altitud.rango
+                ? `Rango de la ficha: ${r.altitud.rango.min.toLocaleString("es-CO")}–${r.altitud.rango.max.toLocaleString("es-CO")} m (${r.altitud.rango.origen}).`
+                : "La ficha técnica de la especie nombrada todavía no tiene rango de altitud."}
+              {r.altitud.dentro === false && <span className="text-warning"> Fuera del rango.</span>}
             </p>
-            <p className="text-sm font-medium text-label-primary">{paso.titulo}</p>
-            <p className="text-xs text-label-secondary">{paso.detalle}</p>
           </li>
-        ))}
+        )}
       </ol>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-md bg-surface-subtle p-3 text-xs">
-          <p className="font-medium text-label-primary">Coseno (viaja en el JSON)</p>
-          <p className="mt-1 text-label-secondary">
-            {r.comparacion.coseno.acepta ? r.comparacion.coseno.especie : "rechaza en capa 1"} · similitud {r.comparacion.coseno.similitud.toFixed(3)}
-            {r.comparacion.coseno.acepta ? ` · τ ${r.comparacion.coseno.tau.toFixed(3)}` : ""}
-          </p>
-        </div>
-        <div className="rounded-md bg-surface-subtle p-3 text-xs">
-          <p className="font-medium text-label-primary">Mahalanobis (no viaja)</p>
-          <p className="mt-1 text-label-secondary">
-            {r.comparacion.mahalanobis.acepta ? r.comparacion.mahalanobis.especie : "rechaza en capa 1"} · d {r.comparacion.mahalanobis.distancia.toFixed(2)}
-            {r.comparacion.mahalanobis.acepta ? ` · τ ${r.comparacion.mahalanobis.tau.toFixed(2)}` : ""}
-          </p>
-          <p className="mt-1 text-label-tertiary">
-            {r.comparacion.mismaEspecie
-              ? "Los dos caminos nombran la misma especie."
-              : r.comparacion.mismoVeredicto
-                ? "Los dos rechazan en la capa 1, sin la misma especie."
-                : "Los dos caminos no coinciden. El teléfono usa el coseno."}
-          </p>
-        </div>
-      </div>
-      <p className="text-sm text-label-secondary">
-        <span className="font-medium text-label-primary">Vuelta del ciclo. </span>
-        {r.alSincronizar} Lo esperado para esta sonda era: {r.esperado}.
-      </p>
+
       {canDebug ? (
         <p className="text-[11px] text-label-tertiary">
-          Traza técnica: foto {r.traza.foto}/{r.traza.fotos} · ‖x‖² {r.traza.norma.toFixed(4)} · {r.traza.encoder} {r.traza.dim}-d. {r.traza.checksumNota}
-          {r.capa2 === "sin_matriz" ? " La matriz del clúster no está en esta sesión." : ""}
+          Traza técnica: encoder {r.traza.encoder_sha256.slice(0, 8)}… · {r.traza.dim}-d · ‖x‖² {dec(r.traza.norma2, 4)} · lote #
+          {r.traza.experimento_id}
+          {r.rechazo ? ` · calibración #${r.rechazo.calibracion_id} · umbral #${r.rechazo.umbral_id}` : ""}. No se escribió nada.
         </p>
       ) : (
         <p className="flex items-center gap-1.5 text-[11px] text-label-tertiary">
-          <Lock size={11} /> La traza del encoder pide el permiso Debug técnico. La rama científica de arriba se ve igual.
+          <Lock size={11} /> La traza del encoder pide el permiso Debug técnico.
         </p>
       )}
     </Card>

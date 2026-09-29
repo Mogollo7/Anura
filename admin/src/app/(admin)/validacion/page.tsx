@@ -1,17 +1,16 @@
-import { getValidationReports } from "@/lib/mock/validation";
 import { ValidationExplorer } from "@/components/validation/validation-explorer";
-import { RealComparisonCard } from "@/components/real/real-comparison-card";
 
 export default function ValidacionPage() {
-  const reports = getValidationReports();
   return (
     <div className="space-y-6">
-      <RealComparisonCard />
-      <p className="text-sm text-label-secondary">
-        Lo de abajo es el explorador por especie con métricas simuladas del paquete departamental. Se reemplaza por las
-        métricas reales de cada release cuando el backend guarde las evaluaciones.
-      </p>
-      <ValidationExplorer reports={reports} />
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight text-label-primary">Métricas</h1>
+        <p className="text-sm text-label-secondary">
+          Cómo le va a cada paquete con fotos que no vio: las de la partición test, contra sus centroides vigentes. El servidor calcula y
+          guarda cada evaluación; el rechazo de desconocidas sale del τ validado en OSR.
+        </p>
+      </div>
+      <ValidationExplorer />
     </div>
   );
 }

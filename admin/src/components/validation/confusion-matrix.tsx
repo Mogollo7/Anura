@@ -1,22 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { PackageValidationReport } from "@/lib/mock/validation";
-import { speciesName, SPECIES_BY_ID } from "@/lib/mock/species-names";
+import type { FilaEvaluacion } from "@/lib/dataset/osr";
 
 const CELL = 16;
 
-function shortLabel(id: string) {
-  const sp = SPECIES_BY_ID.get(id);
-  if (!sp) return id;
-  return `${sp.genero.slice(0, 3)}. ${sp.epiteto.slice(0, 6)}`;
+function shortLabel(f: FilaEvaluacion) {
+  const [genero = "", epiteto = ""] = f.nombre_cientifico.split(" ");
+  return `${genero.slice(0, 3)}. ${epiteto.slice(0, 6)}`;
 }
 
-export function ConfusionMatrix({ report }: { report: PackageValidationReport }) {
+/** Fila = especie real, columna = especie en primer lugar (top-1). Sale de la evaluación guardada en el servidor. */
+export function ConfusionMatrix({ filas }: { filas: FilaEvaluacion[] }) {
   const [hover, setHover] = useState<{ i: number; j: number } | null>(null);
-  const rowMax = useMemo(() => report.matrix.map((row) => Math.max(...row, 1)), [report.matrix]);
-
-  const n = report.speciesIds.length;
+  const matriz = useMemo(() => filas.map((f) => filas.map((g) => f.predichas[String(g.especie_id)] ?? 0)), [filas]);
+  const rowMax = useMemo(() => matriz.map((row) => Math.max(...row, 1)), [matriz]);
+  const n = filas.length;
 
   return (
     <div className="space-y-2">
@@ -25,48 +24,47 @@ export function ConfusionMatrix({ report }: { report: PackageValidationReport })
           <div className="flex">
             <div style={{ width: 140 }} className="shrink-0" />
             <div className="flex">
-              {report.speciesIds.map((id, j) => (
+              {filas.map((f, j) => (
                 <div
-                  key={id}
+                  key={f.especie_id}
                   style={{ width: CELL, height: 120 }}
                   className={`shrink-0 origin-bottom-left -rotate-[60deg] whitespace-nowrap text-[11px] leading-none ${
                     hover?.j === j ? "font-semibold text-accent-ink" : "text-label-tertiary"
                   }`}
                 >
-                  <span className="inline-block translate-y-[110px]">{shortLabel(id)}</span>
+                  <span className="inline-block translate-y-[110px]">{shortLabel(f)}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {report.speciesIds.map((rowId, i) => (
-            <div key={rowId} className="flex items-center">
+          {filas.map((fila, i) => (
+            <div key={fila.especie_id} className="flex items-center">
               <div
                 style={{ width: 140, height: CELL }}
-                title={speciesName(rowId)}
+                title={fila.nombre_cientifico}
                 className={`shrink-0 truncate pr-2 text-right text-[11px] italic leading-none ${
                   hover?.i === i ? "font-semibold text-accent-ink" : "text-label-secondary"
                 }`}
               >
-                {shortLabel(rowId)}
+                {shortLabel(fila)}
               </div>
               <div className="flex">
-                {report.speciesIds.map((colId, j) => {
-                  const count = report.matrix[i][j];
+                {filas.map((col, j) => {
+                  const count = matriz[i][j];
                   const ratio = count / rowMax[i];
-                  const isDiag = i === j;
                   const bg =
                     count === 0
                       ? "transparent"
-                      : isDiag
+                      : i === j
                         ? `rgba(30,122,52,${0.15 + ratio * 0.75})`
                         : `rgba(215,0,21,${0.15 + ratio * 0.75})`;
                   return (
                     <div
-                      key={colId}
+                      key={col.especie_id}
                       onMouseEnter={() => setHover({ i, j })}
                       onMouseLeave={() => setHover(null)}
-                      title={`${speciesName(rowId)} → ${speciesName(colId)}: ${count}`}
+                      title={`${fila.nombre_cientifico} → ${col.nombre_cientifico}: ${count}`}
                       style={{ width: CELL, height: CELL, background: bg }}
                       className="shrink-0 border border-black/[0.03]"
                     />
