@@ -14,6 +14,7 @@
  *   coordenadas ocultas de iNaturalist no cuentan: pueden caer en la subregión vecina.
  */
 const { completar } = require('./m3');
+const centroidesMorfo = require('./centroides_morfo');
 const falla = (mensaje, status = 400) => Object.assign(new Error(mensaje), { status });
 
 const GEO = process.env.GEO_SERVICE_URL || "http://geo-service:3003";
@@ -179,11 +180,14 @@ async function calcular(pool, userId) {
       regionales = n.n;
     }
 
+    const morfos = await centroidesMorfo.calcular(client, BASE, ENCODER, exp.id, MIN_INDIVIDUOS_REGIONAL);
+
     const evaluacion = await completar(client, ENCODER, exp.id);
     await client.query('UPDATE dataset.experimento SET especies = $2 WHERE id = $1', [exp.id, especies]);
     await auditar(client, userId, 'dataset.centroides.calculados', exp.id, {
       especies,
       regionales,
+      morfos,
       observaciones_ubicadas: ubicadas.size,
       kar: evaluacion.kar,
       fotos_train_con_vector: cob.fotos_train_con_vector,
@@ -248,4 +252,7 @@ async function ultimo(pool) {
   };
 }
 
-module.exports = { calcular, ultimo };
+/** Morfos declarados y su centroide en el último lote (o cuántos individuos faltan). */
+const morfos = (pool) => centroidesMorfo.estado(pool, BASE, ENCODER, MIN_INDIVIDUOS_REGIONAL);
+
+module.exports = { calcular, ultimo, morfos, ENCODER, BASE, MIN_INDIVIDUOS_REGIONAL };

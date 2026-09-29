@@ -6,6 +6,9 @@ import type { NextConfig } from "next";
 // horneado en el build habría quedado apuntando a localhost siempre.
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Entornos de prueba en paralelo (varios `next dev` sobre el mismo árbol): cada uno con su carpeta.
+  // Sin la variable, la de siempre (.next), así que el build de producción no cambia.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
 };
 
 export default nextConfig;

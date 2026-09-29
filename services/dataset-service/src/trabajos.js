@@ -12,6 +12,8 @@ const falla = (mensaje, status = 400) => Object.assign(new Error(mensaje), { sta
 const WORKER_TOKEN = process.env.WORKER_TOKEN || '';
 // Sin latido en este tiempo, un trabajo "en curso" se considera abandonado y otro worker lo retoma.
 const LATIDO_VENCIDO_S = 120;
+// El worker pide trabajo cada 15 s: sin contacto en 60 s, el Admin lo muestra desconectado.
+const WORKER_VIVO_S = 60;
 const DIM = 512;
 
 function requireWorker(req, res, next) {
@@ -70,11 +72,14 @@ async function trabajoActivo(pool, id, worker) {
 async function lote(pool, id, worker, limit) {
   const t = await trabajoActivo(pool, id, worker);
   if (t.estado !== 'en_curso') return { estado: t.estado, fotos: [] };
+  // parametros.especie_id (opcional) acota el trabajo a una especie; sin él, todas las fotos.
   const { rows } = await pool.query(`
     SELECT f.sha256 FROM dataset.foto f
     WHERE NOT EXISTS (SELECT 1 FROM dataset.embedding e WHERE e.sha256 = f.sha256 AND e.encoder_sha256 = $2)
       AND NOT EXISTS (SELECT 1 FROM dataset.trabajo_error x WHERE x.trabajo_id = $1 AND x.sha256 = f.sha256)
-    ORDER BY f.sha256 LIMIT $3`, [id, t.parametros.encoder_sha256, Math.min(Math.max(limit, 1), 256)]);
+      AND ($4::int IS NULL OR f.especie_id = $4)
+    ORDER BY f.sha256 LIMIT $3`,
+    [id, t.parametros.encoder_sha256, Math.min(Math.max(limit, 1), 256), t.parametros.especie_id ?? null]);
   return { estado: t.estado, fotos: rows.map((r) => r.sha256) };
 }
 
@@ -154,43 +159,81 @@ async function foto(pool, minio, bucket, sha) {
 
 // ── Lado del Admin ──────────────────────────────────────────────────────────────────────
 
+const HISTORIAL = 50;
+
 async function estado(pool) {
   const { rows: trabajos } = await pool.query(`
-    SELECT id, tipo, estado, parametros, total, hechos, fallidos, worker, mensaje, latido, creado, empezado, terminado,
-           EXTRACT(EPOCH FROM (NOW() - latido))::int AS segundos_sin_latido
-    FROM dataset.trabajo ORDER BY id DESC LIMIT 20`);
+    SELECT t.id, t.tipo, t.estado, t.parametros, t.total, t.hechos, t.fallidos, t.worker, t.mensaje, t.latido,
+           t.creado, t.empezado, t.terminado, es.nombre_cientifico AS especie,
+           EXTRACT(EPOCH FROM (NOW() - t.latido))::int AS segundos_sin_latido
+    FROM dataset.trabajo t
+    LEFT JOIN dataset.especie es ON es.id = (t.parametros->>'especie_id')::int
+    ORDER BY t.id DESC LIMIT $1`, [HISTORIAL]);
   const { rows: workers } = await pool.query(`
-    SELECT nombre, encoder_sha256, info, visto, EXTRACT(EPOCH FROM (NOW() - visto))::int AS segundos_sin_ver
-    FROM dataset.worker ORDER BY visto DESC`);
+    SELECT w.nombre, w.encoder_sha256, w.info, w.visto, EXTRACT(EPOCH FROM (NOW() - w.visto))::int AS segundos_sin_ver,
+           (SELECT t.id FROM dataset.trabajo t WHERE t.worker = w.nombre AND t.estado = 'en_curso' ORDER BY t.id DESC LIMIT 1)
+             AS trabajo_en_curso
+    FROM dataset.worker w ORDER BY w.visto DESC`);
   const { rows: encoders } = await pool.query(`
-    SELECT e.sha256, e.nombre, e.archivo, e.dimension, e.registrado,
+    SELECT e.sha256, e.nombre, e.archivo, e.dimension, e.preprocesado, e.normalizacion, e.registrado,
            (SELECT COUNT(*)::int FROM dataset.embedding m WHERE m.encoder_sha256 = e.sha256) AS vectores
     FROM dataset.encoder e ORDER BY e.registrado`);
   const { rows: [{ fotos }] } = await pool.query('SELECT COUNT(*)::int AS fotos FROM dataset.foto');
-  return { trabajos, workers, encoders, fotos, latido_vencido_s: LATIDO_VENCIDO_S };
+  const { rows: [{ total: historial }] } = await pool.query('SELECT COUNT(*)::int AS total FROM dataset.trabajo');
+  return { trabajos, workers, encoders, fotos, historial, latido_vencido_s: LATIDO_VENCIDO_S, worker_vivo_s: WORKER_VIVO_S };
 }
 
-/** Un trabajo de embeddings calcula las fotos que aún no tienen vector con ese encoder. */
+/** Fotos que el worker no pudo procesar en un trabajo (foto dañada, formato raro…). */
+async function errores(pool, id, limit = 100) {
+  const { rows: [t] } = await pool.query('SELECT id FROM dataset.trabajo WHERE id = $1', [id]);
+  if (!t) throw falla('El trabajo no existe', 404);
+  const { rows } = await pool.query(`
+    SELECT x.sha256, x.error, x.creado, f.archivo_original, es.nombre_cientifico AS especie
+    FROM dataset.trabajo_error x
+    LEFT JOIN dataset.foto f ON f.sha256 = x.sha256
+    LEFT JOIN dataset.especie es ON es.id = f.especie_id
+    WHERE x.trabajo_id = $1 ORDER BY x.creado, x.sha256 LIMIT $2`, [id, Math.min(Math.max(limit, 1), 500)]);
+  const { rows: [{ n }] } = await pool.query('SELECT COUNT(*)::int AS n FROM dataset.trabajo_error WHERE trabajo_id = $1', [id]);
+  return { errores: rows, total: n };
+}
+
+/**
+ * Un trabajo de embeddings calcula las fotos que aún no tienen vector con ese encoder: todas, o
+ * solo las de una especie (especie_id). Uno a la vez por encoder: dos trabajos pedirían las
+ * mismas fotos.
+ */
 async function crear(pool, body, userId) {
   const { rows: encoders } = await pool.query('SELECT sha256 FROM dataset.encoder ORDER BY registrado DESC');
   const encoder = body?.encoder_sha256 || encoders[0]?.sha256;
   if (!encoder) throw falla('Ningún worker ha registrado un encoder todavía: arranca model-service primero');
   if (!encoders.some((e) => e.sha256 === encoder)) throw falla('Ese encoder no está registrado');
+  let especie = null;
+  if (body?.especie_id != null && body.especie_id !== '') {
+    const { rows: [e] } = await pool.query('SELECT id, nombre_cientifico FROM dataset.especie WHERE id = $1', [Number(body.especie_id)]);
+    if (!e) throw falla('Esa especie no existe en el dataset', 404);
+    especie = e;
+  }
   const { rows: activo } = await pool.query(
     "SELECT id FROM dataset.trabajo WHERE estado IN ('pendiente', 'en_curso') AND parametros->>'encoder_sha256' = $1", [encoder]);
-  if (activo.length) throw falla(`Ya hay un trabajo de embeddings en marcha con este encoder (#${activo[0].id})`);
+  if (activo.length) throw falla(`Ya hay un trabajo de embeddings en marcha con este encoder (#${activo[0].id}). Espera a que termine o cancélalo.`, 409);
   const { rows: [{ faltan }] } = await pool.query(`
     SELECT COUNT(*)::int AS faltan FROM dataset.foto f
-    WHERE NOT EXISTS (SELECT 1 FROM dataset.embedding e WHERE e.sha256 = f.sha256 AND e.encoder_sha256 = $1)`, [encoder]);
-  if (!faltan) throw falla('Todas las fotos ya tienen vector con este encoder');
+    WHERE NOT EXISTS (SELECT 1 FROM dataset.embedding e WHERE e.sha256 = f.sha256 AND e.encoder_sha256 = $1)
+      AND ($2::int IS NULL OR f.especie_id = $2)`, [encoder, especie?.id ?? null]);
+  if (!faltan) {
+    throw falla(especie
+      ? `Todas las fotos de ${especie.nombre_cientifico} ya tienen vector con este encoder`
+      : 'Todas las fotos ya tienen vector con este encoder', 409);
+  }
+  const parametros = especie ? { encoder_sha256: encoder, especie_id: especie.id } : { encoder_sha256: encoder };
   const db = await pool.connect();
   try {
     await db.query('BEGIN');
     const { rows: [t] } = await db.query(`
       INSERT INTO dataset.trabajo (tipo, parametros, total, creado_por, mensaje)
       VALUES ('embeddings', $1, $2, $3, 'Esperando a que un worker lo tome') RETURNING id`,
-      [{ encoder_sha256: encoder }, faltan, userId]);
-    await auditar(db, userId, 'dataset.trabajo.creado', t.id, { tipo: 'embeddings', encoder_sha256: encoder, total: faltan });
+      [parametros, faltan, userId]);
+    await auditar(db, userId, 'dataset.trabajo.creado', t.id, { tipo: 'embeddings', ...parametros, total: faltan });
     await db.query('COMMIT');
     return { id: Number(t.id), total: faltan };
   } catch (err) {
@@ -210,4 +253,4 @@ async function cancelar(pool, id, userId) {
   return { ok: true };
 }
 
-module.exports = { requireWorker, registrarEncoder, tomar, lote, guardarVectores, latido, terminar, foto, estado, crear, cancelar };
+module.exports = { requireWorker, registrarEncoder, tomar, lote, guardarVectores, latido, terminar, foto, estado, errores, crear, cancelar };

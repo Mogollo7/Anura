@@ -12,7 +12,7 @@ import { calcularCentroides, getCentroides, type CentroideRegional, type LoteCen
 const num = (n: number) => n.toLocaleString("es-CO");
 
 /** Lote real (M3): centroide global L2 de las fotos de entrenamiento que ya tienen vector. */
-export function RealCentroidsCard() {
+export function RealCentroidsCard({ onCalculado }: { onCalculado?: () => void } = {}) {
   const session = usePanelSession();
   const [lote, setLote] = useState<LoteCentroides | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +34,7 @@ export function RealCentroidsCard() {
     setError(null);
     try {
       setLote(await calcularCentroides());
+      onCalculado?.();
     } catch (e) {
       setError((e as Error).message);
     } finally {

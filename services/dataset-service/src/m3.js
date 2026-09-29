@@ -81,8 +81,11 @@ function parseVector(texto) {
   return texto.replace(/[[\]{}]/g, '').split(',').map(Number);
 }
 
-/** Prototipos unitarios, margen angular aditivo, el mismo SGD que adapters.ts. */
-function trainArcFace(porClase) {
+/**
+ * Prototipos unitarios, margen angular aditivo, el mismo SGD que adapters.ts. `azar` baraja las
+ * muestras; Clústeres pasa uno con semilla fija para que medir dos veces dé lo mismo.
+ */
+function trainArcFace(porClase, azar = Math.random) {
   const k = porClase.length;
   const q = porClase[0][0].length;
   const W = porClase.map((cs) => {
@@ -98,7 +101,7 @@ function trainArcFace(porClase) {
   let step = 0;
   for (let epoch = 0; epoch < EPOCAS; epoch++) {
     for (let i = samples.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(azar() * (i + 1));
       [samples[i], samples[j]] = [samples[j], samples[i]];
     }
     for (const { z, y } of samples) {
@@ -351,4 +354,4 @@ async function completar(client, encoder, expId) {
   return evaluacion;
 }
 
-module.exports = { completar };
+module.exports = { completar, trainArcFace, acierto, normalizar, parseVector, UMBRAL_COSENO, UMBRAL_CONFUSION };

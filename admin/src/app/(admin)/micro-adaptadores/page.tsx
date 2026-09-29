@@ -1,17 +1,15 @@
 import { AdaptersConsole } from "@/components/adapters/adapters-console";
-import { M3MethodCard } from "@/components/centroids/m3-method-card";
 
 export default function MicroAdaptadoresPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-label-primary">Micro-adaptadores</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-label-primary">Clústeres</h1>
         <p className="text-sm text-label-secondary">
-          Para especies casi idénticas de una misma subregión: el herpetólogo arma el clúster, el worker entrena solo la
-          matriz W (512 × 64, FP16) y alguien valida el resultado. El encoder del teléfono (BioCLIP 1 con fine-tuning) no se vuelve a entrenar ni a descargar.
+          Especies casi idénticas que el encoder del teléfono confunde. La matriz sale de las fotos de validación contra los
+          centroides reales; el herpetólogo decide qué especies forman un clúster. El encoder no se vuelve a entrenar.
         </p>
       </div>
-      <M3MethodCard foco="adaptadores" />
       <AdaptersConsole />
     </div>
   );
