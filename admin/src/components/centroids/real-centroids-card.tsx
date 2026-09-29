@@ -66,7 +66,7 @@ export function RealCentroidsCard({ onCalculado }: { onCalculado?: () => void } 
         <div>
           <CardTitle>Centroides del servidor</CardTitle>
           <p className="mt-1 text-xs text-label-secondary">
-            Media L2 de las fotos de entrenamiento del manifiesto, con el encoder del teléfono. El supercentroide de un
+            Media L2 de las fotos de entrenamiento de la versión del dataset, con el encoder del teléfono. El supercentroide de un
             género o una familia es la media de esos centroides, un voto por especie. El regional usa solo las
             observaciones que caen dentro de la subregión (municipios de Regiones) y exige 3 individuos; si no, ese
             paquete presta el global.

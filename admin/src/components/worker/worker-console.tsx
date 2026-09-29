@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogHeader } from "@/components/ui/dialog";
 import { Field, Select } from "@/components/ui/field";
-import { cn } from "@/lib/utils";
+import { cn, plural } from "@/lib/utils";
 import { usePanelSession } from "@/lib/session/panel-session";
 import {
   cancelarTrabajo,
@@ -190,7 +190,7 @@ function Workers({ datos }: { datos: EstadoWorker }) {
         </ul>
       )}
       <p className="mt-3 text-[11px] text-label-tertiary">
-        El worker no abre puertos: pide trabajo a dataset-service, baja cada foto por ahí y devuelve el vector. Si deja de
+        El worker no abre puertos: pide trabajo al servidor, baja de ahí cada foto y le devuelve el vector. Si deja de
         latir {Math.round(datos.latido_vencido_s / 60)} min, otro worker (o él mismo al volver) retoma el trabajo donde iba.
       </p>
     </Card>
@@ -217,7 +217,7 @@ function Encoders({ datos }: { datos: EstadoWorker }) {
                 <span className="text-label-secondary">· {e.archivo} · {e.dimension} dimensiones</span>
               </p>
               <p className="text-xs text-label-tertiary">
-                sha256 <span className="font-mono">{e.sha256}</span>
+                sha256 <span className="break-all font-mono">{e.sha256}</span>
                 <br />
                 {e.preprocesado} · {e.normalizacion} · registrado {new Date(e.registrado).toLocaleDateString("es-CO")}
               </p>
@@ -348,7 +348,7 @@ function Trabajos({
         <span className="text-xs text-label-tertiary">
           {datos.historial > datos.trabajos.length
             ? `Los ${datos.trabajos.length} más recientes de ${num(datos.historial)}`
-            : `${num(datos.historial)} trabajos`}
+            : plural(datos.historial, "trabajo", "trabajos")}
         </span>
       </CardHeader>
       {datos.trabajos.length === 0 ? (

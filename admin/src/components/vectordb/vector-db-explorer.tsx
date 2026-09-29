@@ -61,7 +61,7 @@ export function VectorDbExplorer({ resumen }: { resumen: ResumenVectores }) {
           <Card>
             <CardHeader className="mb-2">
               <CardTitle>Vectores por especie</CardTitle>
-              <span className="text-xs text-label-tertiary">Partición del manifiesto vigente</span>
+              <span className="text-xs text-label-tertiary">Partición de la versión vigente</span>
             </CardHeader>
             <div className="max-h-96 overflow-y-auto">
               <Table>

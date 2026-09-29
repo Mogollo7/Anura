@@ -98,8 +98,8 @@ export function AnalyticsLiveView() {
           )}
         </div>
         <p className="mt-1 max-w-2xl text-sm text-label-secondary">
-          Usuarios, dispositivos, observaciones y avisos salen del servidor. La serie de actividad y el mapa
-          usan observaciones reales (created_at, lat/lon) del observation-service — sin cifras inventadas.
+          Usuarios, teléfonos, observaciones y avisos salen del servidor. La actividad y el mapa cuentan las
+          observaciones reales, con su fecha y su lugar.
         </p>
       </div>
 

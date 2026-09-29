@@ -52,6 +52,34 @@ const get = async (ruta, headers = {}) => { const r = await fetch(`http://127.0.
       assert.strictEqual(r.status, 404);
     }
   });
+  await t('solo el paquete PUBLICADO se descarga: borrador, aprobado y retirado dan 404 (aunque manden su ETag)', async () => {
+    const admin = new Pool({ connectionString: 'postgres://postgres:prueba@127.0.0.1:55432/anura_despliegue' });
+    await admin.query("DELETE FROM packages.regional_packages WHERE region_id LIKE 'SEG.%'");
+    const estados = { 'SEG.BORRADOR': 'borrador', 'SEG.APROBADO': 'aprobado', 'SEG.RETIRADO': 'retirado', 'SEG.PUBLICADO': 'publicado' };
+    for (const [id, estado] of Object.entries(estados)) {
+      await admin.query(`INSERT INTO packages.regional_packages (region_id, version, storage_key, sha256, size_bytes, subregion_id, estado, is_published, published_at, manifiesto_key)
+        VALUES ($1, 1, 'paquetes/x/package.sqlite', $2, 10, 1, $3, $4, CASE WHEN $4 THEN now() END, 'paquetes/x/paquete.json')`, [id, id.toLowerCase().padEnd(64, '0'), estado, estado === 'publicado']);
+    }
+    try {
+      for (const id of ['SEG.BORRADOR', 'SEG.APROBADO', 'SEG.RETIRADO']) {
+        for (const parte of ['archivo', 'manifiesto']) {
+          const r = await get(`/api/dataset/publico/paquetes/${id}/${parte}`, { 'if-none-match': `"${id.toLowerCase().padEnd(64, '0')}"` });
+          assert.strictEqual(r.status, 404, `${id}/${parte} dio ${r.status}`);
+        }
+      }
+      const arbol = await get('/api/dataset/publico/paquetes');
+      const ids = JSON.stringify(arbol.cuerpo);
+      assert.ok(ids.includes('SEG.PUBLICADO') || ids.includes('archivo_url'), 'el publicado debe salir en el árbol');
+      assert.ok(!ids.includes('SEG.BORRADOR') && !ids.includes('SEG.APROBADO') && !ids.includes('SEG.RETIRADO'), 'el árbol lista un paquete no publicado');
+      const pub = await get('/api/dataset/publico/paquetes/SEG.PUBLICADO/manifiesto', { 'if-none-match': `"${'seg.publicado'.padEnd(64, '0')}-json"` });
+      assert.strictEqual(pub.status, 304, 'el publicado debe responder 304 con su ETag');
+      assert.strictEqual(pub.headers.get('cache-control'), 'no-cache');
+      assert.ok(!(pub.headers.get('etag') || '').includes('storage'), 'el ETag no debe exponer rutas internas');
+    } finally {
+      await admin.query("DELETE FROM packages.regional_packages WHERE region_id LIKE 'SEG.%'");
+      await admin.end();
+    }
+  });
   await t('el catálogo público no filtra la ficha de una especie sin publicar', async () => {
     const r = await get('/api/dataset/publico/catalogo');
     assert.strictEqual(r.status, 200);

@@ -480,6 +480,37 @@ export const getCentroides = () => send<LoteCentroides>("GET", "/api/dataset/cen
 
 export const calcularCentroides = () => send<LoteCentroides>("POST", "/api/dataset/centroides", {});
 
+// ── Versión del dataset: qué fotos entrenan, validan y prueban ─────────────────────────────
+
+export type VersionDataset = {
+  id: number;
+  nombre: string;
+  creado: string;
+  creado_por: string | null;
+  manifiesto_sha256: string | null;
+  parametros: { origen?: string; proporciones?: number[]; individuos?: number; especies?: number } | null;
+  train: number;
+  val: number;
+  test: number;
+};
+
+export type EstadoVersiones = {
+  /** La primera es la vigente: centroides, OSR, Métricas y el paquete leen esa. */
+  versiones: VersionDataset[];
+  vigente: number | null;
+  /** Lo que cambió en Imágenes desde la versión vigente. */
+  cambios: { elegibles: number; nuevas: number; salientes: number };
+};
+
+export const getVersiones = () => get<EstadoVersiones>("/api/dataset/versiones");
+
+export const crearVersion = (nombre?: string) =>
+  send<{ id: number; nombre: string; fotos: { train: number; val: number; test: number }; individuos: number; especies: number }>(
+    "POST",
+    "/api/dataset/versiones",
+    nombre ? { nombre } : {}
+  );
+
 // ── Regiones (Admin → Regiones) ──────────────────────────────────────────────────────────
 
 /** Anillos [lon, lat]: el primero es el borde, los demás huecos. */

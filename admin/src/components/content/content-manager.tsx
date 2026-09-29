@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { Dialog, DialogHeader } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { cn, plural } from "@/lib/utils";
 import { usePanelSession } from "@/lib/session/panel-session";
 import {
   DatasetError,
@@ -740,7 +740,7 @@ function ContentEditor({ especieId, lista, onCambio }: { especieId: number; list
                 </div>
                 {campos.habitat?.texto && <p className="text-xs text-label-secondary">{campos.habitat.texto}</p>}
                 {campos.dato_curioso?.valor && <p className="text-xs italic text-label-secondary">&ldquo;{campos.dato_curioso.valor}&rdquo;</p>}
-                <p className="text-xs text-label-tertiary">{auto.fotos_referencia} fotos de referencia</p>
+                <p className="text-xs text-label-tertiary">{plural(auto.fotos_referencia, "foto", "fotos")} de referencia</p>
                 {fotoSeleccionada?.atribucion && <p className="text-[11px] text-label-tertiary">Foto: {fotoSeleccionada.atribucion}</p>}
               </div>
             </div>

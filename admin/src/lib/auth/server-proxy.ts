@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const SERVICES = {
-  "auth-service": { env: "AUTH_SERVICE_URL", local: "http://localhost:3001" },
-  "dataset-service": { env: "DATASET_SERVICE_URL", local: "http://localhost:3008" },
-  "observation-service": { env: "OBSERVATION_SERVICE_URL", local: "http://localhost:3002" },
-  "notification-service": { env: "NOTIFICATION_SERVICE_URL", local: "http://localhost:3006" },
-  "thumbnail-service": { env: "THUMBNAIL_SERVICE_URL", local: "http://localhost:3004" },
+  "auth-service": { env: "AUTH_SERVICE_URL", local: "http://localhost:3001", nombre: "el servicio de cuentas" },
+  "dataset-service": { env: "DATASET_SERVICE_URL", local: "http://localhost:3008", nombre: "el servicio del dataset" },
+  "observation-service": { env: "OBSERVATION_SERVICE_URL", local: "http://localhost:3002", nombre: "el servicio de observaciones" },
+  "notification-service": { env: "NOTIFICATION_SERVICE_URL", local: "http://localhost:3006", nombre: "el servicio de avisos" },
+  "thumbnail-service": { env: "THUMBNAIL_SERVICE_URL", local: "http://localhost:3004", nombre: "el servicio de miniaturas" },
 } as const;
 
 type Service = keyof typeof SERVICES;
@@ -17,7 +17,7 @@ type Service = keyof typeof SERVICES;
  * esté detrás de él.
  */
 export async function proxyTo(service: Service, req: NextRequest, path: string[]): Promise<NextResponse> {
-  const { env, local } = SERVICES[service];
+  const { env, local, nombre } = SERVICES[service];
   const base = process.env[env] || local;
   const url = `${base}/api/${path.join("/")}${req.nextUrl.search}`;
 
@@ -43,6 +43,6 @@ export async function proxyTo(service: Service, req: NextRequest, path: string[]
     if (cache) headers["Cache-Control"] = cache;
     return new NextResponse(body, { status: res.status, headers });
   } catch {
-    return NextResponse.json({ message: `${service} no responde` }, { status: 502 });
+    return NextResponse.json({ message: `No se pudo conectar con ${nombre}. Revisa que esté encendido y vuelve a intentarlo.` }, { status: 502 });
   }
 }

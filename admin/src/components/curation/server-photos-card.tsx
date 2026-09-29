@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogHeader } from "@/components/ui/dialog";
 import { Field, Input, Select } from "@/components/ui/field";
-import { cn } from "@/lib/utils";
+import { cn, plural } from "@/lib/utils";
 import { usePanelSession } from "@/lib/session/panel-session";
 import { UploadPhotoDialog } from "@/components/curation/upload-photo-dialog";
 import {
@@ -44,8 +44,6 @@ function licenciaBadge(licencia: string | null) {
   if (licencia === "all-rights-reserved") return <Badge tone="warning">Derechos reservados</Badge>;
   return <Badge tone="neutral">{licencia === "cc0" ? "CC0" : licencia.toUpperCase().replace(/^CC-/, "CC ")}</Badge>;
 }
-
-const plural = (n: number, uno: string, varios: string) => `${n.toLocaleString("es-CO")} ${n === 1 ? uno : varios}`;
 
 /** Filtros con su conteo (sale del resumen de la especie, así el chip dice cuántas hay antes de tocarlo). */
 function filtrosDe(e: DatasetEspecie): { id: FiltroFotos | null; label: string; n: number }[] {
@@ -423,7 +421,7 @@ function ObservacionGrupo({
               />
               <div className="flex flex-wrap gap-1 p-1.5">
                 {f.exclusion_origen && f.exclusion_origen !== "observacion_invalidada" && <Badge tone="danger">Excluida</Badge>}
-                <Badge tone="neutral">{f.particion ? PARTICION[f.particion] : "Fuera del manifiesto"}</Badge>
+                <Badge tone="neutral">{f.particion ? PARTICION[f.particion] : "Fuera de la versión"}</Badge>
                 {licenciaBadge(f.licencia)}
               </div>
               {f.exclusion_origen && f.exclusion_origen !== "observacion_invalidada" && (
@@ -527,7 +525,7 @@ function EtiquetasIndividuo({
         label="Morfo"
         value={etiqueta?.morfo_id != null ? String(etiqueta.morfo_id) : ""}
         disabled={!permisos.morfo || morfos.length === 0}
-        motivo={!permisos.morfo ? "Necesita el permiso Definir morph id" : "Declara un morfo arriba primero"}
+        motivo={!permisos.morfo ? "Necesita el permiso «Definir morfos»" : "Declara un morfo arriba primero"}
         onChange={(v) => onEtiquetar(observacionId, { morfo_id: v ? Number(v) : null })}
       >
         <option value="">{morfos.length ? "Sin morfo" : "Sin morfos declarados"}</option>

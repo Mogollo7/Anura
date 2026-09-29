@@ -33,7 +33,7 @@ export const PANEL_ACTION_LABEL: Record<PanelAction, string> = {
   editarTaxonomia: "Editar taxonomía",
   revisarFotografias: "Revisar fotografías",
   validarEstadio: "Validar adulto o juvenil",
-  definirMorfo: "Definir morph id",
+  definirMorfo: "Definir morfos",
   definirLRC: "Definir LRC",
   definirMicrohabitat: "Definir microhábitat",
   definirPesos: "Definir pesos wv / wg / wm",

@@ -35,9 +35,8 @@ export function QualitySignals() {
       <div>
         <h2 className="text-sm font-semibold text-label-primary">Señales sobre observaciones</h2>
         <p className="text-sm text-label-secondary">
-          Solo lo que se puede leer en el servidor. Sin hash de imagen en observaciones de la app no hay
-          duplicados visuales que listar; los taxones sin resolver son observaciones sin predicción ni
-          nombre de especie.
+          Lo que el servidor puede detectar hoy en las observaciones de la app: las que llegaron sin predicción ni
+          nombre de especie. Los duplicados visuales aún no se pueden detectar.
         </p>
       </div>
 
@@ -50,9 +49,8 @@ export function QualitySignals() {
             </CardTitle>
           </CardHeader>
           <p className="text-sm text-label-secondary">
-            No hay fuente en Postgres: las observaciones de la app no guardan hash de imagen (solo
-            image_key). Sin ese campo no se pueden agrupar fotos idénticas. Esta sección queda vacía a
-            propósito — no se muestran candidatos simulados.
+            Todavía no se pueden detectar: las observaciones de la app no guardan una huella de su foto y sin ella
+            no se pueden agrupar fotos idénticas. Cuando la app la envíe, aparecerán aquí.
           </p>
         </Card>
 

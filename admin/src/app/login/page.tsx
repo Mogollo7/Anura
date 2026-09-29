@@ -70,8 +70,8 @@ function LoginForm() {
           <CardTitle>Entrar al panel administrativo</CardTitle>
         </CardHeader>
         <p className="mb-4 text-xs text-label-secondary">
-          Misma cuenta que ANURA Mobile (auth-service). Si el correo no es una cuenta del panel, entra a la app pero no
-          aquí — pídele al super usuario que te agregue en Sistema → Cuentas.
+          Usa la misma cuenta que en la app ANURA. Si tu correo no es una cuenta del panel, pídele al súper usuario que
+          te agregue en Sistema → Cuentas.
         </p>
         <form onSubmit={onSubmit} className="space-y-3">
           <Field label="Correo">

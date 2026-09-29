@@ -7,6 +7,7 @@ import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { Table, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
 import { DataState } from "@/components/app-data/data-state";
 import { appApi, formatDate, useAppResource, type AppUser, type Aviso } from "@/lib/app-data/app-client";
+import { plural } from "@/lib/utils";
 
 /**
  * Avisos reales: un envío guarda una fila por destinatario en notification-service. La web y
@@ -130,7 +131,7 @@ function Sent({ avisos }: { avisos: Aviso[] }) {
               <span className="block font-medium text-label-primary">{a.titulo}</span>
               {a.cuerpo && <span className="block max-w-md truncate text-xs text-label-tertiary">{a.cuerpo}</span>}
             </TD>
-            <TD className="text-label-secondary">{a.destino === "usuario" && a.usuario ? `@${a.usuario}` : `${a.destinatarios} cuentas`}</TD>
+            <TD className="text-label-secondary">{a.destino === "usuario" && a.usuario ? `@${a.usuario}` : plural(a.destinatarios, "cuenta", "cuentas")}</TD>
             <TD className="text-label-secondary">{a.leidos} de {a.destinatarios}</TD>
             <TD className="whitespace-nowrap text-label-secondary">
               {formatDate(a.enviado)}

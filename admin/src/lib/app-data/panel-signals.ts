@@ -1,5 +1,6 @@
 import type { EstadoLimpieza } from "@/lib/dataset/dataset-client";
 import { daysAgo, PENDING_STATUSES, type AppDevice, type AppObservation, type AuditEntry } from "./app-client";
+import { plural } from "@/lib/utils";
 
 /** Días sin reportarse para que un teléfono deje de contar como activo. Único umbral del panel. */
 export const DIAS_DISPOSITIVO_ACTIVO = 30;
@@ -11,8 +12,6 @@ export type PanelAlert = {
   detail: string;
   href: string;
 };
-
-const plural = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`;
 
 /**
  * Problemas abiertos que salen de datos reales: observaciones pendientes, refutaciones sin

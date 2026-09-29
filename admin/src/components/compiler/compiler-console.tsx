@@ -26,6 +26,7 @@ import {
   type TipoAprobacion,
   type Validacion,
 } from "@/lib/release/release-client";
+import { plural } from "@/lib/utils";
 
 /**
  * Release: compilar el paquete de una subregión en el servidor, reunir las dos aprobaciones
@@ -215,9 +216,9 @@ function Detalle({ subregiones }: { subregiones: ResumenSubregion[] }) {
                 <span className="font-mono text-xs text-label-tertiary">sha256 {ultimo.sha256.slice(0, 16)}…</span>
               </CardHeader>
               <p className="mb-2 text-xs text-label-secondary">
-                {ultimo.manifiesto.vectores} vectores de referencia · {ultimo.manifiesto.puntos_ocurrencia} puntos de ocurrencia
+                {plural(ultimo.manifiesto.vectores, "vector", "vectores")} de referencia · {plural(ultimo.manifiesto.puntos_ocurrencia, "punto", "puntos")} de ocurrencia
                 {ultimo.tau != null && ` · umbral OSR τ ${ultimo.tau.toLocaleString("es-CO", { maximumFractionDigits: 4 })}`}
-                {` · ${ultimo.manifiesto.morfos?.length ?? 0} morfos con centroide · ${ultimo.manifiesto.clusteres?.length ?? 0} clústeres aceptados`}
+                {` · ${plural(ultimo.manifiesto.morfos?.length ?? 0, "morfo", "morfos")} con centroide · ${plural(ultimo.manifiesto.clusteres?.length ?? 0, "clúster aceptado", "clústeres aceptados")}`}
               </p>
               <Table>
                 <THead>

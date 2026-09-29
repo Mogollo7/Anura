@@ -69,7 +69,7 @@ export function VectorMetadataTable({ encoder, especies }: { encoder: string; es
                   <TD className="text-xs">
                     {r.licencia ? <Badge tone={r.licencia.startsWith("cc") ? "neutral" : "warning"}>{r.licencia}</Badge> : <span className="text-label-tertiary">sin dato</span>}
                   </TD>
-                  <TD className="text-xs">{r.particion ? PARTICION[r.particion] : <span className="text-label-tertiary">fuera del manifiesto</span>}</TD>
+                  <TD className="text-xs">{r.particion ? PARTICION[r.particion] : <span className="text-label-tertiary">fuera de la versión</span>}</TD>
                   <TD className="text-xs tabular-nums">{r.trabajo_id ? `#${r.trabajo_id}` : "—"}</TD>
                   <TD className="text-xs tabular-nums">{r.norma.toFixed(4)}</TD>
                   <TD className="font-mono text-[11px] text-label-tertiary">[{r.inicio.map((x) => x.toFixed(3)).join(", ")}, …]</TD>

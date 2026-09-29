@@ -6,7 +6,7 @@ export default function CuracionPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-label-primary">Curación</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-label-primary">Imágenes</h1>
         <p className="max-w-3xl text-sm text-label-secondary">
           Revisa las fotos de cada especie. Excluir una foto la saca del entrenamiento; invalidar una observación saca
           todas sus fotos. Siempre con motivo, y nada se borra: todo se puede revertir.

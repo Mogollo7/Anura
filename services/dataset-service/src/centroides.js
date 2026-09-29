@@ -72,7 +72,9 @@ async function subregionPorObservacion(pool) {
 
 async function calcular(pool, userId) {
   const { rows: [enc] } = await pool.query('SELECT sha256 FROM dataset.encoder WHERE sha256 = $1', [ENCODER]);
-  if (!enc) throw falla('El encoder del teléfono todavía no está registrado', 409);
+  if (!enc) throw falla('El worker todavía no registró el encoder del teléfono. Conéctalo y crea un trabajo en Worker antes de calcular centroides.', 409);
+  const { rows: [hayVersion] } = await pool.query('SELECT 1 AS hay FROM dataset.version LIMIT 1');
+  if (!hayVersion) throw falla('Aún no hay una versión del dataset. Créala en «Versión del dataset» (arriba) y vuelve a calcular.', 409);
 
   const { rows: [cob] } = await pool.query(`
     SELECT

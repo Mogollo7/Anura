@@ -6,11 +6,11 @@ import { Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/field";
-import { cn } from "@/lib/utils";
+import { cn, plural } from "@/lib/utils";
 import { ServerPhotosCard } from "@/components/curation/server-photos-card";
 import { getResumen, type DatasetEspecie } from "@/lib/dataset/dataset-client";
+import { slugEspecie } from "@/lib/catalog/intake";
 
-const slug = (nombre: string) => nombre.trim().toLowerCase().replace(/\s+/g, "-");
 
 /** Curación en el servidor: lista de especies del dataset y sus fotos agrupadas por observación. */
 export function CurationManager() {
@@ -42,7 +42,7 @@ export function CurationManager() {
   // ?especie= acepta el id del servidor o el nombre en minúsculas con guiones (enlaces viejos).
   const param = searchParams.get("especie") ?? "";
   const selected =
-    especies.find((e) => String(e.id) === param) ?? especies.find((e) => slug(e.nombre_cientifico) === param) ?? especies[0];
+    especies.find((e) => String(e.id) === param) ?? especies.find((e) => slugEspecie(e.nombre_cientifico) === param) ?? especies[0];
   const needle = busqueda.trim().toLowerCase();
   const visibles = needle
     ? especies.filter((e) => e.nombre_cientifico.toLowerCase().includes(needle) || e.familia.toLowerCase().includes(needle))
@@ -58,7 +58,7 @@ export function CurationManager() {
             <Input value={busqueda} onChange={(ev) => setBusqueda(ev.target.value)} placeholder="Especie o familia" className="pl-8" />
           </label>
           <p className="mt-2 text-xs text-label-tertiary">
-            {especies.length} especies en el servidor · {especies.reduce((n, e) => n + e.fotos, 0).toLocaleString("es-CO")} fotos
+            {plural(especies.length, "especie", "especies")} en el servidor · {plural(especies.reduce((n, e) => n + e.fotos, 0), "foto", "fotos")}
           </p>
         </div>
         <ul className="max-h-[70vh] divide-y divide-border overflow-y-auto">
@@ -66,7 +66,7 @@ export function CurationManager() {
             <li key={e.id}>
               <button
                 type="button"
-                onClick={() => router.push(`/curacion?especie=${slug(e.nombre_cientifico)}`)}
+                onClick={() => router.push(`/curacion?especie=${e.id}`)}
                 aria-current={e.id === selected?.id ? "true" : undefined}
                 className={cn(
                   "flex w-full flex-col gap-0.5 px-3 py-2 text-left hover:bg-surface-subtle",
@@ -75,7 +75,7 @@ export function CurationManager() {
               >
                 <span className="text-sm italic text-label-primary">{e.nombre_cientifico}</span>
                 <span className="flex flex-wrap items-center gap-1.5 text-xs text-label-secondary">
-                  <span className="tabular-nums">{e.fotos.toLocaleString("es-CO")} fotos</span>
+                  <span className="tabular-nums">{plural(e.fotos, "foto", "fotos")}</span>
                   {e.excluidas > 0 && <Badge tone="danger" className="text-[10px]">{e.excluidas} excluidas</Badge>}
                   {!e.taxon_id && <Badge tone="warning" className="text-[10px]">Fuera del paquete</Badge>}
                 </span>

@@ -1,5 +1,4 @@
 import { TechnicalValidationConsole } from "@/components/validation/technical-validation-console";
-import { M3MethodCard } from "@/components/centroids/m3-method-card";
 
 export default function ValidacionTecnicaPage() {
   return (
@@ -13,7 +12,6 @@ export default function ValidacionTecnicaPage() {
         </p>
       </div>
       <TechnicalValidationConsole />
-      <M3MethodCard foco="validacion" />
     </div>
   );
 }

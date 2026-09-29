@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, Select } from "@/components/ui/field";
-import { cn } from "@/lib/utils";
+import { cn, plural } from "@/lib/utils";
 import { usePanelSession } from "@/lib/session/panel-session";
 import { SesionRequerida, pct } from "@/components/vectordb/sesion-requerida";
 import { PaqueteSelect } from "@/components/osr/paquete-select";
@@ -23,7 +23,7 @@ import {
 } from "@/lib/dataset/osr";
 
 const PARTICION: Record<string, string> = { train: "entrenamiento", val: "validación", test: "prueba" };
-const particion = (p: string | null) => (p ? PARTICION[p] ?? p : "fuera del manifiesto");
+const particion = (p: string | null) => (p ? PARTICION[p] ?? p : "fuera de la versión");
 
 /**
  * Simulador: una foto contra un paquete, sin modificarlo. Lo calcula el servidor con el vector
@@ -171,13 +171,13 @@ export function IdentifyConsole() {
                   <Select value={especieId ?? ""} onChange={(e) => setEspecieId(Number(e.target.value))}>
                     <optgroup label={`Del paquete (${delPaquete.length})`}>
                       {delPaquete.map((e) => (
-                        <option key={e.id} value={e.id}>{e.nombre_cientifico} · {e.fotos} fotos</option>
+                        <option key={e.id} value={e.id}>{e.nombre_cientifico} · {plural(e.fotos, "foto", "fotos")}</option>
                       ))}
                     </optgroup>
                     {ajenas.length > 0 && (
                       <optgroup label="Fuera del paquete (debería rechazarse)">
                         {ajenas.map((e) => (
-                          <option key={e.id} value={e.id}>{e.nombre_cientifico} · {e.fotos} fotos</option>
+                          <option key={e.id} value={e.id}>{e.nombre_cientifico} · {plural(e.fotos, "foto", "fotos")}</option>
                         ))}
                       </optgroup>
                     )}
@@ -237,7 +237,9 @@ function ResultadoCard({ r, canDebug }: { r: ResultadoSimulador; canDebug: boole
     <Card className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         {r.codigo ? (
-          <Badge tone={r.codigo === "MATCH_SPECIES" ? "accent" : "warning"}>{r.codigo}</Badge>
+          <Badge tone={r.codigo === "MATCH_SPECIES" ? "accent" : "warning"}>
+            {r.codigo === "MATCH_SPECIES" ? "Le pone nombre" : "La rechaza"}
+          </Badge>
         ) : (
           <Badge tone="neutral">Sin τ: no se decide el rechazo</Badge>
         )}

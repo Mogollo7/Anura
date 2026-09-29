@@ -26,11 +26,13 @@ const CATEGORIAS: { id: CategoriaDestacado; label: string; icon: typeof Sun; con
   { id: "especie_amenazada", label: "Especie amenazada", icon: Sparkles, condicion: "UICN vulnerable, en peligro o en peligro crítico" },
 ];
 
-const hoyISO = () => new Date().toISOString().slice(0, 10);
+// Fecha local (no UTC): pasadas las 7 p. m. en Colombia, UTC ya es "mañana".
+const isoLocal = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const hoyISO = () => isoLocal(new Date());
 const sumarDias = (iso: string, n: number) => {
   const d = new Date(iso + "T00:00:00");
   d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
+  return isoLocal(d);
 };
 const fechaLarga = (iso: string) => new Date(iso + "T00:00:00").toLocaleDateString("es-CO", { weekday: "short", day: "numeric", month: "short" });
 
@@ -125,7 +127,7 @@ export function FeaturedCalendar() {
           <tbody>
             {fechas.map((fecha, i) => (
               <tr key={fecha} className={cn("border-b border-border", fecha === hoyISO() && "bg-accent-wash/30")}>
-                <td className="p-2 font-medium capitalize text-label-primary">{fechaLarga(fecha)}</td>
+                <td className="p-2 font-medium text-label-primary first-letter:uppercase">{fechaLarga(fecha)}</td>
                 {CATEGORIAS.map((c) => {
                   const d = dias[i]?.find((x) => x.categoria === c.id);
                   return (

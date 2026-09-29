@@ -20,8 +20,9 @@ import {
   type LrcMetodo,
   type PerfilPesos,
 } from "@/lib/dataset/ficha";
+import { plural } from "@/lib/utils";
+import { slugEspecie } from "@/lib/catalog/intake";
 
-const slug = (nombre: string) => nombre.trim().toLowerCase().replace(/\s+/g, "-");
 const num = (v: number, dec = 0) => v.toLocaleString("es-CO", { maximumFractionDigits: dec });
 
 const ESTADO_FICHA: Record<string, string> = {
@@ -69,7 +70,7 @@ export function SpeciesSheetManager() {
 
   // ?especie= acepta el id del servidor o el nombre científico con guiones (los enlaces de Curación).
   const param = searchParams.get("especie") ?? "";
-  const selected = especies.find((e) => String(e.id) === param) ?? especies.find((e) => slug(e.nombre_cientifico) === param) ?? especies[0];
+  const selected = especies.find((e) => String(e.id) === param) ?? especies.find((e) => slugEspecie(e.nombre_cientifico) === param) ?? especies[0];
 
   return (
     <div className="space-y-6">
@@ -87,12 +88,12 @@ export function SpeciesSheetManager() {
           ))}
         </Select>
       </label>
-      <SpeciesDetail key={selected.id} especieId={selected.id} slugEspecie={slug(selected.nombre_cientifico)} />
+      <SpeciesDetail key={selected.id} especieId={selected.id} />
     </div>
   );
 }
 
-function SpeciesDetail({ especieId, slugEspecie }: { especieId: number; slugEspecie: string }) {
+function SpeciesDetail({ especieId }: { especieId: number }) {
   const session = usePanelSession();
   const canPesos = session.can("definirPesos");
   const canContexto = session.can("definirMicrohabitat");
@@ -121,7 +122,7 @@ function SpeciesDetail({ especieId, slugEspecie }: { especieId: number; slugEspe
   if (!ficha) return <p className="text-sm text-label-secondary">Cargando ficha…</p>;
 
   const estadoTone = ficha.dataset.estado === "DRAFT" ? "danger" : ficha.dataset.estado === "DATASET_READY" ? "info" : "accent";
-  const hrefImagenes = `/curacion?especie=${slugEspecie}`;
+  const hrefImagenes = `/curacion?especie=${especieId}`;
 
   return (
     <div className="space-y-6">
@@ -133,7 +134,7 @@ function SpeciesDetail({ especieId, slugEspecie }: { especieId: number; slugEspe
           {ESTADO_FICHA[ficha.dataset.estado] ?? ficha.dataset.estado}
         </Badge>
         <span className="mb-1 text-xs text-label-tertiary">
-          {num(ficha.dataset.fotos_activas)} fotos activas · {ficha.dataset.individuos} individuos
+          {plural(ficha.dataset.fotos_activas, "foto activa", "fotos activas")} · {plural(ficha.dataset.individuos, "individuo", "individuos")}
           {!ficha.dataset.entrenable && ` · para entrenar se necesitan ${ficha.dataset.min_fotos} fotos y ${ficha.dataset.min_individuos} individuos`}
           {" · "}
           <Link href="/centroides" className="text-accent-ink hover:underline">
@@ -288,7 +289,7 @@ function PerfilEcologico({
                 {num(r.media)} m <span className="text-sm text-label-tertiary">± {num(r.desviacion)} m</span>
               </p>
               <p className="text-xs text-label-tertiary">
-                {r.n} observaciones · mínimo {num(r.min)} m · máximo {num(r.max)} m
+                {plural(r.n, "observación", "observaciones")} · mínimo {num(r.min)} m · máximo {num(r.max)} m
               </p>
               {r.poco_confiable && (
                 <p className="mt-1 flex items-center gap-1 text-xs text-warning">
@@ -324,7 +325,7 @@ function PerfilEcologico({
                 ))}
               </div>
               <p className="mt-1 text-[11px] text-label-tertiary">
-                {sustrato.n} individuos con sustrato etiquetado. Proporción por sustrato con piso de 0,01: un 0 anularía la capa de hábitat.
+                {plural(sustrato.n, "individuo", "individuos")} con sustrato etiquetado. Proporción por sustrato con piso de 0,01: un 0 anularía la capa de hábitat.
               </p>
             </>
           ) : (
@@ -630,11 +631,11 @@ function LrcCard({
         <CardTitle>
           <Ruler size={14} className="mr-1.5 inline" aria-hidden /> LRC (longitud rostro-cloaca)
         </CardTitle>
-        <Badge tone="neutral">Fase 2 · todavía no la usa ningún paso</Badge>
+        <Badge tone="neutral">Solo informativa</Badge>
       </CardHeader>
       <p className="mb-3 text-sm text-label-secondary">
-        Se guarda para la Fase 2 (separar un juvenil de una especie grande de un adulto pequeño). Hoy no la leen el worker, el OSR ni el
-        compilador: cambiarla no cambia el paquete. No hay mediciones reales que importar hasta conectar CVAT.
+        Sirve para separar un juvenil de una especie grande de un adulto pequeño. Por ahora se guarda y se muestra, pero ni el worker,
+        ni el OSR ni el release la usan: cambiarla no cambia el paquete.
       </p>
       <div className="flex flex-wrap items-end gap-3">
         <Field label="Método">

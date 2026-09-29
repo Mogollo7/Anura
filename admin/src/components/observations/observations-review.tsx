@@ -103,7 +103,11 @@ function ReviewList({ observations, onChange }: { observations: AppObservation[]
 
       {visible.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-label-secondary">
-          {tab === "pendientes" ? "No queda ninguna observación por revisar." : "Ninguna observación coincide con este filtro."}
+          {scoped.length === 0 && !usuario
+            ? "Aún no hay observaciones. Aparecen aquí cuando alguien las sube desde la app."
+            : tab === "pendientes"
+              ? "No queda ninguna observación por revisar."
+              : "Ninguna observación coincide con este filtro."}
         </p>
       ) : (
         <Table>

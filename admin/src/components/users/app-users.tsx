@@ -123,7 +123,11 @@ function UsersList({
       </p>
 
       {visible.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-label-secondary">Ninguna cuenta coincide con este filtro.</p>
+        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-label-secondary">
+          {users.length === 0
+            ? "Aún no hay cuentas de la app. Aparecen aquí cuando alguien se registra en la app o en la web."
+            : "Ninguna cuenta coincide con este filtro."}
+        </p>
       ) : (
         <Table>
           <THead>

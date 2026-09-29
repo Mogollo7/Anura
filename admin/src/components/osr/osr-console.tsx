@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { Table, THead, TBody, TRow, TH, TD } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { cn, plural } from "@/lib/utils";
 import { usePanelSession } from "@/lib/session/panel-session";
 import { SesionRequerida, pct } from "@/components/vectordb/sesion-requerida";
 import { calibrarOsr, getOsr, validarOsr } from "@/lib/dataset/dataset-client";
@@ -219,7 +219,7 @@ function Calibracion({
           <Stat label="Especie más cercana correcta" value={pct(r.acierto_entre_aceptadas)} sub="entre las conocidas aceptadas" />
         </div>
         <p className="mt-3 text-xs text-label-tertiary">
-          {c.especies} especies · {c.n_train.toLocaleString("es-CO")} fotos de entrenamiento (covarianza, contracción{" "}
+          {plural(c.especies, "especie", "especies")} · {plural(c.n_train, "foto", "fotos")} de entrenamiento (covarianza, contracción{" "}
           {dec(c.shrinkage, 3)}) · {c.n_calibracion.toLocaleString("es-CO")} de calibración (val) · {c.n_conocidas.toLocaleString("es-CO")}{" "}
           medidas ({c.particion_medida}) · {c.n_desconocidas.toLocaleString("es-CO")} de especies fuera del paquete · lote de centroides #
           {c.experimento_id}

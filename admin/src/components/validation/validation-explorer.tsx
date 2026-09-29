@@ -6,7 +6,7 @@ import { AlertTriangle, Lock, Play } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, plural } from "@/lib/utils";
 import { usePanelSession } from "@/lib/session/panel-session";
 import { SesionRequerida, pct } from "@/components/vectordb/sesion-requerida";
 import { evaluarPaquete, getEvaluacion, getEvaluaciones } from "@/lib/dataset/dataset-client";
@@ -128,7 +128,7 @@ export function ValidationExplorer() {
             <h2 className="text-base font-semibold text-label-primary">{paquete ? nombrePaquete(paquete) : "Paquete"}</h2>
             <p className="text-xs text-label-secondary">
               {ev
-                ? `${ev.especies} especies · ${ev.n.toLocaleString("es-CO")} fotos de ${ev.particion} · lote de centroides #${ev.experimento_id} · ${fecha(ev.creado)}`
+                ? `${plural(ev.especies, "especie", "especies")} · ${plural(ev.n, "foto", "fotos")} de ${ev.particion} · lote de centroides #${ev.experimento_id} · ${fecha(ev.creado)}`
                 : "Sin evaluación todavía."}
             </p>
           </div>

@@ -25,7 +25,11 @@ corre anura_osr prueba_osr.js $DS
 corre anura_release prueba_release.js $DS
 corre anura_clave prueba_clave.js $DS
 corre anura_osrpaq prueba_osrpaquete.js $DS
+corre anura_versiones prueba_versiones.js $DS
 corre anura_explorer prueba_explorer.js D:/server/Anura/services/explorer-service
 corre anura_salidas prueba_salidas.js D:/server/Anura/services/observation-service
+corre anura_despliegue prueba_seguridad_auth.js D:/server/Anura/services/auth-service
+corre anura_despliegue prueba_seguridad_dataset.js $DS
+corre anura_despliegue_ex prueba_seguridad_explorer.js D:/server/Anura/services/explorer-service
 docker rm -f anura_test_minio_release >/dev/null 2>&1
 docker rm -f anura_test_minio_osrpaq >/dev/null 2>&1

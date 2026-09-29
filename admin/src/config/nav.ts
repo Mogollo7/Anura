@@ -41,7 +41,6 @@ export type NavItem = {
   href: string;
   label: string;
   icon: NavIcon;
-  phase: number;
   /** Una frase para la página de resumen, no para la barra. */
   blurb: string;
   /** Mismo botón, un nivel más adentro. Solo para temas que cuelgan del padre. */
@@ -79,7 +78,7 @@ export const NAV_AREAS: NavArea[] = [
     sections: [
       {
         items: [
-          { href: "/dashboard", label: "Resumen", icon: LayoutDashboard, phase: 1, blurb: "Indicadores y actividad reciente." },
+          { href: "/dashboard", label: "Resumen", icon: LayoutDashboard, blurb: "Indicadores y actividad reciente." },
         ],
       },
     ],
@@ -92,7 +91,7 @@ export const NAV_AREAS: NavArea[] = [
     sections: [
       {
         items: [
-          { href: "/analitica", label: "Analítica", icon: BarChart3, phase: 1, blurb: "Actividad y densidad. No es un submenú de Inicio." },
+          { href: "/analitica", label: "Analítica", icon: BarChart3, blurb: "Actividad y densidad. No es un submenú de Inicio." },
         ],
       },
     ],
@@ -106,44 +105,43 @@ export const NAV_AREAS: NavArea[] = [
       {
         title: "Conseguir",
         items: [
-          { href: "/scraping", label: "Scraping", icon: Download, phase: 13, blurb: "iNaturalist y GBIF, con los mismos filtros del script." },
-          { href: "/curacion", label: "Imágenes", icon: Images, phase: 13, blurb: "Fotos ya en el servidor. Excluir o invalidar, con motivo." },
-          { href: "/catalogo", label: "Especies", icon: BookMarked, phase: 4, blurb: "Crear y revisar la taxonomía." },
+          { href: "/scraping", label: "Scraping", icon: Download, blurb: "iNaturalist y GBIF, con los mismos filtros del script." },
+          { href: "/curacion", label: "Imágenes", icon: Images, blurb: "Fotos ya en el servidor. Excluir o invalidar, con motivo." },
+          { href: "/catalogo", label: "Especies", icon: BookMarked, blurb: "Crear y revisar la taxonomía." },
           {
             href: "/paquetes",
             label: "Regiones",
             icon: Package,
-            phase: 16,
             blurb: "Departamentos y subregiones que salen del servidor.",
           },
-          { href: "/contenido", label: "Contenido", icon: BookOpen, phase: 25, blurb: "La ficha pública: qué lee la gente, aparte del modelo." },
-          { href: "/destacados", label: "Destacados", icon: CalendarDays, phase: 26, blurb: "El carrusel de inicio, día por día." },
+          { href: "/contenido", label: "Contenido", icon: BookOpen, blurb: "La ficha pública: qué lee la gente, aparte del modelo." },
+          { href: "/destacados", label: "Destacados", icon: CalendarDays, blurb: "El carrusel de inicio, día por día." },
         ],
       },
       {
         title: "Limpiar",
         items: [
-          { href: "/ficha-especie", label: "Ficha", icon: FileText, phase: 15, blurb: "Altitud, sustrato, atípicos y pesos." },
-          { href: "/calidad", label: "Calidad", icon: ShieldAlert, phase: 9, blurb: "Lo que hay que corregir antes de entrenar." },
+          { href: "/ficha-especie", label: "Ficha", icon: FileText, blurb: "Altitud, sustrato, atípicos y pesos." },
+          { href: "/calidad", label: "Calidad", icon: ShieldAlert, blurb: "Lo que hay que corregir antes de entrenar." },
         ],
       },
       {
         title: "Procesar",
         items: [
-          { href: "/ia", label: "Worker", icon: BrainCircuit, phase: 17, blurb: "BioCLIP escribe los vectores de 512." },
-          { href: "/vectorial", label: "DB vectorial", icon: Database, phase: 7, blurb: "Dónde quedan esos vectores para verlos." },
-          { href: "/centroides", label: "Centroides", icon: Target, phase: 18, blurb: "Global, regional y morfo." },
-          { href: "/micro-adaptadores", label: "Clústeres", icon: Layers, phase: 19, blurb: "La matriz de las especies que se confunden." },
-          { href: "/osr", label: "OSR", icon: ShieldQuestion, phase: 21, blurb: "Umbrales de rechazo. La persona los valida." },
+          { href: "/ia", label: "Worker", icon: BrainCircuit, blurb: "BioCLIP escribe los vectores de 512." },
+          { href: "/vectorial", label: "DB vectorial", icon: Database, blurb: "Dónde quedan esos vectores para verlos." },
+          { href: "/centroides", label: "Centroides", icon: Target, blurb: "Global, regional y morfo." },
+          { href: "/micro-adaptadores", label: "Clústeres", icon: Layers, blurb: "La matriz de las especies que se confunden." },
+          { href: "/osr", label: "OSR", icon: ShieldQuestion, blurb: "Umbrales de rechazo. La persona los valida." },
         ],
       },
       {
         title: "Resultado",
         items: [
-          { href: "/validacion-tecnica", label: "Validación", icon: ClipboardCheck, phase: 22, blurb: "Lista para compilar, o el motivo por el que no." },
-          { href: "/compilador", label: "Release", icon: PackageCheck, phase: 23, blurb: "Compilar, aprobar y publicar el paquete de cada subregión." },
-          { href: "/laboratorio", label: "Simulador", icon: LabIcon, phase: 24, blurb: "Una foto contra el release. No lo modifica." },
-          { href: "/validacion", label: "Métricas", icon: FlaskConical, phase: 6, blurb: "Cómo le fue al paquete ya publicado." },
+          { href: "/validacion-tecnica", label: "Validación", icon: ClipboardCheck, blurb: "Lista para compilar, o el motivo por el que no." },
+          { href: "/compilador", label: "Release", icon: PackageCheck, blurb: "Compilar, aprobar y publicar el paquete de cada subregión." },
+          { href: "/laboratorio", label: "Simulador", icon: LabIcon, blurb: "Una foto contra el release. No lo modifica." },
+          { href: "/validacion", label: "Métricas", icon: FlaskConical, blurb: "Cómo le fue al paquete ya publicado." },
         ],
       },
     ],
@@ -156,9 +154,9 @@ export const NAV_AREAS: NavArea[] = [
     sections: [
       {
         items: [
-          { href: "/usuarios", label: "Usuarios", icon: Users, phase: 2, blurb: "Cuentas de ANURA Mobile." },
-          { href: "/dispositivos", label: "Dispositivos", icon: Smartphone, phase: 2, blurb: "Teléfonos, espacio y versión." },
-          { href: "/observaciones", label: "Observaciones", icon: ClipboardList, phase: 3, blurb: "Reportes que llegan de la app." },
+          { href: "/usuarios", label: "Usuarios", icon: Users, blurb: "Cuentas de ANURA Mobile." },
+          { href: "/dispositivos", label: "Dispositivos", icon: Smartphone, blurb: "Teléfonos, espacio y versión." },
+          { href: "/observaciones", label: "Observaciones", icon: ClipboardList, blurb: "Reportes que llegan de la app." },
         ],
       },
     ],
@@ -171,10 +169,10 @@ export const NAV_AREAS: NavArea[] = [
     sections: [
       {
         items: [
-          { href: "/actualizaciones", label: "Actualizaciones", icon: UploadCloud, phase: 8, blurb: "Qué paquetes ya puede descargar la app." },
-          { href: "/notificaciones", label: "Notificaciones", icon: Bell, phase: 8, blurb: "Avisos a quien tiene el paquete." },
-          { href: "/sincronizacion", label: "Sincronización", icon: RefreshCw, phase: 9, blurb: "Qué subió y qué falló." },
-          { href: "/auditoria", label: "Auditoría", icon: History, phase: 9, blurb: "Quién hizo qué en el panel." },
+          { href: "/actualizaciones", label: "Actualizaciones", icon: UploadCloud, blurb: "Qué paquetes ya puede descargar la app." },
+          { href: "/notificaciones", label: "Notificaciones", icon: Bell, blurb: "Avisos a quien tiene el paquete." },
+          { href: "/sincronizacion", label: "Sincronización", icon: RefreshCw, blurb: "Qué subió y qué falló." },
+          { href: "/auditoria", label: "Auditoría", icon: History, blurb: "Quién hizo qué en el panel." },
         ],
       },
     ],
@@ -186,7 +184,7 @@ export const NAV_AREAS: NavArea[] = [
     summary: "Servicios, integraciones y quién puede entrenar, publicar o ver la traza técnica.",
     sections: [
       {
-        items: [{ href: "/sistema", label: "Sistema", icon: Settings, phase: 11, blurb: "Servicios, integraciones y cuentas del panel." }],
+        items: [{ href: "/sistema", label: "Sistema", icon: Settings, blurb: "Servicios, integraciones y cuentas del panel." }],
       },
     ],
   },

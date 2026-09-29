@@ -1,5 +1,4 @@
 import { OsrConsole } from "@/components/osr/osr-console";
-import { M3MethodCard } from "@/components/centroids/m3-method-card";
 
 export default function OsrPage() {
   return (
@@ -12,7 +11,6 @@ export default function OsrPage() {
         </p>
       </div>
       <OsrConsole />
-      <M3MethodCard foco="osr" />
     </div>
   );
 }

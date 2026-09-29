@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
-import { cn } from "@/lib/utils";
+import { cn, plural } from "@/lib/utils";
 import { usePanelSession } from "@/lib/session/panel-session";
 import {
   activarRegion,
@@ -307,7 +307,7 @@ function RegionPanel({
         <Badge tone={d.region.estado === "activa" ? "accent" : "warning"}>{d.region.estado === "activa" ? "Activo" : "Borrador"}</Badge>
         {d.cifras && (
           <span className="text-xs text-label-secondary">
-            {n(d.cifras.departamento.observaciones)} observaciones del dataset · {d.cifras.departamento.especies.length} especies con fotos
+            {n(d.cifras.departamento.observaciones)} observaciones del dataset · {plural(d.cifras.departamento.especies.length, "especie", "especies")} con fotos
           </span>
         )}
         {canEditar && d.region.estado === "borrador" && (
@@ -403,7 +403,7 @@ function RegionPanel({
                         </span>
                         <span className="block text-xs text-label-secondary">
                           {s.municipios.length === 1 ? "1 municipio" : `${s.municipios.length} municipios`}
-                          {c && ` · ${n(c.observaciones)} obs. · ${c.especies.length} especies`}
+                          {c && ` · ${n(c.observaciones)} obs. · ${plural(c.especies.length, "especie", "especies")}`}
                         </span>
                       </span>
                     </button>

@@ -145,7 +145,10 @@ GRANT USAGE ON SCHEMA auth TO explorer_service;
 GRANT USAGE ON SCHEMA ai TO explorer_service;
 GRANT SELECT ON ALL TABLES IN SCHEMA species TO explorer_service;
 GRANT SELECT ON ALL TABLES IN SCHEMA geo TO explorer_service;
-GRANT SELECT ON auth.users TO explorer_service;
+-- Solo lo público de cada persona; sin email, password_hash, google_id ni el blob del avatar. El REVOKE va
+-- antes para que re-aplicar este archivo quite el GRANT de tabla completa de versiones anteriores.
+REVOKE SELECT ON auth.users FROM explorer_service;
+GRANT SELECT (id, username, profile_image, created_at) ON auth.users TO explorer_service;
 GRANT SELECT ON ai.predictions TO explorer_service;
 GRANT SELECT, UPDATE (altitude_m, place_guess) ON observations.observations TO explorer_service;
 GRANT SELECT, INSERT, DELETE ON observations.favorites TO explorer_service;
@@ -175,7 +178,15 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA notifications GRANT ALL ON SEQUENCES TO notif
 GRANT USAGE ON SCHEMA observations TO thumbnail_service;
 GRANT SELECT ON observations.observations TO thumbnail_service;
 GRANT USAGE ON SCHEMA auth TO thumbnail_service;
-GRANT SELECT ON auth.users TO thumbnail_service;
+-- Solo el avatar (profile_image para buscarlo, profile_image_blob para servirlo): sin email ni password_hash.
+REVOKE SELECT ON auth.users FROM thumbnail_service;
+GRANT SELECT (profile_image) ON auth.users TO thumbnail_service;
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_schema = 'auth' AND table_name = 'users' AND column_name = 'profile_image_blob') THEN
+    GRANT SELECT (profile_image_blob) ON auth.users TO thumbnail_service;
+  END IF;
+END $$;
 
 -- dataset_service (M1/M2/M3 del admin): dueño exclusivo del esquema dataset, más el log
 -- de auditoría que ya usan el resto de servicios de escritura.

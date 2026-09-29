@@ -10,12 +10,14 @@ import { usePanelSession } from "@/lib/session/panel-session";
 import { getMorfosCentroide, type EstadoMorfos, type MorfoCentroide } from "@/lib/vectores/vectores-client";
 import { SesionRequerida, num } from "@/components/vectordb/sesion-requerida";
 import { RealCentroidsCard } from "./real-centroids-card";
+import { DatasetVersionCard } from "./dataset-version-card";
 
 /** Centroides del servidor (global, regional, supercentroides) y, debajo, los de cada morfo. */
 export function CentroidsConsole() {
   const [version, setVersion] = useState(0);
   return (
     <div className="space-y-6">
+      <DatasetVersionCard />
       <RealCentroidsCard onCalculado={() => setVersion((v) => v + 1)} />
       <MorfosCentroides version={version} />
     </div>

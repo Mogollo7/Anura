@@ -118,10 +118,9 @@ export function SystemConsole() {
       {tab === "servicios" && (
         <div className="space-y-4">
           <p className="text-xs text-label-secondary">
-            Topología de <code className="rounded bg-surface-subtle px-1 py-0.5">docker-compose.yml</code>. El panel
-            consulta cada <code className="rounded bg-surface-subtle px-1 py-0.5">/health</code> desde el contenedor
-            Admin (variables <span className="font-mono">*_SERVICE_URL</span>). No hay Prometheus/Grafana todavía:
-            latencia es la de esa sonda; disponibilidad = sin datos.
+            El panel consulta el <code className="rounded bg-surface-subtle px-1 py-0.5">/health</code> de cada servicio
+            desde el servidor del Admin (direcciones <span className="font-mono">*_SERVICE_URL</span>). La latencia es la de
+            esa consulta; no se guarda historial.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             {INFRA.map((i) => (

@@ -34,7 +34,8 @@ if (!fs.existsSync(thumbnailDir)) fs.mkdirSync(thumbnailDir, { recursive: true }
 
 const storage = multer.memoryStorage();
 
-const upload = multer({ storage });
+// Una imagen por petición y con tope (el mismo de nginx, 25 MB): sin límite, cada subida vive entera en memoria.
+const upload = multer({ storage, limits: { fileSize: 25 * 1024 * 1024, files: 1 } });
 
 function createMinioClient() {
   const Minio = require('minio');
@@ -55,8 +56,9 @@ async function ensureMinioBucket(client, bucket) {
 
 // Centralized thumbnail handling moved to thumbnail-service
 
-// POST /api/observations/stash (For Guests)
-router.post('/stash', upload.single('image'), async (req, res) => {
+// POST /api/observations/stash — la web y la app no lo usan hoy. Exige sesión: abierto a cualquiera,
+// cada llamada escribía un archivo en disco que nunca se borraba (el TTL de una hora es solo de Redis).
+router.post('/stash', authMiddleware, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No se envió ninguna imagen' });

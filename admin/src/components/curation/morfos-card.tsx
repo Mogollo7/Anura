@@ -5,6 +5,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Field, Input, Select } from "@/components/ui/field";
 import { usePanelSession } from "@/lib/session/panel-session";
 import { declararMorfo, quitarMorfo } from "@/lib/dataset/dataset-client";
@@ -49,17 +50,20 @@ export function MorfosCard({
     }
   }
 
+  const [porQuitar, setPorQuitar] = useState<Morfo | null>(null);
+  const [quitando, setQuitando] = useState(false);
+
   async function quitar(m: Morfo) {
-    const aviso = m.individuos
-      ? `¿Quitar el morfo «${m.nombre}»? ${m.individuos === 1 ? "Su individuo queda" : `Sus ${m.individuos} individuos quedan`} sin morfo.`
-      : `¿Quitar el morfo «${m.nombre}»?`;
-    if (!window.confirm(aviso)) return;
     setError(null);
+    setQuitando(true);
     try {
       await quitarMorfo(m.id);
       onCambio();
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo quitar el morfo");
+    } finally {
+      setQuitando(false);
+      setPorQuitar(null);
     }
   }
 
@@ -86,7 +90,7 @@ export function MorfosCard({
               </span>
               <Badge tone="neutral">{m.individuos === 1 ? "1 individuo" : `${m.individuos} individuos`}</Badge>
               {puede && (
-                <Button variant="ghost" className="px-1.5 py-1 text-xs text-danger" onClick={() => quitar(m)} aria-label={`Quitar morfo ${m.nombre}`}>
+                <Button variant="ghost" className="px-1.5 py-1 text-xs text-danger" onClick={() => setPorQuitar(m)} aria-label={`Quitar morfo ${m.nombre}`}>
                   <Trash2 size={12} aria-hidden />
                 </Button>
               )}
@@ -101,7 +105,7 @@ export function MorfosCard({
           </Field>
           <Field label="Subregión">
             <Select value={subregionId} onChange={(e) => setSubregionId(e.target.value)} required disabled={!subregiones.length}>
-              <option value="">{subregiones.length ? "Elige una subregión" : "Activa una región en Paquetes primero"}</option>
+              <option value="">{subregiones.length ? "Elige una subregión" : "Activa una región en Regiones primero"}</option>
               {subregiones.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.nombre} ({s.region})
@@ -119,13 +123,27 @@ export function MorfosCard({
           </div>
         </form>
       ) : (
-        <p className="text-xs text-label-tertiary">Declarar morfos necesita el permiso Definir morph id.</p>
+        <p className="text-xs text-label-tertiary">Declarar morfos necesita el permiso «Definir morfos».</p>
       )}
       {error && (
         <p role="alert" className="mt-2 text-sm text-danger">
           {error}
         </p>
       )}
+      <ConfirmDialog
+        open={!!porQuitar}
+        title={`¿Quitar el morfo «${porQuitar?.nombre ?? ""}»?`}
+        description={
+          porQuitar?.individuos
+            ? `${porQuitar.individuos === 1 ? "Su individuo queda" : `Sus ${porQuitar.individuos} individuos quedan`} sin morfo. El estadio no se toca.`
+            : "Ningún individuo lo usa."
+        }
+        confirmLabel="Quitar morfo"
+        danger
+        busy={quitando}
+        onCancel={() => setPorQuitar(null)}
+        onConfirm={() => porQuitar && quitar(porQuitar)}
+      />
     </Card>
   );
 }

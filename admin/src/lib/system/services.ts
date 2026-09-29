@@ -30,7 +30,7 @@ export const SERVICES: ServiceDef[] = [
     puerto: 3001,
     dependeDe: ["postgres", "redis"],
     descripcion:
-      "Login, sesiones y OAuth de Google para ANURA Mobile. Desde S1, también /api/panel/* (cuentas, roles y permisos del Admin, con audit.log).",
+      "Login, sesiones y cuentas de Google para la app ANURA. También guarda las cuentas, los roles y los permisos del panel.",
     envUrl: "AUTH_SERVICE_URL",
     localUrl: "http://localhost:3001",
     healthPath: "/health",
@@ -108,7 +108,7 @@ export const SERVICES: ServiceDef[] = [
     puerto: null,
     dependeDe: ["postgres"],
     descripcion:
-      "Esqueleto M5: hoy solo /health. Sin puerto en el host; el Admin lo alcanza por VALIDATION_SERVICE_URL en la red Docker.",
+      "Todavía sin función: solo responde /health. El Admin lo consulta con VALIDATION_SERVICE_URL.",
     envUrl: "VALIDATION_SERVICE_URL",
     localUrl: "http://localhost:3007",
     healthPath: "/health",

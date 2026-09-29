@@ -2,6 +2,7 @@
 
 import { Field, Select } from "@/components/ui/field";
 import { nombrePaquete, paqueteQuery, type PaqueteId } from "@/lib/dataset/osr";
+import { plural } from "@/lib/utils";
 
 type Opcion = { id: PaqueteId; nombre: string; region: string | null; especies?: number | null };
 
@@ -29,7 +30,7 @@ export function PaqueteSelect({
         {paquetes.map((p) => (
           <option key={paqueteQuery(p.id)} value={paqueteQuery(p.id)}>
             {nombrePaquete(p)}
-            {p.especies != null ? ` · ${p.especies} especies` : ""}
+            {p.especies != null ? ` · ${plural(p.especies, "especie", "especies")}` : ""}
           </option>
         ))}
       </Select>

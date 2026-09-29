@@ -145,6 +145,7 @@ app.get('/api/explorer/favorites/feed/user/:username', async (req, res) => {
       LEFT JOIN ai.predictions p ON p.observation_id = o.id
       ${unirEspecie()}
       WHERE profile_user.username = $1
+        AND o.is_private IS NOT TRUE   -- endpoint público: una observación privada nunca sale, ni por favoritos
       ORDER BY f.created_at DESC
     `;
     const result = await pool.query(query, [username]);
@@ -168,6 +169,7 @@ app.get('/api/explorer/favorites/feed', authMiddleware, async (req, res) => {
       LEFT JOIN ai.predictions p ON p.observation_id = o.id
       ${unirEspecie()}
       WHERE f.user_id = $1
+        AND (o.is_private IS NOT TRUE OR o.user_id = $1)   -- las privadas ajenas no se ven aunque estén marcadas
       ORDER BY f.created_at DESC
     `;
     const result = await pool.query(query, [req.user.id]);
@@ -185,13 +187,20 @@ app.post('/api/explorer/favorites/:id', authMiddleware, async (req, res) => {
   }
   try {
     const existing = await pool.query(
-      'SELECT id FROM observations.favorites WHERE user_id = $1 AND observation_id = $2',
+      // SELECT 1: en una base nueva (phase2.sql) favorites tiene PK compuesta y no existe la columna id.
+      'SELECT 1 FROM observations.favorites WHERE user_id = $1 AND observation_id = $2',
       [req.user.id, id]
     );
     if (existing.rows.length > 0) {
       await pool.query('DELETE FROM observations.favorites WHERE user_id = $1 AND observation_id = $2', [req.user.id, id]);
       res.json({ liked: false });
     } else {
+      // Solo se marca una observación que la persona puede ver: pública o propia.
+      const visible = await pool.query(
+        'SELECT 1 FROM observations.observations WHERE id = $1 AND (is_private IS NOT TRUE OR user_id = $2)',
+        [id, req.user.id]
+      );
+      if (visible.rowCount === 0) return res.status(404).json({ error: 'Observación no encontrada' });
       await pool.query('INSERT INTO observations.favorites (user_id, observation_id) VALUES ($1, $2)', [req.user.id, id]);
       res.json({ liked: true });
     }

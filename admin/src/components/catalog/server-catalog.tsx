@@ -272,7 +272,6 @@ function Detalle({
   }, [e.id, e.fotos]);
   const { activas, individuos } = aviso(e);
   const entrena = esEntrenable({ fotosActivas: activas, individuos });
-  const slug = slugEspecie(e.nombre_cientifico);
 
   return (
     <Card>
@@ -339,12 +338,12 @@ function Detalle({
       <dl className="mb-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
         <Dato icono={Images} label="Fotos activas" valor={`${n(activas)} de ${n(e.fotos)}`} />
         <Dato icono={MapPin} label="Observaciones" valor={`${n(e.observaciones)} · ${n(e.con_coordenada)} fotos con coordenada`} />
-        <Dato icono={Images} label="En el manifiesto" valor={`${n(e.train)} entrenamiento · ${n(e.val)} validación · ${n(e.test)} prueba`} />
+        <Dato icono={Images} label="En la versión del dataset" valor={`${n(e.train)} entrenamiento · ${n(e.val)} validación · ${n(e.test)} prueba`} />
       </dl>
 
       <div className="flex flex-wrap gap-2 border-t border-border pt-4">
         <Link
-          href={`/curacion?especie=${slug}`}
+          href={`/curacion?especie=${e.id}`}
           className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-label-primary hover:bg-surface-subtle"
         >
           <Images size={14} /> Curar fotos

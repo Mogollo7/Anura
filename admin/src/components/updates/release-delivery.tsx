@@ -24,6 +24,11 @@ function subregiones(nodos: NodoPublicado[], departamento = ""): { nodo: NodoPub
 export function ReleaseDelivery() {
   const publico = useAppResource(appApi.packages);
   const historial = useAppResource(() => releaseApi.paquetes());
+  // El id interno del paquete ("05.VALLE_DE_ABURRA") no es para leer: se muestra la subregión.
+  const nombres = useAppResource(() => releaseApi.resumen());
+  const subregionDe = new Map(
+    (nombres.value.state === "listo" ? nombres.value.data : []).map((s) => [s.id, `${s.nombre} · ${s.region_nombre}`])
+  );
 
   return (
     <div className="space-y-6">
@@ -58,7 +63,7 @@ export function ReleaseDelivery() {
                     <TH className="text-right">Especies</TH>
                     <TH className="text-right">Tamaño</TH>
                     <TH>Publicado</TH>
-                    <TH>sha256</TH>
+                    <TH>Huella (sha256)</TH>
                   </tr>
                 </THead>
                 <TBody>
@@ -97,7 +102,7 @@ export function ReleaseDelivery() {
               <Table>
                 <THead>
                   <tr>
-                    <TH>Paquete</TH>
+                    <TH>Subregión</TH>
                     <TH>Versión</TH>
                     <TH>Estado</TH>
                     <TH>Compilado</TH>
@@ -108,7 +113,7 @@ export function ReleaseDelivery() {
                 <TBody>
                   {paquetes.map((p) => (
                     <TRow key={p.id}>
-                      <TD className="font-mono text-xs">{p.paquete_id}</TD>
+                      <TD className="text-xs">{(p.subregion_id != null && subregionDe.get(p.subregion_id)) || p.paquete_id}</TD>
                       <TD className="font-mono text-xs">{p.version}</TD>
                       <TD>
                         <Badge tone={p.desactualizado ? "warning" : ESTADO_PAQUETE[p.estado].tone}>

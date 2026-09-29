@@ -51,8 +51,9 @@ export async function GET(req: NextRequest) {
     const hallado = taxa.results?.[0];
     if (!hallado?.id) return NextResponse.json({ message: "No hay una especie con ese nombre" }, { status: 404 });
     const detailRes = await fetch(`${INAT}/taxa/${hallado.id}`, { signal: AbortSignal.timeout(12_000) });
-    const detalle = detailRes.ok ? ((await detailRes.json()) as Taxon) : hallado;
-    const taxon = detalle.id ? detalle : hallado;
+    // /taxa/{id} responde { results: [taxón] } y solo ahí vienen los ancestros (género, familia, orden).
+    const detalle = detailRes.ok ? ((await detailRes.json()) as { results?: Taxon[] }).results?.[0] : undefined;
+    const taxon = detalle?.id ? detalle : hallado;
 
     const params = new URLSearchParams({
       taxon_id: String(taxon.id),

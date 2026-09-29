@@ -25,6 +25,7 @@ const osr = require('./osr');
 const evaluacion = require('./evaluacion');
 const simulador = require('./simulador');
 const clave = require('./clave');
+const versiones = require('./versiones');
 
 const BUCKET = process.env.DATASET_BUCKET || 'anura-dataset';
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -558,7 +559,16 @@ app.delete('/api/dataset/destacados/:id', requirePanelAction('editarContenido'),
   res.json(await contenido.quitarProgramado(pool, Number(req.params.id), req.userId));
 }));
 
-// ── Centroides reales (M3) ───────────────────────────────────────────────────────────────
+// ── Versión del dataset: qué fotos entrenan, validan y prueban ───────────────────────────
+app.get('/api/dataset/versiones', requirePanelAction('verEspecies'), ah(async (_req, res) => {
+  res.json(await versiones.listar(pool));
+}));
+
+app.post('/api/dataset/versiones', requirePanelAction('ejecutarEntrenamiento'), ah(async (req, res) => {
+  res.status(201).json(await versiones.crear(pool, req.body || {}, req.userId));
+}));
+
+// ── Centroides reales ───────────────────────────────────────────────────────────────────
 app.get('/api/dataset/centroides', requirePanelAction('verEspecies'), ah(async (_req, res) => {
   res.json(await centroides.ultimo(pool));
 }));

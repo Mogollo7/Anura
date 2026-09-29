@@ -10,8 +10,11 @@ let s = 99; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
 const g = () => Math.sqrt(-2 * Math.log(r())) * Math.cos(2 * Math.PI * r());
 const unit = (v) => { const n = Math.hypot(...v); return v.map((x) => x / n); };
 const rand = () => unit(Array.from({ length: 512 }, g));
-const dirs = new Map();
-const dirDe = (esp, base) => { if (!dirs.has(esp)) dirs.set(esp, esp === 3 ? unit(base.map((x, i) => x + 0.3 * rand()[i])) : rand()); return dirs.get(esp); };
+// Direcciones fijas por especie (mismo resultado en cada corrida): 2 = alfa, 3 = beta (cerca de alfa), 4 = gamma, 5 = delta.
+const d2 = rand(), n3 = rand(), d4 = rand(), d5 = rand();
+const RUIDO_BETA = parseFloat(process.env.RUIDO_BETA || '0.3');
+const dirs = new Map([[2, d2], [3, unit(d2.map((x, i) => x + RUIDO_BETA * n3[i]))], [4, d4], [5, d5]]);
+const dirDe = (esp) => dirs.get(esp);
 const post = async (p, body) => { const res = await fetch(`${URL}${p}`, { method: 'POST', headers: H, body: JSON.stringify(body) }); return { status: res.status, body: await res.json().catch(() => ({})) }; };
 (async () => {
   if (process.argv[2] === 'registrar') {
@@ -23,14 +26,13 @@ const post = async (p, body) => { const res = await fetch(`${URL}${p}`, { method
   const { body: { trabajo } } = await post('/api/worker/trabajos/tomar', {});
   console.log('tomado', trabajo);
   if (!trabajo) return pool.end();
-  const base = dirDe(2, rand());
   for (;;) {
     const res = await fetch(`${URL}/api/worker/trabajos/${trabajo.id}/lote?limit=16`, { headers: H });
     const lote = await res.json();
     if (!lote.fotos || !lote.fotos.length) break;
     const { rows } = await pool.query('SELECT sha256, especie_id FROM dataset.foto WHERE sha256 = ANY($1)', [lote.fotos]);
     const esp = new Map(rows.map((x) => [x.sha256, x.especie_id]));
-    const vectores = lote.fotos.map((sha) => ({ sha256: sha, v: Buffer.from(new Float32Array(unit(dirDe(esp.get(sha), base).map((x) => x + 0.05 * g()))).buffer).toString('base64') }));
+    const vectores = lote.fotos.map((sha) => ({ sha256: sha, v: Buffer.from(new Float32Array(unit(dirDe(esp.get(sha)).map((x) => x + parseFloat(process.env.RUIDO_FOTO || '0.05') * g()))).buffer).toString('base64') }));
     console.log((await post(`/api/worker/trabajos/${trabajo.id}/vectores`, { vectores, mensaje: 'CPU de prueba · 12 ms por foto' })).body);
   }
   console.log((await post(`/api/worker/trabajos/${trabajo.id}/fin`, { estado: 'hecho', mensaje: 'Todas las fotos tienen vector' })).body);

@@ -171,7 +171,7 @@ export function DataCleaningConsole() {
             disabled={!canDecide || ocupado}
             onClick={() => accion(() => correrLimpieza(estado?.ultima?.parametros))}
           >
-            <RefreshCw size={13} /> Volver a correr la limpieza
+            <RefreshCw size={13} /> {estado?.ultima ? "Volver a correr la limpieza" : "Correr la limpieza"}
           </Button>
         </CardHeader>
         <p className="text-sm text-label-secondary">
@@ -188,6 +188,12 @@ export function DataCleaningConsole() {
                 {fmt(u.n)} {USO[u.uso] ?? u.uso}
               </span>
             ))}
+          </p>
+        )}
+        {estado && !estado.ultima && (
+          <p className="mt-1 text-xs text-warning">
+            Aún no se corrió la limpieza. Para empezar, córrela: propone qué coordenada usar en cada observación y sin ella la
+            altitud y las capas geográficas no cuentan las observaciones nuevas.
           </p>
         )}
         {estado?.ultima && (

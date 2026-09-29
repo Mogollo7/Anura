@@ -6,10 +6,11 @@ import { Check, Plus, Undo2, X } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogHeader } from "@/components/ui/dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { Table, THead, TBody, TRow, TH, TD } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { cn, plural } from "@/lib/utils";
 import { usePanelSession } from "@/lib/session/panel-session";
 import {
   decidirCluster,
@@ -28,7 +29,7 @@ type Propuesta = { miembros: number[]; origen: Cluster["origen"]; estado: Cluste
 /**
  * Clústeres: la matriz de confusión real (fotos de validación contra el centroide más cercano),
  * los pares que el sistema señala y las decisiones de la persona. Aceptar o descartar queda en
- * dataset.cluster y en Auditoría; al aceptar, el servidor mide ArcFace con los vectores reales.
+ * dataset.cluster y en Auditoría; al aceptar, el servidor prueba un adaptador con los vectores reales.
  */
 export function AdaptersConsole() {
   const session = usePanelSession();
@@ -94,7 +95,7 @@ export function AdaptersConsole() {
               <div className="space-y-1">
                 <p className="text-sm text-label-primary">
                   {datos.acierto == null ? (
-                    "El manifiesto no tiene fotos de validación con vector para estas especies: no hay confusión que medir."
+                    "La versión del dataset no tiene fotos de validación con vector para estas especies: no hay confusión que medir."
                   ) : (
                     <>
                       {pct(datos.acierto)} de {num(datos.fotos_val ?? 0)} fotos de validación quedan en su especie con el centroide
@@ -125,7 +126,7 @@ export function AdaptersConsole() {
             <CardHeader className="mb-2">
               <CardTitle>Pares que se confunden</CardTitle>
               <Badge tone={datos.pares.some((p) => p.senal && !p.decision) ? "warning" : "neutral"}>
-                {datos.pares.filter((p) => p.senal).length} señalados
+                {datos.pares.filter((p) => p.senal).length === 1 ? "1 señalado" : `${datos.pares.filter((p) => p.senal).length} señalados`}
               </Badge>
             </CardHeader>
             <p className="mb-3 text-xs text-label-secondary">
@@ -161,17 +162,18 @@ export function AdaptersConsole() {
           <Matriz datos={datos} nombre={nombre} />
 
           <Card>
-            <CardHeader className="mb-2"><CardTitle>Sugerencias del lote (ArcFace)</CardTitle></CardHeader>
+            <CardHeader className="mb-2"><CardTitle>Qué mejoraría un adaptador</CardTitle></CardHeader>
             <p className="mb-3 text-xs text-label-secondary">
-              Al calcular centroides, el servidor entrena dos prototipos con margen angular para cada par parecido o confundido y
-              mide el acierto en validación. Sirve para decidir si el clúster vale la pena.
+              Al calcular centroides, el servidor prueba un adaptador (dos prototipos con margen angular) para cada par parecido o
+              confundido y mide el acierto en validación. Sirve para decidir si el clúster vale la pena. La decisión se toma en la
+              tabla de arriba.
             </p>
             {datos.sugerencias.length === 0 ? (
               <p className="text-sm text-label-secondary">Este lote no sugirió ningún par.</p>
             ) : (
               <Table>
                 <THead>
-                  <tr><TH>Par</TH><TH>Coseno</TH><TH>Confusiones</TH><TH>Acierto antes</TH><TH>Con ArcFace</TH><TH>Decisión</TH></tr>
+                  <tr><TH>Par</TH><TH>Coseno</TH><TH>Confusiones</TH><TH>Acierto antes</TH><TH>Con adaptador</TH></tr>
                 </THead>
                 <TBody>
                   {datos.sugerencias.map((s) => (
@@ -181,7 +183,6 @@ export function AdaptersConsole() {
                       <TD className="text-xs tabular-nums">{s.confusiones} de {s.n_val}</TD>
                       <TD className="text-xs tabular-nums">{pct(s.acc_antes)}</TD>
                       <TD className="text-xs tabular-nums">{pct(s.acc_despues)}</TD>
-                      <TD>{accion([s.a, s.b], "sugerido", s.decision)}</TD>
                     </TRow>
                   ))}
                 </TBody>
@@ -226,7 +227,7 @@ function Matriz({ datos, nombre }: { datos: PanoramaClusteres; nombre: Map<numbe
         <CardTitle>Matriz de confusión</CardTitle>
         {enPares.length > 0 && (
           <Button variant="ghost" className="text-xs" onClick={() => setTodas(!todas)}>
-            {todas ? "Solo las que se confunden" : `Ver las ${datos.especies.filter((e) => e.n_val > 0).length} especies`}
+            {todas ? "Solo las que se confunden" : `Ver ${plural(datos.especies.filter((e) => e.n_val > 0).length, "especie", "las especies")}`}
           </Button>
         )}
       </CardHeader>
@@ -278,7 +279,7 @@ function ClusterManual({ datos, onProponer }: { datos: PanoramaClusteres; onProp
       <CardHeader className="mb-2"><CardTitle>Clúster a mano</CardTitle></CardHeader>
       <p className="mb-3 text-xs text-label-secondary">
         Si sabes que varias especies se parecen aunque el lote no las señale, elígelas (de 2 a 12). Al aceptarlo, el servidor
-        mide ArcFace con sus vectores.
+        prueba un adaptador con sus vectores.
       </p>
       <div className="grid max-h-56 grid-cols-1 gap-1 overflow-y-auto rounded-md border border-border p-2 sm:grid-cols-2 lg:grid-cols-3">
         {datos.especies.map((s) => (
@@ -294,7 +295,7 @@ function ClusterManual({ datos, onProponer }: { datos: PanoramaClusteres; onProp
       </div>
       <div className="mt-3 flex items-center gap-2">
         <Button variant="primary" className="text-xs" disabled={miembros.length < 2 || miembros.length > 12} onClick={() => onProponer(miembros)}>
-          <Plus size={12} /> Proponer clúster de {miembros.length} especies
+          <Plus size={12} /> Proponer clúster de {plural(miembros.length, "especie", "especies")}
         </Button>
         {miembros.length > 12 && <span className="text-xs text-warning">Máximo 12 especies: divídelo en dos.</span>}
       </div>
@@ -337,7 +338,7 @@ function DialogoDecision({
         title={acepta ? "¿Aceptar este clúster?" : "¿Descartar este clúster?"}
         description={
           acepta
-            ? "Queda registrado quién lo aceptó. El servidor mide ArcFace con los vectores de entrenamiento y validación de sus miembros."
+            ? "Queda registrado quién lo aceptó. El servidor prueba un adaptador con los vectores de entrenamiento y validación de sus miembros."
             : "El par deja de aparecer como pendiente. Queda registrado quién lo descartó y por qué."
         }
       />
@@ -369,21 +370,26 @@ const ORIGEN: Record<Cluster["origen"], string> = { sugerido: "sugerencia del lo
 
 function Decisiones({ clusteres, puede, onCambio }: { clusteres: Cluster[]; puede: boolean; onCambio: () => void }) {
   const [error, setError] = useState<string | null>(null);
+  const [porRetirar, setPorRetirar] = useState<Cluster | null>(null);
+  const [retirando, setRetirando] = useState(false);
   async function retirar(c: Cluster) {
-    if (!window.confirm(`¿Retirar la decisión sobre «${c.nombre}»? Sus pares vuelven a quedar pendientes.`)) return;
     setError(null);
+    setRetirando(true);
     try {
       await retirarCluster(c.id);
       onCambio();
     } catch (e) {
       setError((e as Error).message);
+    } finally {
+      setRetirando(false);
+      setPorRetirar(null);
     }
   }
   return (
     <Card>
       <CardHeader className="mb-2">
         <CardTitle>Decisiones</CardTitle>
-        <Badge tone="neutral">{clusteres.filter((c) => c.estado === "aceptado").length} aceptados</Badge>
+        <Badge tone="neutral">{plural(clusteres.filter((c) => c.estado === "aceptado").length, "aceptado", "aceptados")}</Badge>
       </CardHeader>
       {error && <p className="mb-2 text-sm text-danger">{error}</p>}
       {clusteres.length === 0 ? (
@@ -404,7 +410,7 @@ function Decisiones({ clusteres, puede, onCambio }: { clusteres: Cluster[]; pued
                       ? c.medicion.sin_vectores.length
                         ? "Sin medir: algún miembro no tiene vectores de entrenamiento."
                         : "Sin medir: no hay fotos de validación de estos miembros."
-                      : `Acierto en ${num(c.medicion.n_val)} fotos de validación: ${pct(c.medicion.acc_antes)} con centroides → ${pct(c.medicion.acc_despues)} con ArcFace (${num(c.medicion.n_train)} de entrenamiento).`}
+                      : `Acierto en ${num(c.medicion.n_val)} fotos de validación: ${pct(c.medicion.acc_antes)} con centroides → ${pct(c.medicion.acc_despues)} con adaptador (${num(c.medicion.n_train)} de entrenamiento).`}
                   </p>
                 )}
                 {c.motivo && <p className="text-label-secondary">«{c.motivo}»</p>}
@@ -415,7 +421,7 @@ function Decisiones({ clusteres, puede, onCambio }: { clusteres: Cluster[]; pued
                 </p>
               </div>
               {puede && (
-                <Button variant="ghost" className="text-xs" onClick={() => retirar(c)}>
+                <Button variant="ghost" className="text-xs" onClick={() => setPorRetirar(c)}>
                   <Undo2 size={12} /> Retirar decisión
                 </Button>
               )}
@@ -423,9 +429,19 @@ function Decisiones({ clusteres, puede, onCambio }: { clusteres: Cluster[]; pued
           ))}
         </ul>
       )}
+      <ConfirmDialog
+        open={!!porRetirar}
+        title={`¿Retirar la decisión sobre «${porRetirar?.nombre ?? ""}»?`}
+        description="Sus pares vuelven a quedar pendientes. Queda registrado quién la retiró."
+        confirmLabel="Retirar decisión"
+        danger
+        busy={retirando}
+        onCancel={() => setPorRetirar(null)}
+        onConfirm={() => porRetirar && retirar(porRetirar)}
+      />
       <p className="mt-2 text-[11px] text-label-tertiary">
-        Un clúster aceptado es la entrada del micro-adaptador de ese grupo. El paquete todavía no lleva la matriz W: entrenarla
-        en el worker es el paso siguiente.
+        Un clúster aceptado es la entrada del micro-adaptador de ese grupo. El paquete todavía no incluye adaptadores entrenados: entrenarlos
+        en el worker aún no está disponible.
       </p>
     </Card>
   );
