@@ -14,7 +14,8 @@ const createToken = (user, rememberMe = false) => {
 };
 
 exports.registrar = async (data) => {
-  let { username, email, password, biography, role } = data;
+  // El rol nunca viene del formulario: toda cuenta nueva es de usuario. Solo el panel lo cambia.
+  let { username, email, password, biography } = data;
 
   if (!email || !password) {
     throw new Error('Debe enviar email y password');
@@ -42,8 +43,7 @@ exports.registrar = async (data) => {
     email,
     password_hash,
     auth_provider: 'email',
-    biography,
-    role
+    biography
   });
 
   // Crear preferencias por defecto para el nuevo usuario
@@ -59,14 +59,21 @@ exports.login = async (data) => {
     throw new Error('Debe enviar email y password');
   }
 
+  // Mismo mensaje si el correo no existe o la contraseña no coincide: no revela qué correos
+  // tienen cuenta.
   const user = await userRepository.findByEmail(email);
   if (!user) {
-    throw new Error('No existe el usuario');
+    throw new Error('Credenciales incorrectas');
+  }
+  if (!user.password_hash) {
+    throw new Error('Cuenta de Google');
+  }
+  if (!bcrypt.compareSync(password, user.password_hash)) {
+    throw new Error('Credenciales incorrectas');
   }
 
-  const isMatch = bcrypt.compareSync(password, user.password_hash);
-  if (!isMatch) {
-    throw new Error('Contraseña incorrecta');
+  if (user.is_active === false) {
+    throw new Error('Cuenta suspendida');
   }
 
   // Obtener o crear preferencias del usuario
@@ -136,7 +143,7 @@ exports.getPublicProfile = async (username) => {
   const stats = statsRes.rows[0];
 
   // Follower count
-  const followRes = await pool.query('SELECT COUNT(*) as followers FROM auth.follows WHERE following_id = $1', [user.id]);
+  const followRes = await pool.query('SELECT COUNT(*) as followers FROM auth.follows WHERE followee_id = $1', [user.id]);
   const followersCount = parseInt(followRes.rows[0].followers);
 
   // Following count
@@ -166,16 +173,16 @@ exports.toggleFollow = async (followerId, usernameToFollow) => {
   if (followerId === followingUser.id) throw new Error('No puedes seguirte a ti mismo');
 
   // Check if following
-  const checkQuery = 'SELECT id FROM auth.follows WHERE follower_id = $1 AND following_id = $2';
+  const checkQuery = 'SELECT 1 FROM auth.follows WHERE follower_id = $1 AND followee_id = $2';
   const checkRes = await pool.query(checkQuery, [followerId, followingUser.id]);
 
   if (checkRes.rows.length > 0) {
     // Unfollow
-    await pool.query('DELETE FROM auth.follows WHERE follower_id = $1 AND following_id = $2', [followerId, followingUser.id]);
+    await pool.query('DELETE FROM auth.follows WHERE follower_id = $1 AND followee_id = $2', [followerId, followingUser.id]);
     return { following: false };
   } else {
     // Follow
-    await pool.query('INSERT INTO auth.follows (follower_id, following_id) VALUES ($1, $2)', [followerId, followingUser.id]);
+    await pool.query('INSERT INTO auth.follows (follower_id, followee_id) VALUES ($1, $2)', [followerId, followingUser.id]);
     return { following: true };
   }
 };
@@ -187,8 +194,46 @@ exports.getFollowStatus = async (followerId, usernameToCheck) => {
   const targetUser = await userRepository.findByUsername(usernameToCheck);
   if (!targetUser) return { following: false };
 
-  const checkQuery = 'SELECT id FROM auth.follows WHERE follower_id = $1 AND following_id = $2';
+  const checkQuery = 'SELECT 1 FROM auth.follows WHERE follower_id = $1 AND followee_id = $2';
   const checkRes = await pool.query(checkQuery, [followerId, targetUser.id]);
 
   return { following: checkRes.rows.length > 0 };
+};
+
+/** Cuentas reales que siguen a `username` — pantalla Conexiones de la app (antes CommunityCatalog). */
+exports.listFollowers = async (username) => {
+  const userRepository = require('../repositories/userRepository');
+  const pool = require('../config/database');
+
+  const targetUser = await userRepository.findByUsername(username);
+  if (!targetUser) throw new Error('No existe el usuario');
+
+  const result = await pool.query(
+    `SELECT u.username, u.profile_image, u.biography
+     FROM auth.follows f
+     JOIN auth.users u ON u.id = f.follower_id
+     WHERE f.followee_id = $1
+     ORDER BY u.username`,
+    [targetUser.id]
+  );
+  return result.rows;
+};
+
+/** Cuentas reales que `username` sigue. */
+exports.listFollowing = async (username) => {
+  const userRepository = require('../repositories/userRepository');
+  const pool = require('../config/database');
+
+  const targetUser = await userRepository.findByUsername(username);
+  if (!targetUser) throw new Error('No existe el usuario');
+
+  const result = await pool.query(
+    `SELECT u.username, u.profile_image, u.biography
+     FROM auth.follows f
+     JOIN auth.users u ON u.id = f.followee_id
+     WHERE f.follower_id = $1
+     ORDER BY u.username`,
+    [targetUser.id]
+  );
+  return result.rows;
 };

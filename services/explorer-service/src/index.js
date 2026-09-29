@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
+const { coincide, unirEspecie, columnasTaxon, slugDe } = require('./especiePublica');
 const JWT_SECRET = process.env.JWT_SECRET || 'anura_secret';
 
 const app = express();
@@ -11,11 +12,37 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL
 });
 
+const DATASET_SERVICE_URL = process.env.DATASET_SERVICE_URL || 'http://dataset-service:3008';
+const CATALOGO_TTL_MS = 60_000;
+let catalogoCache = null;
+
+/**
+ * Recuentos del catálogo publicado (K): especies con ficha publicada por un herpetólogo, no
+ * predicciones del modelo. `ai.predictions` cuenta clases distintas que el modelo alguna vez
+ * dijo (incluye errores y especies sin ficha); el catálogo público es lo que el Explorador
+ * realmente puede mostrar. Caché corta: el catálogo no cambia más que una vez cada tanto.
+ */
+async function catalogoPublicado() {
+  if (catalogoCache && catalogoCache.expira > Date.now()) return catalogoCache.valor;
+  try {
+    const { data } = await axios.get(`${DATASET_SERVICE_URL}/api/dataset/publico/catalogo`, { timeout: 5000 });
+    catalogoCache = { valor: data, expira: Date.now() + CATALOGO_TTL_MS };
+    return data;
+  } catch (err) {
+    console.error('No se pudo leer el catálogo publicado de dataset-service:', err.message);
+    return catalogoCache?.valor ?? { especies: [] };
+  }
+}
+
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'explorer-service' }));
+
+// Salidas de campo (lectura): rutas en ./field-trips.js
+require('./field-trips').registrarSalidasDeCampo(app, pool, JWT_SECRET);
 
 // Feed (Latest observations)
 app.get('/api/explorer/feed', async (req, res) => {
   const { username } = req.query;
+  const q = typeof req.query.q === 'string' ? req.query.q.trim().slice(0, 80) : '';
   try {
     const header = req.headers.authorization;
     let loggedInUsername = null;
@@ -31,11 +58,11 @@ app.get('/api/explorer/feed', async (req, res) => {
       SELECT o.id, o.image_key, o.thumbnail_key, o.lat, o.lon, o.place_guess, o.notes, o.is_private, o.created_at,
              u.username, u.profile_image,
              p.top_class as ai_class, p.top_probability as ai_prob,
-             t.id as taxon_id, t.class_name, t.order_name, t.family, t.genus, t.species, t.common_name
+             ${columnasTaxon()}
       FROM observations.observations o
       JOIN auth.users u ON o.user_id = u.id
       LEFT JOIN ai.predictions p ON p.observation_id = o.id
-      LEFT JOIN species.taxonomy t ON p.top_class = CONCAT(t.genus, ' ', t.species) OR p.top_class = t.species
+      ${unirEspecie()}
     `;
     const params = [];
     if (username) {
@@ -48,7 +75,16 @@ app.get('/api/explorer/feed', async (req, res) => {
     } else {
       query += ` WHERE (o.is_private = FALSE OR o.is_private IS NOT TRUE)`;
     }
-    query += ` ORDER BY o.created_at DESC LIMIT 100`;
+    if (q) {
+      params.push(`%${q}%`);
+      const n = params.length;
+      query += ` AND (
+        u.username ILIKE $${n} OR COALESCE(o.notes, '') ILIKE $${n}
+        OR COALESCE(o.place_guess, '') ILIKE $${n} OR COALESCE(p.top_class, '') ILIKE $${n}
+        OR COALESCE(ep.nombre_comun, '') ILIKE $${n} OR COALESCE(ep.epiteto, '') ILIKE $${n}
+      )`;
+    }
+    query += ` ORDER BY o.created_at DESC LIMIT ${q ? 200 : 100}`;
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
@@ -59,17 +95,8 @@ app.get('/api/explorer/feed', async (req, res) => {
 
 // ── Favorites ────────────────────────────────────────────────────────
 // jwt and JWT_SECRET are defined at the top of the file
-
-// Ensure favorites table exists
-pool.query(`
-  CREATE TABLE IF NOT EXISTS observations.favorites (
-    id SERIAL PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    observation_id UUID NOT NULL REFERENCES observations.observations(id) ON DELETE CASCADE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(user_id, observation_id)
-  )
-`).catch(e => console.error('[favorites] table init error:', e.message));
+// La tabla observations.favorites la crea infrastructure/postgres/phase2.sql; explorer_service
+// solo tiene permiso de lectura/escritura de filas (roles.sql), no de crear tablas.
 
 function authMiddleware(req, res, next) {
   const header = req.headers.authorization;
@@ -105,13 +132,13 @@ app.get('/api/explorer/favorites/feed/user/:username', async (req, res) => {
       SELECT o.id, o.image_key, o.thumbnail_key, o.lat, o.lon, o.place_guess, o.notes, o.created_at,
              u.username, u.profile_image,
              p.top_class as ai_class, p.top_probability as ai_prob,
-             t.class_name, t.order_name, t.family, t.genus, t.species, t.common_name
+             ${columnasTaxon()}
       FROM auth.users profile_user
       JOIN observations.favorites f ON profile_user.id = f.user_id
       JOIN observations.observations o ON f.observation_id = o.id
       JOIN auth.users u ON o.user_id = u.id
       LEFT JOIN ai.predictions p ON p.observation_id = o.id
-      LEFT JOIN species.taxonomy t ON p.top_class = CONCAT(t.genus, ' ', t.species) OR p.top_class = t.species
+      ${unirEspecie()}
       WHERE profile_user.username = $1
       ORDER BY f.created_at DESC
     `;
@@ -129,12 +156,12 @@ app.get('/api/explorer/favorites/feed', authMiddleware, async (req, res) => {
       SELECT o.id, o.image_key, o.thumbnail_key, o.lat, o.lon, o.place_guess, o.notes, o.created_at,
              u.username, u.profile_image,
              p.top_class as ai_class, p.top_probability as ai_prob,
-             t.class_name, t.order_name, t.family, t.genus, t.species, t.common_name
+             ${columnasTaxon()}
       FROM observations.favorites f
       JOIN observations.observations o ON f.observation_id = o.id
       JOIN auth.users u ON o.user_id = u.id
       LEFT JOIN ai.predictions p ON p.observation_id = o.id
-      LEFT JOIN species.taxonomy t ON p.top_class = CONCAT(t.genus, ' ', t.species) OR p.top_class = t.species
+      ${unirEspecie()}
       WHERE f.user_id = $1
       ORDER BY f.created_at DESC
     `;
@@ -171,12 +198,16 @@ app.post('/api/explorer/favorites/:id', authMiddleware, async (req, res) => {
 app.get('/api/explorer/stats', async (req, res) => {
   try {
     const obsCount = await pool.query('SELECT COUNT(*) FROM observations.observations');
-    const speciesCount = await pool.query('SELECT COUNT(DISTINCT top_class) FROM ai.predictions');
     const userCount = await pool.query('SELECT COUNT(DISTINCT user_id) FROM observations.observations');
-    
+    const catalogo = await catalogoPublicado();
+
     res.json({
       observations: parseInt(obsCount.rows[0].count),
-      species: parseInt(speciesCount.rows[0].count),
+      // Especies (y géneros y familias) del catálogo publicado, no de ai.predictions — ver
+      // 19_ADMIN/Ficha Publica, Explorador y Destacados.md §3.
+      species: catalogo.especies.length,
+      genera: new Set(catalogo.especies.map((e) => e.genero).filter(Boolean)).size,
+      families: new Set(catalogo.especies.map((e) => e.familia).filter(Boolean)).size,
       identifiers: parseInt(userCount.rows[0].count), // Simplified for now
       observers: parseInt(userCount.rows[0].count)
     });
@@ -201,11 +232,11 @@ app.get('/api/explorer/species', async (req, res) => {
       SELECT 
         s.*,
         o.thumbnail_key,
-        t.common_name,
-        t.id as taxon_id
+        ep.nombre_comun AS common_name,
+        ep.taxon_id
       FROM SpeciesStats s
       JOIN observations.observations o ON s.last_obs = o.created_at
-      LEFT JOIN species.taxonomy t ON s.scientific_name = CONCAT(t.genus, ' ', t.species) OR s.scientific_name = t.species
+      LEFT JOIN dataset.especie_publica ep ON ${coincide('s.scientific_name')}
       ORDER BY s.obs_count DESC
     `;
     const result = await pool.query(query);
@@ -255,19 +286,11 @@ app.get('/api/explorer/observation/:id', async (req, res) => {
              u.username, u.profile_image, o.user_id,
              (SELECT COUNT(*) FROM observations.observations WHERE user_id = u.id)::int as user_obs_count,
              p.top_class as ai_class, p.top_probability as ai_prob,
-             t.id as taxon_id,
-             COALESCE(t.class_name, CASE WHEN p.top_class ~* 'achatinus' THEN 'Amphibia' ELSE NULL END) as class_name,
-             COALESCE(t.order_name, CASE WHEN p.top_class ~* 'achatinus' THEN 'Anura' ELSE NULL END) as order_name,
-             COALESCE(t.family, CASE WHEN p.top_class ~* 'achatinus' THEN 'Craugastoridae' ELSE NULL END) as family,
-             COALESCE(t.genus, CASE WHEN p.top_class ~* 'achatinus' THEN 'Pristimantis' ELSE NULL END) as genus,
-             COALESCE(t.species, CASE WHEN p.top_class ~* 'achatinus' THEN 'achatinus' ELSE NULL END) as species,
-             COALESCE(t.common_name, CASE WHEN p.top_class ~* 'achatinus' THEN 'Pristimantis achatinus' ELSE NULL END) as common_name
+             ${columnasTaxon()}
       FROM observations.observations o
       JOIN auth.users u ON o.user_id = u.id
       LEFT JOIN ai.predictions p ON p.observation_id = o.id
-      LEFT JOIN species.taxonomy t ON REPLACE(p.top_class, '_', ' ') = CONCAT(t.genus, ' ', t.species) 
-                                   OR p.top_class = t.species
-                                   OR p.top_class = CONCAT(t.genus, ' ', t.species)
+      ${unirEspecie()}
       WHERE o.id = $1
     `;
     const result = await pool.query(query, [id]);
@@ -338,18 +361,18 @@ app.get('/api/explorer/suggest', async (req, res) => {
   if (q.length < 2) return res.json([]);
   try {
     const taxaResult = await pool.query(
-      `SELECT id, genus, species, common_name, family, order_name
-       FROM species.taxonomy
-       WHERE common_name ILIKE $1
-          OR CONCAT(genus, ' ', species) ILIKE $1
-          OR genus ILIKE $1
-          OR family ILIKE $1
-          OR species ILIKE $1
+      `SELECT taxon_id, nombre_cientifico, nombre_comun, familia, orden
+       FROM dataset.especie_publica
+       WHERE nombre_comun ILIKE $1
+          OR nombre_cientifico ILIKE $1
+          OR genero ILIKE $1
+          OR familia ILIKE $1
+          OR epiteto ILIKE $1
        ORDER BY
-         CASE WHEN LOWER(CONCAT(genus, ' ', species)) = LOWER($2) THEN 0
-              WHEN CONCAT(genus, ' ', species) ILIKE $3 THEN 1
+         CASE WHEN LOWER(nombre_cientifico) = LOWER($2) THEN 0
+              WHEN nombre_cientifico ILIKE $3 THEN 1
               ELSE 2 END,
-         genus, species
+         nombre_cientifico
        LIMIT 6`,
       [`%${q}%`, q, `${q}%`]
     );
@@ -368,12 +391,12 @@ app.get('/api/explorer/suggest', async (req, res) => {
     const suggestions = [
       ...taxaResult.rows.map(r => ({
         type: 'taxon',
-        id: r.id,
-        scientific_name: `${r.genus} ${r.species}`,
-        common_name: r.common_name,
-        family: r.family,
-        order_name: r.order_name,
-        slug: `${r.id}-${r.genus}-${r.species}`.replace(/\s+/g, '-')
+        id: r.taxon_id,
+        scientific_name: r.nombre_cientifico,
+        common_name: r.nombre_comun,
+        family: r.familia,
+        order_name: r.orden,
+        slug: slugDe(r.taxon_id, r.nombre_cientifico)
       })),
       ...usersResult.rows.map(r => ({
         type: 'user',
@@ -396,27 +419,25 @@ app.get('/api/explorer/search', async (req, res) => {
   try {
     // Taxones: partial match
     const taxaResult = await pool.query(
-      `SELECT t.id, t.genus, t.species, t.common_name, t.family, t.order_name, t.class_name,
+      `SELECT ep.taxon_id, ep.nombre_cientifico, ep.nombre_comun, ep.familia, ep.orden, ep.clase,
               (SELECT o.thumbnail_key FROM observations.observations o
                JOIN ai.predictions p ON p.observation_id = o.id
-               WHERE REPLACE(p.top_class, '_', ' ') = CONCAT(t.genus, ' ', t.species)
-                  OR p.top_class = CONCAT(t.genus, ' ', t.species)
+               WHERE ${coincide('p.top_class')} AND o.is_private IS NOT TRUE
                ORDER BY o.created_at DESC LIMIT 1) as thumbnail_key,
               COUNT(DISTINCT obs.id) as obs_count
-       FROM species.taxonomy t
-       LEFT JOIN ai.predictions pred ON REPLACE(pred.top_class,'_',' ') = CONCAT(t.genus,' ',t.species)
-                                     OR pred.top_class = CONCAT(t.genus,' ',t.species)
+       FROM dataset.especie_publica ep
+       LEFT JOIN ai.predictions pred ON ${coincide('pred.top_class')}
        LEFT JOIN observations.observations obs ON obs.id = pred.observation_id
-       WHERE t.common_name ILIKE $1
-          OR CONCAT(t.genus, ' ', t.species) ILIKE $1
-          OR t.genus ILIKE $1
-          OR t.family ILIKE $1
-          OR t.species ILIKE $1
-       GROUP BY t.id, t.genus, t.species, t.common_name, t.family, t.order_name, t.class_name
+       WHERE ep.nombre_comun ILIKE $1
+          OR ep.nombre_cientifico ILIKE $1
+          OR ep.genero ILIKE $1
+          OR ep.familia ILIKE $1
+          OR ep.epiteto ILIKE $1
+       GROUP BY ep.taxon_id, ep.nombre_cientifico, ep.nombre_comun, ep.familia, ep.orden, ep.clase
        ORDER BY
-         CASE WHEN LOWER(CONCAT(t.genus,' ',t.species)) = LOWER($2) THEN 0
-              WHEN CONCAT(t.genus,' ',t.species) ILIKE $3 THEN 1 ELSE 2 END,
-         obs_count DESC
+         CASE WHEN LOWER(ep.nombre_cientifico) = LOWER($2) THEN 0
+              WHEN ep.nombre_cientifico ILIKE $3 THEN 1 ELSE 2 END,
+         obs_count DESC, ep.nombre_cientifico
        LIMIT 30`,
       [`%${q}%`, q, `${q}%`]
     );
@@ -439,15 +460,15 @@ app.get('/api/explorer/search', async (req, res) => {
 
     res.json({
       taxa: taxaResult.rows.map(r => ({
-        id: r.id,
-        scientific_name: `${r.genus} ${r.species}`,
-        common_name: r.common_name,
-        family: r.family,
-        order_name: r.order_name,
-        class_name: r.class_name,
+        id: r.taxon_id,
+        scientific_name: r.nombre_cientifico,
+        common_name: r.nombre_comun,
+        family: r.familia,
+        order_name: r.orden,
+        class_name: r.clase,
         thumbnail_key: r.thumbnail_key,
         obs_count: parseInt(r.obs_count) || 0,
-        slug: `${r.id}-${r.genus}-${r.species}`.replace(/\s+/g, '-')
+        slug: slugDe(r.taxon_id, r.nombre_cientifico)
       })),
       users: usersResult.rows.map(r => ({
         username: r.username,
@@ -475,13 +496,12 @@ app.get('/api/explorer/observers/by-species', async (req, res) => {
        FROM auth.users u
        JOIN observations.observations o ON o.user_id = u.id
        JOIN ai.predictions p ON p.observation_id = o.id
-       JOIN species.taxonomy t ON REPLACE(p.top_class,'_',' ') = CONCAT(t.genus,' ',t.species)
-                               OR p.top_class = CONCAT(t.genus,' ',t.species)
-       WHERE t.common_name ILIKE $1
-          OR CONCAT(t.genus, ' ', t.species) ILIKE $1
-          OR t.genus ILIKE $1
-          OR t.family ILIKE $1
-          OR t.species ILIKE $1
+       JOIN dataset.especie_publica ep ON ${coincide('p.top_class')}
+       WHERE ep.nombre_comun ILIKE $1
+          OR ep.nombre_cientifico ILIKE $1
+          OR ep.genero ILIKE $1
+          OR ep.familia ILIKE $1
+          OR ep.epiteto ILIKE $1
        GROUP BY u.username, u.profile_image
        ORDER BY species_obs_count DESC
        LIMIT 50`,

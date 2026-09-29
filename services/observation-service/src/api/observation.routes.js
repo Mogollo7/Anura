@@ -554,4 +554,61 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// ── Comentarios (Fase 14) ──────────────────────────────────────────────────
+// GET /api/observations/:id/comments — lista con hilos (una capa de respuestas), público.
+router.get('/:id/comments', async (req, res) => {
+  try {
+    const query = `
+      SELECT c.id, c.observation_id, c.parent_id, c.body, c.stance,
+             c.taxon_proposal_scientific_name, c.taxon_proposal_common_name, c.created_at,
+             u.id as author_id, u.username as author_username, u.profile_image as author_profile_image
+      FROM observations.comments c
+      JOIN auth.users u ON u.id = c.author_id
+      WHERE c.observation_id = $1
+      ORDER BY c.created_at ASC
+    `;
+    const result = await pool.query(query, [req.params.id]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching comments:', err);
+    res.status(500).json({ message: 'Error al leer los comentarios' });
+  }
+});
+
+// POST /api/observations/:id/comments — {body, stance?, parentId?, taxonProposal?:{scientificName,commonName}}
+router.post('/:id/comments', authMiddleware, async (req, res) => {
+  try {
+    const { body, stance, parentId, taxonProposal } = req.body;
+    if (!body || !body.trim()) {
+      return res.status(400).json({ message: 'El comentario no puede estar vacío' });
+    }
+    const validStances = ['agree', 'neutral', 'disagree'];
+    const finalStance = validStances.includes(stance) ? stance : 'neutral';
+    const insertQuery = `
+      INSERT INTO observations.comments
+        (observation_id, author_id, parent_id, body, stance, taxon_proposal_scientific_name, taxon_proposal_common_name)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, observation_id, parent_id, body, stance, taxon_proposal_scientific_name, taxon_proposal_common_name, created_at
+    `;
+    const result = await pool.query(insertQuery, [
+      req.params.id,
+      req.user.id,
+      parentId || null,
+      body.trim(),
+      finalStance,
+      taxonProposal?.scientificName || null,
+      taxonProposal?.commonName || null,
+    ]);
+    res.status(201).json({
+      ...result.rows[0],
+      author_id: req.user.id,
+      author_username: req.user.username,
+      author_profile_image: null,
+    });
+  } catch (err) {
+    console.error('Error posting comment:', err);
+    res.status(500).json({ message: 'Error al guardar el comentario' });
+  }
+});
+
 module.exports = router;

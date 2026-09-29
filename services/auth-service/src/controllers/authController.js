@@ -23,16 +23,19 @@ exports.login = async (req, res) => {
     res.status(200).send(result);
   } catch (err) {
     if (err.message === 'Debe enviar email y password') {
-      return res.status(400).send({ message: err.message });
+      return res.status(400).send({ message: 'Escribe tu correo y tu contraseña.' });
     }
-    if (err.message === 'No existe el usuario') {
-      return res.status(404).send({ message: err.message });
+    if (err.message === 'Credenciales incorrectas') {
+      return res.status(401).send({ message: 'El correo o la contraseña no coinciden.' });
     }
-    if (err.message === 'Contraseña incorrecta') {
-      return res.status(401).send({ message: err.message });
+    if (err.message === 'Cuenta de Google') {
+      return res.status(401).send({ message: 'Esta cuenta entra con Google. Usa «Continuar con Google».' });
+    }
+    if (err.message === 'Cuenta suspendida') {
+      return res.status(403).send({ message: 'Tu cuenta está suspendida. Escribe al equipo de ANURA si crees que es un error.' });
     }
     console.error(err);
-    res.status(500).send({ message: 'Error al realizar el login' });
+    res.status(500).send({ message: 'No se pudo iniciar sesión. Intenta de nuevo en un momento.' });
   }
 };
 exports.getMe = async (req, res) => {
@@ -106,6 +109,32 @@ exports.getFollowStatus = async (req, res) => {
     const result = await authService.getFollowStatus(req.user.id, username);
     res.status(200).json(result);
   } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.listFollowers = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const result = await authService.listFollowers(username);
+    res.status(200).json(result);
+  } catch (err) {
+    if (err.message === 'No existe el usuario') {
+      return res.status(404).json({ message: err.message });
+    }
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.listFollowing = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const result = await authService.listFollowing(username);
+    res.status(200).json(result);
+  } catch (err) {
+    if (err.message === 'No existe el usuario') {
+      return res.status(404).json({ message: err.message });
+    }
     res.status(500).json({ message: err.message });
   }
 };

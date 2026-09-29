@@ -15,6 +15,7 @@ const { runHealthCheck } = require('./utils/healthCheck');
 // Routes
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/preferences', require('./routes/preferences.routes'));
+app.use('/api/panel', require('./routes/panel.routes'));
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, async () => {
