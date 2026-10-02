@@ -1,8 +1,10 @@
 "use client";
 
-import { CheckCircle2, Clock, AlertTriangle, Smartphone } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, Clock, AlertTriangle, Smartphone, RefreshCw } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, THead, TBody, TRow, TH, TD } from "@/components/ui/table";
 import { DataState } from "@/components/app-data/data-state";
 import {
@@ -32,19 +34,61 @@ function deviceTone(device: AppDevice): "accent" | "warning" | "danger" {
 export function SyncConsole() {
   const devices = useAppResource(appApi.devices);
   const observations = useAppResource(appApi.observations);
+  const [busy, setBusy] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function pedir() {
+    setBusy(true);
+    setError(null);
+    setAviso(null);
+    try {
+      const res = await appApi.pedirSincronizacion();
+      setAviso(res.mensaje);
+      devices.reload();
+      observations.reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo pedir la sincronización");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <DataState value={devices.value} onRetry={() => { devices.reload(); observations.reload(); }}>
       {(deviceList) => (
         <DataState value={observations.value} onRetry={observations.reload}>
-          {(obsList) => <SyncBody devices={deviceList} observations={obsList} />}
+          {(obsList) => (
+            <SyncBody
+              devices={deviceList}
+              observations={obsList}
+              busy={busy}
+              aviso={aviso}
+              error={error}
+              onSync={pedir}
+            />
+          )}
         </DataState>
       )}
     </DataState>
   );
 }
 
-function SyncBody({ devices, observations }: { devices: AppDevice[]; observations: AppObservation[] }) {
+function SyncBody({
+  devices,
+  observations,
+  busy,
+  aviso,
+  error,
+  onSync,
+}: {
+  devices: AppDevice[];
+  observations: AppObservation[];
+  busy: boolean;
+  aviso: string | null;
+  error: string | null;
+  onSync: () => void;
+}) {
   const recent = devices.filter((d) => !d.bloqueado && daysAgo(d.last_seen) <= RECENT_DAYS);
   const stale = devices.filter((d) => !d.bloqueado && daysAgo(d.last_seen) > RECENT_DAYS);
   const blocked = devices.filter((d) => d.bloqueado);
@@ -53,11 +97,19 @@ function SyncBody({ devices, observations }: { devices: AppDevice[]; observation
 
   return (
     <div className="space-y-6">
-      <p className="max-w-3xl text-sm text-label-secondary">
-        Cada teléfono con sesión se anuncia al abrir la app y vuelve a subir las observaciones con foto que
-        se quedaron solo en el aparato. Las públicas aparecen en Observaciones de la web, de todas las cuentas.
-        Las privadas llegan al servidor y se ven aquí, no en el mapa público.
-      </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <p className="max-w-3xl text-sm text-label-secondary">
+          Cada teléfono con sesión se anuncia al abrir la app y vuelve a subir las observaciones con foto que
+          se quedaron solo en el aparato. Las públicas aparecen en Observaciones de la web, de todas las cuentas.
+          Las privadas llegan al servidor y se ven aquí, no en el mapa público.
+        </p>
+        <Button variant="primary" onClick={onSync} disabled={busy} className="shrink-0">
+          <RefreshCw size={14} className={busy ? "animate-spin" : undefined} aria-hidden />
+          Pedir sincronización
+        </Button>
+      </div>
+      {aviso && <p className="text-sm text-accent-ink">{aviso}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Card className="p-4">
@@ -113,7 +165,12 @@ function SyncBody({ devices, observations }: { devices: AppDevice[]; observation
                       : "Ninguno"}
                   </TD>
                   <TD className="text-label-secondary">{formatRelative(d.last_seen)}</TD>
-                  <TD><Badge tone={tone}>{label}</Badge></TD>
+                  <TD>
+                    <span className="flex flex-wrap items-center gap-1.5">
+                      <Badge tone={tone}>{label}</Badge>
+                      {d.sync_pedida ? <Badge tone="info">Sincronización pedida</Badge> : null}
+                    </span>
+                  </TD>
                 </TRow>
               );
             })}

@@ -347,8 +347,20 @@ export type ContenidoEspecie = {
 export type FichaContenido = {
   especie: { id: number; carpeta: string; nombre_cientifico: string; genero: string; familia: string; taxon_id: string | null };
   contenido: ContenidoEspecie;
-  auto: { fotos_referencia: number };
+  auto: { fotos_referencia: number; proyecto: DatosDelProyecto };
   faltan: string[];
+};
+
+/** Lo que el proyecto ya sacó de la especie (ficha técnica): fuente de «Cargar datos del proyecto». */
+export type DatosDelProyecto = {
+  observaciones: number;
+  altitud: { min: number; max: number; origen: "manual" | "calculado"; n: number } | null;
+  subregiones: { nombre: string; region: string }[] | null;
+  sustrato: { n: number; conteos: { clave: string; nombre: string; n: number }[] };
+  lrc: { min: number; max: number } | null;
+  /** Autoría, sinónimos y nombre del catálogo taxonómico (iNaturalist + GBIF Backbone). */
+  catalogo: { autoria: string | null; sinonimos: string[]; nombre_comun: string | null; otro_nombre: string | null; fuente: string } | null;
+  motivo: string | null;
 };
 
 export type ContenidoResumen = {
@@ -372,6 +384,10 @@ export const guardarContenido = (
   especieId: number,
   body: { campos?: Partial<CamposContenido>; foto_principal_sha256?: string | null; galeria?: string[] }
 ) => send<ContenidoEspecie & { faltan: string[] }>("PUT", `/api/dataset/contenido/${especieId}`, body);
+
+/** Pone en la ficha lo que el proyecto ya tiene, solo en campos vacíos. `rellenados` dice cuáles. */
+export const precargarContenido = (especieId: number) =>
+  send<FichaContenido & { rellenados: { seccion: string; campo: string }[] }>("POST", `/api/dataset/contenido/${especieId}/precargar`, {});
 
 export const enviarARevision = (especieId: number) => send<ContenidoEspecie>("POST", `/api/dataset/contenido/${especieId}/revision`, {});
 

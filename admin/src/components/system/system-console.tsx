@@ -14,10 +14,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, THead, TBody, TRow, TH, TD } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { getToken } from "@/lib/auth/panel-client";
 import { INFRA, SERVICES, uncheckedServices, type ServiceCheck, type ServiceStatus } from "@/lib/system/services";
 import { getIntegrations } from "@/lib/system/integrations";
 import { useAppResource } from "@/lib/app-data/app-client";
 import { getResumen, getTrabajos } from "@/lib/dataset/dataset-client";
+import { DatabaseBackup } from "@/components/system/database-backup";
 import { PanelAccountsManager } from "@/components/system/panel-accounts-manager";
 import { usePanelSession } from "@/lib/session/panel-session";
 
@@ -60,7 +62,7 @@ export function SystemConsole() {
     setChecking(true);
     setProbeError(null);
     try {
-      const res = await fetch("/api/system/health", { cache: "no-store" });
+      const res = await fetch("/api/system/health", { cache: "no-store", headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.message || `HTTP ${res.status}`);
       setChecks(body.checks ?? uncheckedServices());
@@ -97,6 +99,8 @@ export function SystemConsole() {
         <Kpi icon={Globe2} value={integrations.length} label="Integraciones externas" />
         <Kpi icon={ShieldCheck} value={session.accounts.length} label="Cuentas del panel administrativo" />
       </div>
+
+      <DatabaseBackup />
 
       <div className="flex gap-1 border-b border-border text-sm">
         {([["servicios", "Estado de servicios"], ["integraciones", "Integraciones"], ["roles", "Roles y permisos"]] as [Tab, string][]).map(([t, label]) => (

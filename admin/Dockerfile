@@ -14,6 +14,8 @@ RUN npm run build
 # ── Runtime (standalone) ────────────────────────────────────────────────────
 FROM node:20-alpine AS runtime
 WORKDIR /app
+# pg_dump y psql para Sistema → Respaldar base (cliente 16, el mismo que usa db-migrate con el servidor 16).
+RUN apk add --no-cache postgresql16-client
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0

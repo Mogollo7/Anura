@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requirePanelAccount } from "@/lib/auth/require-panel";
 
 const INAT = "https://api.inaturalist.org/v1";
 const COLOMBIA = "7196";
@@ -38,6 +39,8 @@ function sexOf(obs: { sex?: string; annotations?: { controlled_attribute?: { lab
 }
 
 export async function GET(req: NextRequest) {
+  const denied = await requirePanelAccount(req);
+  if (denied) return denied;
   const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
   const grade = req.nextUrl.searchParams.get("quality_grade") ?? "research";
   const perPage = Math.min(20, Math.max(1, Number(req.nextUrl.searchParams.get("per_page")) || 8));

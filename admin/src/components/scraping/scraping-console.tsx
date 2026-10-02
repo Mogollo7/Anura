@@ -1,9 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { getToken } from "@/lib/auth/panel-client";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
+import { NameCombobox, type OpcionNombre } from "@/components/catalog/name-combobox";
+import { useNombresGuardados } from "@/components/catalog/taxonomia-api";
+
+const authHeader = (): Record<string, string> => {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 type InatRow = {
   id: number;
@@ -45,15 +53,21 @@ const INAT_CAMPOS = [
 ];
 
 export function ScrapingConsole() {
+  // Los nombres salen de dataset.especie; una especie que aún no está guardada se escribe a mano.
+  const guardados = useNombresGuardados();
+  const nombres = useMemo<OpcionNombre[]>(
+    () => (guardados?.especies ?? []).map((e) => ({ valor: e.nombre_cientifico, detalle: e.familia })),
+    [guardados]
+  );
   return (
     <div className="space-y-4">
-      <Inaturalist />
-      <Gbif />
+      <Inaturalist nombres={nombres} />
+      <Gbif nombres={nombres} />
     </div>
   );
 }
 
-function Inaturalist() {
+function Inaturalist({ nombres }: { nombres: OpcionNombre[] }) {
   const [especie, setEspecie] = useState("");
   const [calidad, setCalidad] = useState("research");
   const [minFotos, setMinFotos] = useState(70);
@@ -81,7 +95,7 @@ function Inaturalist() {
     setError(null);
     try {
       const params = new URLSearchParams({ q: especie.trim(), quality_grade: calidad, per_page: "8" });
-      const res = await fetch(`/api/scraping/inaturalist?${params}`);
+      const res = await fetch(`/api/scraping/inaturalist?${params}`, { headers: authHeader() });
       const body = await res.json();
       if (!res.ok) throw new Error(body.message || "No se pudo consultar");
       setData(body);
@@ -103,7 +117,7 @@ function Inaturalist() {
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <Field label="Especies" hint="Separadas por coma. El script también acepta especies_input.txt." className="sm:col-span-2">
-            <Input value={especie} onChange={(e) => setEspecie(e.target.value)} placeholder="Pristimantis paisa" />
+            <NameCombobox value={especie} onChange={setEspecie} opciones={nombres} placeholder="Pristimantis paisa" lista italico etiquetaNuevo="no está en el catálogo: se buscará igual" />
           </Field>
           <Field label="Grado de calidad" hint="research es el valor por defecto del script.">
             <Select value={calidad} onChange={(e) => setCalidad(e.target.value)}>
@@ -161,7 +175,7 @@ function Inaturalist() {
   );
 }
 
-function Gbif() {
+function Gbif({ nombres }: { nombres: OpcionNombre[] }) {
   const [especie, setEspecie] = useState("");
   const [departamento, setDepartamento] = useState("Antioquia");
   const [coordenadas, setCoordenadas] = useState(true);
@@ -180,7 +194,7 @@ function Gbif() {
         coordenadas: coordenadas ? "true" : "false",
         per_page: "8",
       });
-      const res = await fetch(`/api/scraping/gbif?${params}`);
+      const res = await fetch(`/api/scraping/gbif?${params}`, { headers: authHeader() });
       const body = await res.json();
       if (!res.ok) throw new Error(body.message || "No se pudo consultar");
       setTotal(body.total);
@@ -203,7 +217,7 @@ function Gbif() {
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Especie" hint="Vacío = todo Anura en el filtro geográfico.">
-            <Input value={especie} onChange={(e) => setEspecie(e.target.value)} placeholder="opcional" />
+            <NameCombobox value={especie} onChange={setEspecie} opciones={nombres} placeholder="opcional" italico etiquetaNuevo="no está en el catálogo: se buscará igual" />
           </Field>
           <Field label="Departamento">
             <Input value={departamento} onChange={(e) => setDepartamento(e.target.value)} />

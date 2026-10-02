@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogHeader } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Field, Input } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
+import { NameCombobox, type OpcionNombre } from "@/components/catalog/name-combobox";
+import { useNombresGuardados } from "@/components/catalog/taxonomia-api";
 import {
   crearEspecie,
   DatasetError,
@@ -21,13 +23,13 @@ type Conflicto =
  * Único formulario para crear y editar una especie: escribe en dataset.especie, la misma fila
  * que leen Imágenes, Contenido, Centroides, los paquetes y la app. El servidor valida el
  * nombre (binomial), la familia y la coherencia del género; aquí solo se muestra lo que dice.
- * `familias` son las que ya existen en el servidor, para no reescribirlas a mano.
+ * Nombre, género y familia son combobox con lo que ya está guardado; un género o una familia
+ * nuevos no tienen pantalla propia: existen al guardar la especie que los usa.
  */
 export function SpeciesIntakeForm({
   abierto,
   onCerrar,
   especie,
-  familias,
   onGuardada,
   onAbrirExistente,
 }: {
@@ -35,12 +37,10 @@ export function SpeciesIntakeForm({
   onCerrar: () => void;
   /** Con especie se edita; sin ella se crea. */
   especie?: DatasetEspecie | null;
-  familias: string[];
   onGuardada: (e: EspecieCreada, corregidas: number) => void;
   onAbrirExistente: (especieId: number) => void;
 }) {
   const editando = !!especie;
-  const listaId = useId();
   const [nombre, setNombre] = useState("");
   const [familia, setFamilia] = useState("");
   const [trabajando, setTrabajando] = useState(false);
@@ -55,7 +55,29 @@ export function SpeciesIntakeForm({
     setConflicto(null);
   }, [abierto, especie]);
 
+  const guardados = useNombresGuardados(abierto, especie);
   const genero = generoDelNombre(nombre);
+  const resto = nombre.trim().includes(" ") ? nombre.trim().slice(nombre.trim().indexOf(" ")) : "";
+  const generoGuardado = guardados?.generos.find((g) => g.nombre === genero);
+
+  const opcionesNombre = useMemo<OpcionNombre[]>(
+    () => (guardados?.especies ?? []).map((e) => ({ valor: e.nombre_cientifico, detalle: e.id === especie?.id ? "esta especie" : `ya existe · ${e.familia}` })),
+    [guardados, especie]
+  );
+  const opcionesGenero = useMemo<OpcionNombre[]>(
+    () => (guardados?.generos ?? []).map((g) => ({ valor: g.nombre, detalle: `${g.familia} · ${g.especies === 1 ? "1 especie" : `${g.especies} especies`}` })),
+    [guardados]
+  );
+  const opcionesFamilia = useMemo<OpcionNombre[]>(
+    () => (guardados?.familias ?? []).map((f) => ({ valor: f.nombre, detalle: `${f.generos === 1 ? "1 género" : `${f.generos} géneros`} · ${f.especies === 1 ? "1 especie" : `${f.especies} especies`}` })),
+    [guardados]
+  );
+
+  // Un género que ya está guardado pertenece a una sola familia: se propone si la familia sigue vacía.
+  useEffect(() => {
+    if (!editando && generoGuardado && familia.trim() === "") setFamilia(generoGuardado.familia);
+  }, [editando, generoGuardado, familia]);
+
   const listo = nombre.trim() !== "" && familia.trim() !== "";
   const sinCambios = editando && nombre.trim() === especie.nombre_cientifico && familia.trim() === especie.familia;
 
@@ -106,34 +128,49 @@ export function SpeciesIntakeForm({
       >
         <Field
           label="Nombre científico"
-          hint={genero ? `Género: ${genero}. Sale del nombre.` : "Género y epíteto, por ejemplo Boana boans."}
+          hint={genero ? `Género: ${genero}. Sale del nombre.` : "Género y epíteto, por ejemplo Boana boans. Si no está en la lista, escríbelo completo."}
         >
-          <Input
+          <NameCombobox
             value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
+            onChange={setNombre}
+            opciones={opcionesNombre}
             placeholder="Boana boans"
             maxLength={80}
             autoFocus
-            autoComplete="off"
-            spellCheck={false}
-            className="italic"
+            italico
+            etiquetaNuevo="no está guardada: se creará al guardar"
           />
         </Field>
-        <Field label="Familia" hint="Una palabra que termina en «-idae», por ejemplo Hylidae.">
-          <Input
+        <Field
+          label="Género"
+          hint={
+            generoGuardado
+              ? `${generoGuardado.nombre} ya está en ${generoGuardado.familia}.`
+              : genero
+                ? `${genero} no está guardado: se creará con esta especie.`
+                : "Es la primera palabra del nombre; también puedes elegirlo aquí."
+          }
+        >
+          <NameCombobox
+            value={genero ?? nombre.trim().split(/\s+/)[0] ?? ""}
+            onChange={(v) => setNombre(`${v.trim()}${resto}`)}
+            opciones={opcionesGenero}
+            placeholder="Boana"
+            maxLength={40}
+            italico
+            etiquetaNuevo="no está guardado: se creará con esta especie"
+            ariaLabel="Género"
+          />
+        </Field>
+        <Field label="Familia" hint="Una palabra que termina en «-idae», por ejemplo Hylidae. Si no está en la lista, escríbela.">
+          <NameCombobox
             value={familia}
-            onChange={(e) => setFamilia(e.target.value)}
+            onChange={setFamilia}
+            opciones={opcionesFamilia}
             placeholder="Hylidae"
             maxLength={60}
-            autoComplete="off"
-            spellCheck={false}
-            list={listaId}
+            etiquetaNuevo="no está guardada: se creará con esta especie"
           />
-          <datalist id={listaId}>
-            {familias.map((f) => (
-              <option key={f} value={f} />
-            ))}
-          </datalist>
         </Field>
 
         {error && (

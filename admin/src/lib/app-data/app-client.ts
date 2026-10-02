@@ -40,6 +40,8 @@ export type AppDevice = {
   bloqueado: boolean;
   bloqueo_motivo: string | null;
   cuenta_activa: boolean;
+  /** El admin pidió que este teléfono suba lo pendiente. Null si no hay petición abierta. */
+  sync_pedida?: string | null;
 };
 
 export type ObservationStatus = "draft" | "synced" | "in_review" | "validated" | "rejected";
@@ -104,12 +106,40 @@ export type Aviso = {
   id: string;
   titulo: string;
   cuerpo: string | null;
-  destino: "todos" | "usuario";
+  destino: "todos" | "usuario" | "usuarios";
   autor: string | null;
   enviado: string;
   destinatarios: number;
   leidos: number;
   usuario: string | null;
+  /** Enlace público /a/<token> si el aviso lleva texto largo, enlaces o imagen. */
+  enlace_publico?: string | null;
+  enlaces?: number;
+  con_imagen?: boolean;
+};
+
+export type AvisoEnlace = { texto: string; url: string };
+
+export type AvisoEnvio = {
+  titulo: string;
+  cuerpo: string;
+  destino: "todos" | "usuario" | "usuarios";
+  usuario_id?: string;
+  usuario_ids?: string[];
+  enlaces?: AvisoEnlace[];
+  imagen?: { base64: string };
+  /** Solo validar y calcular lo que se enviaría; no escribe nada. */
+  vista_previa?: boolean;
+};
+
+export type AvisoVistaPrevia = {
+  vista_previa: true;
+  destinatarios: number;
+  titulo: string;
+  /** El body exacto que verá el teléfono (la app no cambia). */
+  cuerpo_telefono: string;
+  largo: number;
+  rico: boolean;
 };
 
 export class AppApiError extends Error {
@@ -148,12 +178,18 @@ export const appApi = {
   devices: () => call<{ dispositivos: AppDevice[] }>("/api/panel/dispositivos").then((r) => r.dispositivos),
   setDeviceBlocked: (id: string, bloqueado: boolean, motivo?: string) =>
     call<{ dispositivo: Pick<AppDevice, "id" | "bloqueado" | "bloqueo_motivo"> }>(`/api/panel/dispositivos/${id}`, patch({ bloqueado, motivo })).then((r) => r.dispositivo),
+  pedirSincronizacion: () =>
+    call<{ pedidos: number; mensaje: string }>("/api/panel/dispositivos/sincronizar", { method: "POST", body: "{}" }),
   observations: () => call<{ observaciones: AppObservation[] }>("/api/observations/panel").then((r) => r.observaciones),
   reviewObservation: (id: string, estado: "validated" | "rejected" | "in_review", motivo?: string) =>
     call<{ observacion: Pick<AppObservation, "id" | "status" | "review_reason" | "reviewed_at"> }>(`/api/observations/panel/${id}`, patch({ estado, motivo })).then((r) => r.observacion),
   avisos: () => call<{ avisos: Aviso[] }>("/api/notifications/panel/avisos").then((r) => r.avisos),
-  sendAviso: (input: { titulo: string; cuerpo: string; destino: "todos" | "usuario"; usuario_id?: string }) =>
-    call<{ id: string; destinatarios: number }>("/api/notifications/panel/avisos", { method: "POST", body: JSON.stringify(input) }),
+  sendAviso: (input: AvisoEnvio) =>
+    call<{ id: string; destinatarios: number; enlace_publico: string | null }>("/api/notifications/panel/avisos", { method: "POST", body: JSON.stringify(input) }),
+  previewAviso: (input: AvisoEnvio) =>
+    call<AvisoVistaPrevia>("/api/notifications/panel/avisos", { method: "POST", body: JSON.stringify({ ...input, vista_previa: true }) }),
+  retirarAviso: (id: string) =>
+    call<{ retirados: number }>(`/api/notifications/panel/avisos/${id}`, { method: "DELETE" }),
   activity: (weeks?: number) =>
     call<ActivityApiResponse>(`/api/panel/actividad${weeks ? `?weeks=${weeks}` : ""}`),
   audit: () => call<{ entradas: AuditEntry[] }>("/api/panel/auditoria").then((r) => r.entradas ?? []),

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Download, Images, MapPin, Pencil, Plus, Search, Upload } from "lucide-react";
+import { BookOpen, Download, Images, MapPin, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import {
   type EspecieCreada,
 } from "@/lib/dataset/dataset-client";
 import { SpeciesIntakeForm } from "@/components/catalog/species-intake-form";
+import { DeleteSpeciesDialog } from "@/components/catalog/delete-species-dialog";
 
 const n = (v: number) => v.toLocaleString("es-CO");
 const ESTADO_FICHA: Record<string, string> = { borrador: "Borrador", en_revision: "En revisión", publicada: "Publicada" };
@@ -44,6 +45,7 @@ export function ServerCatalog() {
   const [recarga, setRecarga] = useState(0);
   const [formulario, setFormulario] = useState<{ especie: DatasetEspecie | null } | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
+  const [aBorrar, setABorrar] = useState<DatasetEspecie | null>(null);
 
   useEffect(() => {
     let cancelado = false;
@@ -129,12 +131,24 @@ export function ServerCatalog() {
       abierto={!!formulario}
       onCerrar={() => setFormulario(null)}
       especie={formulario?.especie ?? null}
-      familias={[...new Set(especies.map((e) => e.familia))].sort()}
       onGuardada={alGuardar}
       onAbrirExistente={(id) => {
         setFormulario(null);
         setBusqueda("");
         router.push(`/catalogo?especie=${id}`);
+      }}
+    />
+  );
+
+  const dialogoBorrar = (
+    <DeleteSpeciesDialog
+      especie={aBorrar}
+      onCerrar={() => setABorrar(null)}
+      onBorrada={(nombre) => {
+        setABorrar(null);
+        setRecarga((v) => v + 1);
+        setMensaje(`Borraste ${nombre}.`);
+        router.push("/catalogo");
       }}
     />
   );
@@ -151,6 +165,7 @@ export function ServerCatalog() {
           </p>
         </Card>
         {dialogo}
+        {dialogoBorrar}
       </div>
     );
   }
@@ -235,10 +250,12 @@ export function ServerCatalog() {
             unicaDeSuGenero={deSuGenero(selected) === 1}
             puedeEditar={puedeEditar}
             onEditar={() => setFormulario({ especie: selected })}
+            onBorrar={() => setABorrar(selected)}
           />
         )}
       </div>
       {dialogo}
+      {dialogoBorrar}
     </div>
   );
 }
@@ -249,12 +266,14 @@ function Detalle({
   unicaDeSuGenero,
   puedeEditar,
   onEditar,
+  onBorrar,
 }: {
   especie: DatasetEspecie;
   ficha?: ContenidoResumen;
   unicaDeSuGenero: boolean;
   puedeEditar: boolean;
   onEditar: () => void;
+  onBorrar: () => void;
 }) {
   const [fotos, setFotos] = useState<DatasetFoto[] | null>(null);
   useEffect(() => {
@@ -291,6 +310,11 @@ function Detalle({
           {puedeEditar && (
             <Button variant="outline" className="px-2.5 py-1 text-xs" onClick={onEditar}>
               <Pencil size={12} aria-hidden /> Editar nombre y familia
+            </Button>
+          )}
+          {puedeEditar && (
+            <Button variant="outline" className="px-2.5 py-1 text-xs text-danger" onClick={onBorrar}>
+              <Trash2 size={12} aria-hidden /> Borrar
             </Button>
           )}
         </div>

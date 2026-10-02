@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requirePanelAccount } from "@/lib/auth/require-panel";
 
 const GBIF = "https://api.gbif.org/v1/occurrence/search";
 const GBIF_MATCH = "https://api.gbif.org/v1/species/match";
 
 export async function GET(req: NextRequest) {
+  const denied = await requirePanelAccount(req);
+  if (denied) return denied;
   const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
   const departamento = req.nextUrl.searchParams.get("departamento")?.trim() ?? "";
   const soloCoordenadas = req.nextUrl.searchParams.get("coordenadas") !== "false";

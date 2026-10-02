@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AlertTriangle, CheckCircle2, Image as ImageIcon, Send, ShieldCheck, Undo2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, DatabaseZap, Image as ImageIcon, Send, ShieldCheck, Undo2 } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ import {
   getFicha,
   getFotos,
   guardarContenido,
+  precargarContenido,
+  type DatosDelProyecto,
   publicarContenido,
   type CamposContenido,
   type ContenidoResumen,
@@ -55,6 +57,71 @@ const aLineas = (v: string[] | null | undefined) => (v ?? []).join("\n");
 const deLineas = (t: string) => (t.trim() ? t.split("\n") : null);
 
 /** Dónde se ve cada bloque: la app Android (ficha, Explorar, carrusel) y la web (ficha de especie). */
+/**
+ * Lo que el proyecto ya tiene de la especie, en las mismas secciones del formulario de abajo.
+ * «Cargar datos del proyecto» lo pone en esos campos si están vacíos; lo que no tiene fuente en el
+ * proyecto (UICN, toxicidad, morfología…) se dice aparte: lo completa el herpetólogo.
+ */
+function DatosProyecto({ datos }: { datos: DatosDelProyecto }) {
+  const cat = datos.catalogo;
+  const secciones: { titulo: string; filas: [string, string][]; sinDato?: string }[] = [
+    {
+      titulo: "Identidad, estado y toxicidad",
+      filas: [
+        ["Nombre común", cat?.nombre_comun ?? (cat?.otro_nombre ? `${cat.otro_nombre} (en inglés: va a «Otros nombres»)` : "sin dato")],
+        ["Autoría", cat?.autoria ?? "sin dato"],
+        ["Sinónimos", cat?.sinonimos.length ? cat.sinonimos.join(", ") : "sin dato"],
+      ],
+      sinDato: "UICN y toxicidad: el proyecto no las tiene; las completa el herpetólogo con su fuente.",
+    },
+    {
+      titulo: "Dónde vive",
+      filas: [
+        ["Observaciones válidas", String(datos.observaciones)],
+        [
+          "Altitud de los registros",
+          datos.altitud
+            ? `${Math.round(datos.altitud.min)}–${Math.round(datos.altitud.max)} m · ${datos.altitud.origen === "manual" ? "fijada a mano" : `p5–p95 de ${datos.altitud.n}`}`
+            : "sin altitudes todavía",
+        ],
+        ["Subregiones con registros", datos.subregiones === null ? "no disponible" : datos.subregiones.length ? datos.subregiones.map((s) => s.nombre).join(", ") : "ninguna"],
+        ["Sustrato etiquetado", datos.sustrato.n ? datos.sustrato.conteos.map((s) => `${s.nombre} ${s.n}`).join(" · ") : "sin etiquetar"],
+      ],
+      sinDato: "Altitud según la literatura y endemismo: el proyecto no los tiene.",
+    },
+    {
+      titulo: "Cómo reconocerla",
+      filas: [["LRC medida (LHC)", datos.lrc ? `${datos.lrc.min}–${datos.lrc.max} mm` : "pendiente"]],
+      sinDato: "Tímpano, discos, pliegues, patrones y rasgos diagnósticos: los escribe el herpetólogo.",
+    },
+  ];
+  return (
+    <>
+      <div className="grid gap-4 md:grid-cols-3">
+        {secciones.map((sec) => (
+          <section key={sec.titulo} className="space-y-1.5">
+            <h4 className="text-xs font-semibold text-label-primary">{sec.titulo}</h4>
+            <dl className="space-y-1 text-xs">
+              {sec.filas.map(([k, v]) => (
+                <div key={k} className="flex justify-between gap-3">
+                  <dt className="shrink-0 text-label-tertiary">{k}</dt>
+                  <dd className="text-right text-label-primary">{v}</dd>
+                </div>
+              ))}
+            </dl>
+            {sec.sinDato && <p className="text-[11px] text-label-tertiary">{sec.sinDato}</p>}
+          </section>
+        ))}
+      </div>
+      {cat && <p className="mt-3 text-[11px] text-label-tertiary">Identidad: {cat.fuente}.</p>}
+      {datos.motivo && <p className="mt-1 text-[11px] text-warning">{datos.motivo}</p>}
+      <p className="mt-1 text-[11px] text-label-tertiary">
+        Al cargarlo se llenan solo los campos vacíos de cada sección; nunca se pisa lo que ya escribiste. El nombre común queda con la fuente «por confirmar».
+      </p>
+    </>
+  );
+}
+
 function SeVeEn({ app, web }: { app?: string; web?: string }) {
   return (
     <p className="mb-3 flex flex-wrap gap-1.5 text-[11px] text-label-tertiary">
@@ -158,12 +225,20 @@ function ContentEditor({ especieId, lista, onCambio }: { especieId: number; list
   const [aviso, setAviso] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
   const [devolviendo, setDevolviendo] = useState(false);
+  const [cargando, setCargando] = useState(false);
+  // Lo último que el servidor tiene (para saber si hay cambios) y la función que lo guarda si la
+  // persona se va antes de que corra el temporizador.
+  const guardado = useRef<string | null>(null);
+  const pendiente = useRef<(() => void) | null>(null);
+  const [estadoGuardado, setEstadoGuardado] = useState<"al_dia" | "pendiente" | "guardando">("al_dia");
+  const instantanea = (c: Partial<CamposContenido>, fp: string | null, g: string[]) => JSON.stringify({ c, fp, g });
 
   useEffect(() => {
     let cancelado = false;
     Promise.all([getFicha(especieId), getFotos(especieId, 0, 100, true)])
       .then(([f, { fotos: fs }]) => {
         if (cancelado) return;
+        guardado.current = instantanea(f.contenido.campos ?? {}, f.contenido.foto_principal_sha256, f.contenido.galeria ?? []);
         setFicha(f);
         setCampos(f.contenido.campos ?? {});
         setFotoPrincipal(f.contenido.foto_principal_sha256);
@@ -184,17 +259,77 @@ function ContentEditor({ especieId, lista, onCambio }: { especieId: number; list
   async function guardar(): Promise<boolean> {
     if (!ficha) return false;
     setGuardando(true);
+    setEstadoGuardado("guardando");
     setError(null);
+    const foto = instantanea(campos, fotoPrincipal, galeria);
     try {
       const { faltan, ...c } = await guardarContenido(especieId, { campos, foto_principal_sha256: fotoPrincipal, galeria });
+      guardado.current = foto;
       setFicha((f) => (f ? { ...f, contenido: c, faltan } : f));
       onCambio();
+      setEstadoGuardado("al_dia");
       return true;
     } catch (e) {
       setError((e as Error).message);
+      setEstadoGuardado("pendiente");
       return false;
     } finally {
       setGuardando(false);
+    }
+  }
+
+  // Guardado automático: lo que se edita se manda al servidor un momento después de dejar de escribir
+  // (y al cambiar de especie o salir de la pantalla), sin pulsar «Guardar borrador».
+  useEffect(() => {
+    if (!ficha || !canEditar || guardando || guardado.current === null) return;
+    if (instantanea(campos, fotoPrincipal, galeria) === guardado.current) {
+      pendiente.current = null;
+      return;
+    }
+    setEstadoGuardado("pendiente");
+    pendiente.current = () => {
+      void guardarContenido(especieId, { campos, foto_principal_sha256: fotoPrincipal, galeria }).catch(() => {});
+    };
+    const t = setTimeout(() => {
+      pendiente.current = null;
+      void guardar();
+    }, 1200);
+    return () => clearTimeout(t);
+    // guardar() lee el estado de este mismo render: se vuelve a armar con cada cambio.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campos, fotoPrincipal, galeria, ficha, canEditar, guardando]);
+
+  useEffect(() => {
+    const salir = () => pendiente.current?.();
+    window.addEventListener("pagehide", salir);
+    return () => {
+      window.removeEventListener("pagehide", salir);
+      salir();
+    };
+  }, []);
+
+  async function cargarDelProyecto() {
+    setCargando(true);
+    setError(null);
+    setAviso(null);
+    try {
+      if (!(await guardar())) return;
+      const r = await precargarContenido(especieId);
+      guardado.current = instantanea(r.contenido.campos ?? {}, r.contenido.foto_principal_sha256, r.contenido.galeria ?? []);
+      setFicha(r);
+      setCampos(r.contenido.campos ?? {});
+      setAviso(
+        r.rellenados.length
+          ? `Se cargó del proyecto — ${[...new Set(r.rellenados.map((x) => x.seccion))]
+              .map((sec) => `${sec}: ${r.rellenados.filter((x) => x.seccion === sec).map((x) => x.campo).join(", ")}`)
+              .join(" · ")}. Revísalo y corrige lo que haga falta; ya quedó guardado.`
+          : "No había nada que cargar: los campos que el proyecto puede llenar ya tienen contenido o el proyecto aún no tiene datos."
+      );
+      onCambio();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setCargando(false);
     }
   }
 
@@ -263,6 +398,9 @@ function ContentEditor({ especieId, lista, onCambio }: { especieId: number; list
           <Button variant="outline" disabled={soloLectura} onClick={guardar}>
             Guardar borrador
           </Button>
+          <span role="status" className="self-center text-xs text-label-tertiary">
+            {estadoGuardado === "guardando" ? "Guardando…" : estadoGuardado === "pendiente" ? "Cambios sin guardar…" : "Todo guardado en el servidor"}
+          </span>
           {contenido.estado === "borrador" && canEditar && (
             <Button variant="primary" disabled={guardando} onClick={() => accion(() => enviarARevision(especieId), "Enviada a revisión.")}>
               <Send size={13} /> Enviar a revisión
@@ -289,13 +427,31 @@ function ContentEditor({ especieId, lista, onCambio }: { especieId: number; list
         )}
       </Card>
 
+      <Card>
+        <CardHeader className="mb-2 flex-wrap gap-2">
+          <CardTitle>Datos del proyecto para esta especie</CardTitle>
+          <Button variant="outline" className="text-xs" disabled={soloLectura || cargando} onClick={() => void cargarDelProyecto()}>
+            <DatabaseZap size={13} aria-hidden /> {cargando ? "Cargando…" : "Cargar datos del proyecto"}
+          </Button>
+        </CardHeader>
+        {auto.proyecto ? (
+          <DatosProyecto datos={auto.proyecto} />
+        ) : (
+          // dataset-service sin actualizar: contesta la ficha sin `auto.proyecto`. No se inventa nada.
+          <p className="text-sm text-label-secondary">
+            El servidor no devolvió los datos del proyecto de esta especie. Probablemente dataset-service está en una versión anterior
+            al panel; hay que actualizarlo para ver y cargar estos datos.
+          </p>
+        )}
+      </Card>
+
       <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
         <div className="space-y-4">
           <Card>
             <CardTitle className="mb-1">Identidad, estado y toxicidad</CardTitle>
             <SeVeEn app="ficha, Explorar, carrusel" web="ficha, búsqueda" />
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Nombre común en español" hint="Con fuente: quién lo confirma o de dónde sale.">
+              <Field label="Nombre común en español" hint="Con fuente: quién lo confirma o de dónde sale. Acepta un enlace https://…">
                 <Input
                   disabled={soloLectura}
                   value={campos.nombre_comun?.valor ?? ""}
@@ -358,7 +514,7 @@ function ContentEditor({ especieId, lista, onCambio }: { especieId: number; list
                   }
                 />
               </Field>
-              <Field label="Fuente de la UICN" className="sm:col-span-2" hint="Ej. IUCN Red List, ficha y año.">
+              <Field label="Fuente de la UICN" className="sm:col-span-2" hint="Pega el enlace de la ficha (https://www.iucnredlist.org/species/…) o escribe IUCN Red List y el año. Un enlace se ve como botón en la web.">
                 <Input
                   disabled={soloLectura}
                   value={campos.uicn?.fuente ?? ""}
