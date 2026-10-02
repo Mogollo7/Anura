@@ -25,6 +25,8 @@
  */
 const validacion = require('./validacionTecnica');
 const { construir } = require('./paqueteSqlite');
+const priors = require('./priors');
+const clave = require('./clave');
 const { registrar } = require('./audit');
 
 const falla = (mensaje, status = 400, extra = {}) => Object.assign(new Error(mensaje), { status }, extra);
@@ -89,7 +91,14 @@ async function compilar({ pool, minio, bucket }, subregionId, account, userId) {
     const { rows: [{ version }] } = await client.query(
       'SELECT COALESCE(MAX(version), 0) + 1 AS version FROM packages.regional_packages WHERE region_id = $1', [paqueteId]);
     const generado = new Date().toISOString();
-    const art = await construir(client, v, { paqueteId, version, generado });
+    // Prior de zona y de clima: se sacan del paquete anterior que la app ya tiene (priors.js).
+    const prior = await priors.delPaqueteAnterior({ pool, minio, bucket }, v.subregion.region);
+    const art = await construir(client, v, { paqueteId, version, generado, priors: prior });
+    // La clave del paso a paso queda congelada con las especies y el contexto que entraron a este paquete.
+    art.manifiesto.clave = await clave.armarDesde(client, v.subregion.id, art.manifiesto.especies, {
+      paquete: { id: paqueteId, version, sha256: art.sha256, estado: 'borrador', origen: 'compilado' },
+      subregion: { id: v.subregion.id, nombre: v.subregion.nombre },
+    });
 
     const base = `paquetes/${paqueteId}/v${version}`;
     const jsonTexto = `${JSON.stringify(art.manifiesto, null, 2)}\n`;
@@ -108,6 +117,7 @@ async function compilar({ pool, minio, bucket }, subregionId, account, userId) {
     await auditar(client, userId, 'dataset.paquete.compilado', p.id, {
       paquete: paqueteId, version, sha256: art.sha256, size_bytes: art.size_bytes,
       especies: art.manifiesto.especies.length, vectores: art.manifiesto.vectores,
+      priors: art.manifiesto.priors?.origen ? { de: art.manifiesto.priors.origen.paquete_id, zona: art.manifiesto.priors.zona, clima: art.manifiesto.priors.clima } : null,
       experimento_id: v.centroides.experimento_id, osr_umbral_id: v.osr?.umbral_id ?? null,
     });
     await client.query('COMMIT');

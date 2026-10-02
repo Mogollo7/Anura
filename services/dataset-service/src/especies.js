@@ -218,4 +218,113 @@ async function editar(pool, especieId, body, userId) {
   });
 }
 
-module.exports = { crear, editar, normalizarNombre, normalizarFamilia };
+/**
+ * GET /api/dataset/especies/nombres — lo que ya está guardado, para los combobox del panel.
+ * Género y familia no son filas: salen de `genero` y `familia` de dataset.especie, así que
+ * una familia o un género "nuevo" existe solo cuando se guarda una especie con ese nombre.
+ */
+async function nombres(pool) {
+  const { rows } = await pool.query(
+    'SELECT id, nombre_cientifico, genero, familia FROM dataset.especie ORDER BY nombre_cientifico');
+  const generos = new Map();
+  const familias = new Map();
+  for (const e of rows) {
+    const g = generos.get(e.genero) || { nombre: e.genero, familia: e.familia, especies: 0 };
+    g.especies += 1;
+    generos.set(e.genero, g);
+    const f = familias.get(e.familia) || { nombre: e.familia, generos: new Set(), especies: 0 };
+    f.generos.add(e.genero);
+    f.especies += 1;
+    familias.set(e.familia, f);
+  }
+  return {
+    especies: rows,
+    generos: [...generos.values()].sort((a, b) => a.nombre.localeCompare(b.nombre)),
+    familias: [...familias.values()]
+      .map((f) => ({ nombre: f.nombre, generos: f.generos.size, especies: f.especies }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre)),
+  };
+}
+
+// Cómo se llama, para una persona, cada tabla que cuelga de una especie sin borrarse sola, y qué hacer.
+const COLGANTES = {
+  'dataset.centroide': ['vectores', 'centroides calculados', 'Genera de nuevo los centroides en Centroides sin esta especie.'],
+  'dataset.centroide_regional': ['vectores', 'centroides regionales', 'Genera de nuevo los centroides en Centroides sin esta especie.'],
+  'dataset.centroide_morfo': ['vectores', 'centroides de morfo', 'Quita sus morfos y genera de nuevo los centroides.'],
+  'dataset.species_content': ['ficha', 'ficha de contenido', 'La ficha de Contenido no se puede borrar desde el panel todavía: pide que la retiren.'],
+  'dataset.destacado': ['destacados', 'días en el carrusel de inicio', 'Quítala del calendario en Contenido → Destacados.'],
+  'dataset.cluster_sugerido': ['clusteres', 'clústeres sugeridos', 'Descarta esos clústeres en Clústeres.'],
+  'dataset.cluster': ['clusteres', 'clústeres aceptados', 'Quítala de esos clústeres en Clústeres.'],
+  'dataset.evaluacion_especie': ['evaluaciones', 'evaluaciones guardadas', 'Las evaluaciones guardadas la citan: no se pueden borrar sin perder el historial.'],
+  'dataset.hallazgo': ['hallazgos', 'hallazgos de limpieza', 'Resuelve sus hallazgos en Calidad.'],
+};
+
+/**
+ * Qué impide borrar una especie: fotos, vectores (de sus fotos y centroides), paquetes que la
+ * listan y cualquier otra tabla que la referencie sin ON DELETE CASCADE (se descubre en el
+ * catálogo de Postgres, así una tabla futura no se cuela). Lista vacía = se puede borrar.
+ */
+async function dependencias(db, especieId) {
+  const out = [];
+  const agrega = (clave, que, total, quitar) => { if (total > 0) out.push({ clave, que, total, quitar }); };
+
+  const { rows: [e] } = await db.query('SELECT taxon_id FROM dataset.especie WHERE id = $1', [especieId]);
+  const { rows: [{ fotos }] } = await db.query('SELECT COUNT(*)::int AS fotos FROM dataset.foto WHERE especie_id = $1', [especieId]);
+  agrega('fotos', 'fotos', fotos, 'Quita o traslada todas sus fotos en Imágenes antes de borrarla.');
+  const { rows: [{ n: embeddings }] } = await db.query(
+    'SELECT COUNT(*)::int AS n FROM dataset.embedding m JOIN dataset.foto f ON f.sha256 = m.sha256 WHERE f.especie_id = $1', [especieId]);
+  agrega('vectores', 'vectores de sus fotos', embeddings, 'Salen con sus fotos: quita las fotos primero.');
+
+  if (e?.taxon_id) {
+    const { rows: [{ n: paquetes }] } = await db.query(
+      `SELECT COUNT(*)::int AS n FROM packages.regional_packages
+       WHERE manifiesto -> 'especies' @> jsonb_build_array(jsonb_build_object('taxon_id', $1::text))`, [e.taxon_id]);
+    agrega('paquetes', 'paquetes regionales que la incluyen', paquetes, 'Un paquete compilado la lista: compila uno nuevo sin ella y retira el anterior en Paquetes.');
+  }
+
+  const { rows: refs } = await db.query(
+    `SELECT c.conrelid::regclass::text AS tabla, quote_ident(a.attname) AS columna
+     FROM pg_constraint c JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY (c.conkey)
+     WHERE c.contype = 'f' AND c.confrelid = 'dataset.especie'::regclass AND c.confdeltype <> 'c'`);
+  // centroide_regional guarda especie_id sin llave foránea, pero es un vector de esa especie.
+  const sinFk = [{ tabla: 'dataset.centroide_regional', columna: 'especie_id' }];
+  const vistas = new Set();
+  for (const { tabla, columna } of [...refs, ...sinFk]) {
+    if (tabla === 'dataset.foto') continue;
+    const clave = `${tabla}.${columna}`;
+    if (vistas.has(clave)) continue;
+    vistas.add(clave);
+    const { rows: [{ n }] } = await db.query(`SELECT COUNT(*)::int AS n FROM ${tabla} WHERE ${columna} = $1`, [especieId]);
+    const [grupo, que, quitar] = COLGANTES[tabla] || [tabla, `filas en ${tabla}`, `Quita esas filas de ${tabla} antes de borrarla.`];
+    agrega(grupo, que, n, quitar);
+  }
+  return out;
+}
+
+const mensajeDeBloqueo = (nombre, deps) =>
+  `No se puede borrar ${nombre} todavía: tiene ${deps.map((d) => `${d.que}: ${d.total.toLocaleString('es-CO')}`).join(', ')}. ` +
+  'Quítalos antes y vuelve a intentarlo.';
+
+/**
+ * DELETE /api/dataset/especies/:id. Solo si nada apunta a la fila; si algo apunta, 409 con
+ * `detalle.dependencias` (qué hay y cómo quitarlo). Se bloquea la fila: una foto que llegue
+ * al mismo tiempo espera a que esto termine y la llave foránea hace de red de seguridad.
+ */
+async function borrar(pool, especieId, userId) {
+  if (!Number.isInteger(especieId)) throw falla('Esa especie no existe', 404);
+  return enTransaccion(pool, async (db) => {
+    const { rows: [e] } = await db.query(`SELECT ${COLUMNAS} FROM dataset.especie WHERE id = $1 FOR UPDATE`, [especieId]);
+    if (!e) throw falla('Esa especie no existe', 404);
+    const deps = await dependencias(db, especieId);
+    if (deps.length) {
+      throw falla(mensajeDeBloqueo(e.nombre_cientifico, deps), 409, { codigo: 'especie_con_datos', detalle: { dependencias: deps } });
+    }
+    await db.query('DELETE FROM dataset.especie WHERE id = $1', [especieId]);
+    await registrar(db, userId, 'dataset.especie.borrada', 'especie', especieId, {
+      nombre_cientifico: e.nombre_cientifico, familia: e.familia, carpeta: e.carpeta, taxon_id: e.taxon_id,
+    });
+    return { id: especieId, nombre_cientifico: e.nombre_cientifico, borrada: true };
+  });
+}
+
+module.exports = { crear, editar, borrar, nombres, dependencias, normalizarNombre, normalizarFamilia };

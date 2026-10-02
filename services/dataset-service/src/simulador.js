@@ -51,6 +51,7 @@ async function opciones(pool, subregionId) {
 
 /** GET /api/dataset/simulador/fotos?especie_id=&offset= — fotos con vector de una especie. */
 async function fotos(pool, firmar, especieId, offset) {
+  if (!Number.isInteger(especieId) || especieId < 1) throw Object.assign(new Error('Elige una especie (especie_id).'), { status: 400 });
   const exp = await osr.exigirVigente(pool);
   const { rows } = await pool.query(`
     SELECT f.sha256, f.object_key, vf.particion, o.observada_en, o.lugar

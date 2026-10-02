@@ -22,9 +22,12 @@
  * - open_set_model: el modelo de rechazo VALIDADO (osrModelo.js, formato ANOS v1 que lee
  *   OpenSetModel.kt): τ del umbral que validó una persona + precisión compartida + medias crudas
  *   de train de las especies del paquete, con sus taxon_id. Sin él la app no acepta identificar.
- * - zones, grid_cells, zone_prior, zone_prior_meta, weather_prior, weather_prior_meta: el servidor todavía no calcula priors de zona
- *   ni de clima. Las tablas van VACÍAS (la app las consulta y un paquete sin ellas fallaría);
- *   package_info lo dice. Vacías = sin ajuste de contexto, nunca un prior inventado.
+ * - zones, grid_cells, zone_prior, zone_prior_meta, weather_prior, weather_prior_meta: el servidor no los calcula
+ *   (salen de pipeline_dataset/paquetes_zonales.py y evaluation/geo_weather_v1, con datos y control de fuga que el
+ *   servidor no tiene). Se SACAN del paquete que la app ya descargó antes (priors.js, `meta.priors`): la rejilla
+ *   completa y las filas de las especies de este paquete. Una especie sin fila (creada después en el panel) no
+ *   recibe ajuste: la app usa p_unobserved en zona y deja el clima sin ajuste. Si el departamento no tiene paquete
+ *   anterior, las tablas van VACÍAS (la app las consulta y un paquete sin ellas fallaría) y package_info lo dice.
  */
 const fs = require('fs');
 const os = require('os');
@@ -34,6 +37,7 @@ const { DatabaseSync } = require('node:sqlite');
 const sqliteVec = require('sqlite-vec');
 const { ENCODER } = require('./centroides');
 const osrModelo = require('./osrModelo');
+const priorsMod = require('./priors');
 
 const MAX_PUNTOS_POR_ESPECIE = 300;
 
@@ -112,7 +116,7 @@ async function modeloOsr(db, validacion, encoder, taxonDe) {
 /**
  * @param db        cliente pg (idealmente dentro de la transacción del compilador)
  * @param validacion resultado de validacionTecnica.evaluar() con `lista: true`
- * @param meta      { paqueteId, version, generado }
+ * @param meta      { paqueteId, version, generado, priors? } (priors: resultado de priors.delPaqueteAnterior)
  * @returns { sqlite: Buffer, sha256, size_bytes, manifiesto }
  */
 async function construir(db, validacion, meta) {
@@ -216,6 +220,7 @@ async function construir(db, validacion, meta) {
       .run(modelo.formato, modelo.dim, modelo.k, modelo.tau, modelo.sha256, modelo.data);
     const pt = lite.prepare('INSERT INTO occurrence_points VALUES (?, ?, ?)');
     for (const p of puntos) pt.run(taxonDe.get(p.especie_id), p.lat, p.lon);
+    const resumenPriors = meta.priors ? priorsMod.escribir(lite, meta.priors, new Set(taxonDe.values())) : null;
 
     const info = {
       package_id: meta.paqueteId,
@@ -243,8 +248,10 @@ async function construir(db, validacion, meta) {
       osr_model_format: modelo.formato,
       osr_model_sha256: modelo.sha256,
       osr_model_species: String(modelo.k),
-      zone_prior: 'sin datos: el servidor todavía no calcula el prior de zona',
-      weather_prior: 'sin datos: el servidor todavía no calcula el prior de clima',
+      ...(resumenPriors ? priorsMod.infoDe(resumenPriors, incluidas.length) : {
+        zone_prior: 'sin datos: el departamento no tiene un paquete anterior de donde tomar el prior de zona',
+        weather_prior: 'sin datos: el departamento no tiene un paquete anterior de donde tomar el prior de clima',
+      }),
     };
     const pi = lite.prepare('INSERT INTO package_info VALUES (?, ?)');
     for (const [k, v] of Object.entries(info)) pi.run(k, v);
@@ -286,7 +293,14 @@ async function construir(db, validacion, meta) {
       supercentroides: { generos: supers.filter((s) => s.nivel === 'genero').length, familias: supers.filter((s) => s.nivel === 'familia').length },
       vectores: refs.length,
       puntos_ocurrencia: puntos.length,
-      priors: { zona: null, clima: null },
+      priors: resumenPriors ? {
+        origen: resumenPriors.origen,
+        zona: {
+          zonas: resumenPriors.zonas, celdas: resumenPriors.celdas, filas: resumenPriors.filas_zona,
+          especies_con_prior: resumenPriors.especies_con_prior_zona, sin_prior: resumenPriors.sin_prior_zona,
+        },
+        clima: { especies_con_prior: resumenPriors.especies_con_prior_clima, sin_prior: resumenPriors.sin_prior_clima },
+      } : { zona: null, clima: null },
       archivo: { nombre: 'package.sqlite', formato: 'sqlite', sha256, size_bytes: sqlite.length },
     };
     return { sqlite, sha256, size_bytes: sqlite.length, manifiesto };

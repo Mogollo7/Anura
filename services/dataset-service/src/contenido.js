@@ -26,6 +26,7 @@ const CON_FUENTE = ['nombre_comun', 'uicn', 'toxicidad', 'altitud_literatura', '
 const ACTIVIDAD = ['diurna', 'nocturna', 'crepuscular', 'diurna_y_nocturna'];
 
 const auditar = require('./audit').auditorDe('species_content');
+const fichaTecnica = require('./ficha');
 
 const texto = (v, max) => {
   const s = String(v ?? '').trim();
@@ -188,9 +189,123 @@ async function ficha(pool, especieId) {
   return {
     especie: e,
     contenido: { ...contenido, foto_principal: fotoPrincipal },
-    auto: { fotos_referencia: fotos.total },
+    auto: { fotos_referencia: fotos.total, proyecto: await datosDelProyecto(pool, especieId) },
     faltan,
   };
+}
+
+// Autoría, sinónimos y nombre común por taxon_id (scripts/generar_catalogo_taxonomico.py). Se lee una vez.
+let catalogoTaxonomico = null;
+function catalogoDe(taxonId) {
+  if (!taxonId) return null;
+  if (!catalogoTaxonomico) {
+    try {
+      catalogoTaxonomico = require('./datos/catalogo_taxonomico.json');
+    } catch {
+      catalogoTaxonomico = {};
+    }
+  }
+  const c = catalogoTaxonomico[taxonId];
+  if (!c) return null;
+  // El catálogo trae un solo nombre común y no dice el idioma: los ingleses (Palm Rocket Frog,
+  // Gaige's Rain Frog) no van como «nombre común en español»; quedan como otro nombre para buscar.
+  const ingles = c.nombre && (/'s\b/i.test(c.nombre) || /\b(frog|toad|treefrog|robber|rain|glass|poison|dart|stream|harlequin|rocket|cochran)\b/i.test(c.nombre));
+  return {
+    autoria: c.autoria ?? null,
+    sinonimos: c.sinonimos ?? [],
+    nombre_comun: c.nombre && !ingles ? c.nombre : null,
+    otro_nombre: c.nombre && ingles ? c.nombre : null,
+    fuente: c.fuente,
+  };
+}
+
+const SUSTRATO_TEXTO = { hojarasca: 'hojarasca', vegetacion: 'vegetación', quebrada: 'quebrada', roca: 'roca' };
+
+/**
+ * Lo que el proyecto ya sacó de esta especie y la ficha técnica (Limpiar → Ficha) calcula: altitud
+ * de los registros, subregiones, sustrato etiquetado y LRC medida. Es la fuente de «Cargar datos del
+ * proyecto». Si no se puede calcular (geo-service caído) devuelve lo que sí y avisa en `motivo`.
+ */
+async function datosDelProyecto(pool, especieId) {
+  try {
+    const f = await fichaTecnica.deEspecie(pool, especieId);
+    const catalogo = catalogoDe(f.especie.taxon_id);
+    const sust = Object.entries(f.sustrato.conteos).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+    return {
+      observaciones: f.observaciones.validas,
+      altitud: f.altitud.efectivo
+        ? { min: f.altitud.efectivo.min, max: f.altitud.efectivo.max, origen: f.altitud.efectivo.origen, n: f.altitud.resumen?.n ?? 0 }
+        : null,
+      subregiones: f.subregiones ? f.subregiones.map((s) => ({ nombre: s.nombre, region: s.region })) : null,
+      sustrato: { n: f.sustrato.n, conteos: sust.map(([clave, n]) => ({ clave, nombre: SUSTRATO_TEXTO[clave] ?? clave, n })) },
+      lrc: f.lrc.metodo === 'manual' ? { min: f.lrc.min, max: f.lrc.max } : null,
+      catalogo,
+      motivo: f.subregiones_motivo,
+    };
+  } catch (err) {
+    return { observaciones: 0, altitud: null, subregiones: null, sustrato: { n: 0, conteos: [] }, lrc: null, catalogo: null, motivo: err.message };
+  }
+}
+
+const vacio = (v) => v === null || v === undefined || v === '';
+
+/**
+ * POST /api/dataset/contenido/:id/precargar — pone en la ficha los datos que el proyecto ya tiene
+ * (altitud y subregiones → «Distribución», sustrato → «Hábitat», LRC → LHC), SOLO en campos que
+ * están vacíos: nunca pisa lo que una persona escribió. Pasa por `guardar`, así que vale lo mismo
+ * que una edición (valida, audita, y una ficha publicada vuelve a borrador).
+ */
+async function precargar(pool, especieId, userId) {
+  const actual = await obtenerOCrear(pool, especieId);
+  const c = actual.campos || {};
+  const d = await datosDelProyecto(pool, especieId);
+  const nuevos = {};
+  // Cada dato va a su sección de la ficha: { seccion, campo }.
+  const rellenados = [];
+  const pone = (campo, valor, seccion, etiqueta) => {
+    nuevos[campo] = valor;
+    rellenados.push({ seccion, campo: etiqueta });
+  };
+  const IDENTIDAD = 'Identidad, estado y toxicidad';
+  const DONDE = 'Dónde vive';
+  const RECONOCERLA = 'Cómo reconocerla';
+
+  // Identidad: del catálogo taxonómico (iNaturalist + GBIF Backbone).
+  const cat = d.catalogo;
+  if (cat) {
+    if (vacio(c.nombre_comun?.valor) && cat.nombre_comun) {
+      pone('nombre_comun', { valor: cat.nombre_comun, fuente: `${cat.fuente} (por confirmar con el herpetólogo)` }, IDENTIDAD, 'Nombre común en español');
+    }
+    if (vacio(c.autoria) && cat.autoria) pone('autoria', cat.autoria, IDENTIDAD, 'Autoría del nombre científico');
+    if (!c.otros_nombres?.length && cat.otro_nombre) pone('otros_nombres', [cat.otro_nombre], IDENTIDAD, 'Otros nombres comunes');
+    if (!c.sinonimos?.length && cat.sinonimos.length) pone('sinonimos', cat.sinonimos, IDENTIDAD, 'Sinónimos');
+  }
+
+  // Dónde vive: de las observaciones curadas.
+  if (vacio(c.habitat?.texto) && d.sustrato.n > 0) {
+    const top = d.sustrato.conteos.slice(0, 2).map((s) => `${s.nombre} (${s.n})`).join(' y ');
+    pone('habitat', { texto: `Sustrato donde más se la registra: ${top}, de ${d.sustrato.n} ${d.sustrato.n === 1 ? 'individuo etiquetado' : 'individuos etiquetados'} en el dataset.` }, DONDE, 'Hábitat y microhábitat');
+  }
+  if (vacio(c.distribucion)) {
+    const partes = [];
+    if (d.subregiones?.length) {
+      const regiones = [...new Set(d.subregiones.map((s) => s.region))].join(' y ');
+      partes.push(`Registrada en ${d.subregiones.length === 1 ? 'la subregión' : 'las subregiones'} ${d.subregiones.map((s) => s.nombre).join(', ')}${regiones ? ` (${regiones})` : ''}.`);
+    }
+    if (d.altitud) {
+      partes.push(`Altitud de los registros: ${Math.round(d.altitud.min)}–${Math.round(d.altitud.max)} m${d.altitud.origen === 'manual' ? ' (rango fijado por el herpetólogo)' : ` (p5–p95 de ${d.altitud.n} observaciones)`}.`);
+    }
+    if (partes.length) pone('distribucion', partes.join(' '), DONDE, 'Distribución');
+  }
+
+  // Cómo reconocerla: la LRC que una persona midió en la ficha técnica.
+  if (vacio(c.lhc?.min) && vacio(c.lhc?.max) && d.lrc) {
+    pone('lhc', { min: d.lrc.min, max: d.lrc.max, fuente: 'Ficha técnica del Admin: longitud rostro-cloaca medida por una persona' }, RECONOCERLA, 'Longitud hocico-cloaca (LHC)');
+  }
+  if (!rellenados.length) return { rellenados, ...(await ficha(pool, especieId)) };
+  await guardar(pool, especieId, { campos: nuevos }, userId);
+  await auditar(pool, userId, 'dataset.contenido.precargado', especieId, { campos: rellenados.map((r) => r.campo) });
+  return { rellenados, ...(await ficha(pool, especieId)) };
 }
 
 async function listar(pool) {
@@ -485,6 +600,8 @@ async function fotoPublica(pool, sha256) {
 }
 
 module.exports = {
+  precargar,
+  datosDelProyecto,
   ESTADOS, CATEGORIAS_DESTACADO,
   listar, ficha, guardar, enviarRevision, devolverBorrador, publicar,
   elegiblesPara, calendario, programar, quitarProgramado, catalogo, fotoPublica,

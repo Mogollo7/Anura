@@ -114,6 +114,16 @@ app.put('/api/dataset/especies/:id', requirePanelAction('editarTaxonomia'), ah(a
   res.json(await especies.editar(pool, Number(req.params.id), req.body || {}, req.userId));
 }));
 
+// DELETE /api/dataset/especies/:id — solo si no hay fotos, vectores, paquetes ni otra fila que la use (409 con el detalle)
+app.delete('/api/dataset/especies/:id', requirePanelAction('editarTaxonomia'), ah(async (req, res) => {
+  res.json(await especies.borrar(pool, Number(req.params.id), req.userId));
+}));
+
+// GET /api/dataset/especies/nombres — especies, géneros y familias ya guardados (combobox del panel)
+app.get('/api/dataset/especies/nombres', requirePanelAction('verEspecies'), ah(async (_req, res) => {
+  res.json(await especies.nombres(pool));
+}));
+
 // GET /api/dataset/especies/:id/fotos?limit=&offset= — la grilla de Curación, con URL firmada.
 app.get('/api/dataset/especies/:id/fotos', requirePanelAction('revisarFotografias'), ah(async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 48, 200);
@@ -529,6 +539,11 @@ app.get('/api/dataset/contenido/:especieId', requirePanelAction('verEspecies'), 
 
 app.put('/api/dataset/contenido/:especieId', requirePanelAction('editarContenido'), ah(async (req, res) => {
   res.json(await contenido.guardar(pool, Number(req.params.especieId), req.body || {}, req.userId));
+}));
+
+// Pone en la ficha lo que el proyecto ya tiene (altitud, subregiones, sustrato, LRC), solo en campos vacíos.
+app.post('/api/dataset/contenido/:especieId/precargar', requirePanelAction('editarContenido'), ah(async (req, res) => {
+  res.json(await contenido.precargar(pool, Number(req.params.especieId), req.userId));
 }));
 
 app.post('/api/dataset/contenido/:especieId/revision', requirePanelAction('editarContenido'), ah(async (req, res) => {

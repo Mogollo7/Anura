@@ -349,15 +349,14 @@ async function paqueteDe(db, subregion, version) {
   return p || null;
 }
 
-/** GET /api/dataset/publico/clave?subregion=<paquete o id>&version=<n> */
-async function deSubregion(db, subregion, version) {
-  if (!subregion) throw falla('Indica la subregión (?subregion=05.VALLE_DE_ABURRA)');
-  const p = await paqueteDe(db, subregion, version);
-  if (!p) {
-    throw falla(version ? 'Esa versión del paquete no existe o nunca se publicó' : 'Esa subregión no tiene un paquete publicado', 404);
-  }
-  const delPaquete = (p.manifiesto?.especies || []).filter((e) => e.taxon_id);
-  const taxones = delPaquete.map((e) => e.taxon_id);
+/**
+ * Arma la clave con las especies que entraron al paquete (las del manifiesto) y los datos con los
+ * que se entrenó: altitud y LRC del contexto compilado, sustrato etiquetado, morfos de la
+ * subregión y actividad de la ficha publicada. La compilación la guarda dentro del manifiesto
+ * para que el teléfono recorra esa misma clave, no una recalculada después.
+ */
+async function armarDesde(db, subregionId, delPaquete, meta) {
+  const taxones = (delPaquete || []).filter((e) => e.taxon_id).map((e) => e.taxon_id);
   const { rows: ids } = await db.query('SELECT id, taxon_id FROM dataset.especie WHERE taxon_id = ANY($1)', [taxones]);
   const idDe = new Map(ids.map((r) => [r.taxon_id, r.id]));
   const especieIds = ids.map((r) => r.id);
@@ -372,13 +371,13 @@ async function deSubregion(db, subregion, version) {
     GROUP BY f.especie_id, et.sustrato`, [especieIds]);
   const { rows: morfos } = await db.query(`
     SELECT especie_id, nombre FROM dataset.morfo
-    WHERE subregion_id = $1 AND especie_id = ANY($2::int[]) ORDER BY especie_id, nombre`, [p.subregion_id, especieIds]);
+    WHERE subregion_id = $1 AND especie_id = ANY($2::int[]) ORDER BY especie_id, nombre`, [subregionId, especieIds]);
   const { rows: fichas } = await db.query(`
     SELECT c.especie_id, c.publicada->'campos' AS campos FROM dataset.species_content c
     WHERE c.publicada IS NOT NULL AND c.especie_id = ANY($1::int[])`, [especieIds]);
   const campos = new Map(fichas.map((f) => [f.especie_id, f.campos || {}]));
 
-  const crudas = delPaquete.map((e) => {
+  const crudas = (delPaquete || []).filter((e) => e.taxon_id).map((e) => {
     const id = idDe.get(e.taxon_id);
     const c = campos.get(id) || {};
     const ctx = e.contexto || {};
@@ -408,8 +407,8 @@ async function deSubregion(db, subregion, version) {
   const huella = crypto.createHash('sha256').update(JSON.stringify({ caracteres, especies })).digest('hex');
   return {
     formato: FORMATO,
-    paquete: { id: p.region_id, version: p.version, sha256: p.sha256, estado: p.estado, origen: p.origen },
-    subregion: { id: p.subregion_id, nombre: p.subregion },
+    paquete: meta.paquete,
+    subregion: meta.subregion,
     generado: new Date().toISOString(),
     huella,
     min_individuos_sustrato: MIN_PUNTOS,
@@ -420,4 +419,24 @@ async function deSubregion(db, subregion, version) {
   };
 }
 
-module.exports = { deSubregion, construirClave, resolver, ganancia, siguiente, bandas, numero, FORMATO, MAX_BANDAS };
+/** GET /api/dataset/publico/clave?subregion=<paquete o id>&version=<n> */
+async function deSubregion(db, subregion, version) {
+  if (!subregion) throw falla('Indica la subregión (?subregion=05.VALLE_DE_ABURRA)');
+  const p = await paqueteDe(db, subregion, version);
+  if (!p) {
+    throw falla(version ? 'Esa versión del paquete no existe o nunca se publicó' : 'Esa subregión no tiene un paquete publicado', 404);
+  }
+  const guardada = p.manifiesto?.clave;
+  if (guardada?.formato === FORMATO && Array.isArray(guardada.especies) && Array.isArray(guardada.caracteres)) {
+    return {
+      ...guardada,
+      paquete: { id: p.region_id, version: p.version, sha256: p.sha256, estado: p.estado, origen: p.origen },
+    };
+  }
+  return armarDesde(db, p.subregion_id, p.manifiesto?.especies || [], {
+    paquete: { id: p.region_id, version: p.version, sha256: p.sha256, estado: p.estado, origen: p.origen },
+    subregion: { id: p.subregion_id, nombre: p.subregion },
+  });
+}
+
+module.exports = { deSubregion, armarDesde, construirClave, resolver, ganancia, siguiente, bandas, numero, FORMATO, MAX_BANDAS };

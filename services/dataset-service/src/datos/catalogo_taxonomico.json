@@ -1,0 +1,1293 @@
+{
+ "COL_ANURA_0001": {
+  "autoria": "(Werner, 1899)",
+  "nombre": "Palm Rocket Frog",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0002": {
+  "autoria": "(Thominot, 1884)",
+  "nombre": "Sapo del Obispo",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0003": {
+  "autoria": "(Wiegmann, 1833)",
+  "nombre": "Sapo gigante",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0004": {
+  "autoria": "(Laurenti, 1768)",
+  "nombre": "Sapo Crestado",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0005": {
+  "autoria": "Rada, Jeckel, Caorsi, Barrientos, Rivera-Correa & Grant, 2017",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0006": {
+  "autoria": "(Boulenger, 1896)",
+  "nombre": "Rana chivita",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0007": {
+  "autoria": "(Boulenger, 1898)",
+  "nombre": "Cutín común de occidente",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0008": {
+  "autoria": "(Peters, 1863)",
+  "nombre": "Bogota Robber Frog",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0009": {
+  "autoria": "(Boulenger, 1896)",
+  "nombre": "Rana De Ingle Roja",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0010": {
+  "autoria": "(Dunn, 1931)",
+  "nombre": "Gaige's Rain Frog",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0011": {
+  "autoria": "(Lynch & Ardila-Robayo, 1999)",
+  "nombre": "Cutín paisa",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0012": {
+  "autoria": "(Boulenger, 1912)",
+  "nombre": "Palmer's Robber Frog",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0013": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1999)",
+  "nombre": "Rana De Ingles Negras Y Amarillas",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0014": {
+  "autoria": "(Lynch, Ruiz-Carranza & Ardila-Robayo, 1994)",
+  "nombre": "Rana De Muslos Naranja",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0015": {
+  "autoria": "(Boulenger, 1912)",
+  "nombre": "Banded Rain Frog",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0016": {
+  "autoria": "(Lynch, 1975)",
+  "nombre": "Rana De Espolon",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0017": {
+  "nombre": "Ranita Selvatica Comun",
+  "fuente": "iNaturalist, verificado 2026-09-12"
+ },
+ "COL_ANURA_0018": {
+  "autoria": "(Cope, 1861)",
+  "nombre": "Rana venenosa de rayas amarillas",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0020": {
+  "autoria": "(Linnaeus, 1758)",
+  "nombre": "Rana gladiadora",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0021": {
+  "nombre": "Rana Granosa",
+  "fuente": "iNaturalist, verificado 2026-09-12"
+ },
+ "COL_ANURA_0022": {
+  "nombre": "Rana Lanceolada Comun",
+  "fuente": "iNaturalist, verificado 2026-09-12"
+ },
+ "COL_ANURA_0023": {
+  "autoria": "Escalona, Marca, Castellanos, Fouquet, Crawford, Rojas-Runjaic, Giaretta, Señaris & Castroviejo-Fisher, 2021",
+  "nombre": "Rana Platanera de Ojos Pálidos",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0024": {
+  "autoria": "(Schmidt, 1857)",
+  "nombre": "Rana Platanera de ojos tornasol",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0025": {
+  "nombre": "Rana Punteada",
+  "fuente": "iNaturalist, verificado 2026-09-12"
+ },
+ "COL_ANURA_0026": {
+  "autoria": "(Boulenger, 1898)",
+  "nombre": "rana arbórea de gladiadora",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0027": {
+  "autoria": "(Duméril & Bibron, 1841)",
+  "nombre": "Rana platanera del escudo guayanés",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0028": {
+  "autoria": "(Cochran & Goin, 1970)",
+  "nombre": "Ranita de pantano",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0029": {
+  "autoria": "(Boettger, 1892)",
+  "nombre": "Ranita de pantano Colombiana",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0030": {
+  "autoria": "(Cope, 1874)",
+  "nombre": "Rana arbórea amarillenta",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0031": {
+  "nombre": "Ranita llanera de pantanos",
+  "fuente": "iNaturalist, verificado 2026-09-12"
+ },
+ "COL_ANURA_0032": {
+  "autoria": "(Cope, 1886)",
+  "nombre": "Rana de árbol amarilla",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0033": {
+  "autoria": "(Schmidt, 1857)",
+  "nombre": "Rana sabanera",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0034": {
+  "autoria": "Rivera-Correa & Gutiérrez-Cárdenas, 2012",
+  "nombre": "El Roble Tree Frog",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0035": {
+  "nombre": "Ranita reticulada",
+  "fuente": "iNaturalist, verificado 2026-09-12"
+ },
+ "COL_ANURA_0036": {
+  "nombre": "Ranita arbórea común",
+  "fuente": "iNaturalist, verificado 2026-09-12"
+ },
+ "COL_ANURA_0037": {
+  "autoria": "(Boulenger, 1908)",
+  "nombre": "Rana de torrente de Palmer",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0038": {
+  "autoria": "(Laurenti, 1768)",
+  "nombre": "Ranita Listada",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0039": {
+  "autoria": "(Cope, 1864)",
+  "nombre": "Ranita túngara",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0040": {
+  "autoria": "Heyer, 1994",
+  "nombre": "Colombian Thin-toed Frog",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0041": {
+  "autoria": "(Cope, 1868)",
+  "nombre": "Rana Lemur",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0042": {
+  "autoria": "Duellman & Trueb, 1967",
+  "nombre": "Lovely Leaf Frog",
+  "fuente": "iNaturalist; GBIF Backbone, verificado 2026-09-13"
+ },
+ "COL_ANURA_0043": {
+  "nombre": "Rana Lemur De Flancos Rojos",
+  "fuente": "iNaturalist, verificado 2026-09-12"
+ },
+ "COL_ANURA_0044": {
+  "autoria": "(Cope, 1887)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0045": {
+  "autoria": "Grant, Acosta-Galvis & Rada, 2007",
+  "nombre": "Rana Nodriza Niputidea",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0046": {
+  "autoria": "(Cope, 1875)",
+  "nombre": "rana cohete rayado",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0047": {
+  "autoria": "(Rivero & Serna, 2000)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0048": {
+  "autoria": "Ruiz-Carranza & Hernández-Camacho, 1978",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0049": {
+  "autoria": "Rivero, 1963",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0050": {
+  "autoria": "Bravo-Valencia & Rivera-Correa, 2011",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0051": {
+  "autoria": "Rivero & Serna, 1989",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0052": {
+  "autoria": "Ruiz-Carranza & Osorno-Muñoz, 1994",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0053": {
+  "autoria": "Vélez-Rodriguez & Ruiz-Carranza, 1997",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0054": {
+  "autoria": "(Linnaeus, 1758)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0055": {
+  "autoria": "(Cope, 1862)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0056": {
+  "autoria": "Ruiz-Carranza & Hernández-Camacho, 1976",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0057": {
+  "autoria": "(Myers & Funkhouser, 1951)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0058": {
+  "autoria": "(Cope, 1862)",
+  "nombre": "sapo hojarasquero",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0059": {
+  "autoria": "Mueses-Cisneros, 2007",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0060": {
+  "autoria": "(Trueb, 1971)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0061": {
+  "autoria": "(Spix, 1824)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0062": {
+  "autoria": "(Gallardo, 1965)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0063": {
+  "autoria": "(Rivero & Castaño, 1990)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0064": {
+  "autoria": "(Trueb, 1971)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0065": {
+  "autoria": "(Linnaeus, 1758)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0066": {
+  "autoria": "(Cochran & Goin, 1970)",
+  "nombre": "Sapito Narizón Montañero",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0067": {
+  "autoria": "Grant & Bolívar-Garcías, 2014",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0068": {
+  "autoria": "(Noble, 1920)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0069": {
+  "autoria": "(Grant, 2000)",
+  "nombre": "Sapito Narizón altoandino",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0070": {
+  "autoria": "(Günther, 1858)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0071": {
+  "autoria": "(Lynch & Renjifo, 1990)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0072": {
+  "autoria": "(Noble, 1920)",
+  "sinonimos": [
+   "Centrolene antioquiensis"
+  ],
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0073": {
+  "autoria": "(Boulenger, 1882)",
+  "nombre": "Rana de cristal altoandina de Buckley",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0074": {
+  "autoria": "Jiménez de la Espada, 1872",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0075": {
+  "autoria": "(Lynch & Duellman, 1973)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0076": {
+  "autoria": "Ruiz-Carranza & Lynch, 1995",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0077": {
+  "autoria": "Ruiz-Carranza & Lynch, 1995",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0078": {
+  "autoria": "(Ruiz-Carranza & Lynch, 1991)",
+  "nombre": "Rana de cristal de labios blancos",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0079": {
+  "autoria": "(Savage & Starrett, 1967)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0080": {
+  "autoria": "(Rivero, 1985)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0081": {
+  "autoria": "Ruiz-Carranza & Lynch, 1991",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0082": {
+  "autoria": "(Lynch & Duellman, 1973)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0083": {
+  "autoria": "(Rivero, 1968)",
+  "nombre": "Ranita De Cristal Andina",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0084": {
+  "autoria": "(Boettger, 1892)",
+  "nombre": "rana de vidrio esmeralda",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0085": {
+  "autoria": "(Barrera-Rodriguez & Ruiz-Carranza, 1989)",
+  "nombre": "rana de cristal de manchas doradas",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0086": {
+  "autoria": "(Taylor, 1958)",
+  "nombre": "Rana de cristal de Costa Rica",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0087": {
+  "autoria": "(Taylor, 1949)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0088": {
+  "autoria": "(Boettger, 1893)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0089": {
+  "autoria": "Castroviejo-Fisher, Ayarzagüena & Vilà, 2007",
+  "nombre": "Ranita Cristal de corazón perlado",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0090": {
+  "autoria": "(Dunn, 1931)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0091": {
+  "autoria": "(Ruiz-Carranza & Lynch, 1995)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0092": {
+  "autoria": "(Cochran & Goin, 1970)",
+  "nombre": "Rana de cristal sarampiona",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0093": {
+  "autoria": "(Goin, 1961)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0094": {
+  "autoria": "(Lynch, 1990)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0095": {
+  "autoria": "(Ruiz-Carranza & Lynch, 1995)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0096": {
+  "autoria": "Montilla, Arcila-Pérez, Toro-Gómez, Vargas-Salinas & Rada, 2023",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0097": {
+  "autoria": "(Duellman, 1981)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0098": {
+  "autoria": "(Ruiz-Carranza & Lynch, 1997)",
+  "nombre": "Ranita crital rosa",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0099": {
+  "autoria": "(Ruiz-Carranza & Lynch, 1997)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0100": {
+  "autoria": "(Ruiz-Carranza & Lynch, 1995)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0101": {
+  "autoria": "(Savage, 1967)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0102": {
+  "autoria": "(Ruiz-Carranza & Lynch, 1995)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0103": {
+  "autoria": "(Peters, 1873)",
+  "nombre": "rana de vidrio de chiriquí",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0104": {
+  "autoria": "(Taylor, 1949)",
+  "nombre": "Rana de cristal de Espinosa",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0105": {
+  "autoria": "Lynch & Ruiz-Carranza, 1982",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0106": {
+  "autoria": "(Schmidt, 1857)",
+  "nombre": "Ranita Común de Lluvia",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0107": {
+  "autoria": "(Peters, 1863)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0108": {
+  "autoria": "(Boulenger, 1898)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0109": {
+  "autoria": "Ospina-Sarria, Angarita-Sierra & Pedroza-Banda, 2015",
+  "nombre": "Rana Duende del Magdalena Medio",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0110": {
+  "autoria": "(Savage & Myers, 2002)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0111": {
+  "autoria": "(Ardila-Robayo, Ruiz-Carranza & Barrera-Rodriguez, 1996)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0112": {
+  "autoria": "(Lynch, 1989)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0113": {
+  "autoria": "(Lynch, 1989)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0114": {
+  "autoria": "(Boulenger, 1908)",
+  "nombre": "Rana Terrestre De Dedos Angostos",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0115": {
+  "autoria": "(Lynch & Ruiz-Carranza, 1983)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0116": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1998)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0117": {
+  "autoria": "(Ruiz-Carranza, Lynch & Ardila-Robayo, 1997)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0118": {
+  "autoria": "(Ruiz-Carranza, Lynch & Ardila-Robayo, 1997)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0119": {
+  "autoria": "(Lynch, 1998)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0120": {
+  "autoria": "(Lynch, 1992)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0121": {
+  "autoria": "(Lynch, 1986)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0122": {
+  "autoria": "(Rueda-Almonacid & Lynch, 1983)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0123": {
+  "autoria": "(Lynch, 1981)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0124": {
+  "autoria": "(Lynch, 1981)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0125": {
+  "autoria": "(Cochran & Goin, 1970)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0126": {
+  "autoria": "(Boulenger, 1908)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0127": {
+  "autoria": "(Lynch, 1977)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0128": {
+  "autoria": "Rivera-Correa, González-Durán, Saldarriaga-Gómez & Duarte-Marín, 2021",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0129": {
+  "autoria": "(Barbour, 1928)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0130": {
+  "autoria": "(Peters, 1873)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0131": {
+  "autoria": "Rivera-Correa, González-Durán, Saldarriaga-Gómez & Duarte-Marín, 2021",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0132": {
+  "autoria": "(Günther, 1858)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0133": {
+  "autoria": "(Peters, 1873)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0134": {
+  "autoria": "(Lynch, 1996)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0135": {
+  "autoria": "(Boulenger, 1880)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0136": {
+  "autoria": "(Rivero & Serna, 1988)",
+  "nombre": "Rana Amarilla Y Listas Negras",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0137": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1998)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0138": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1999)",
+  "nombre": "Rana De Garganta Manchada",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0139": {
+  "autoria": "Amézquita, Suárez, Palacios-Rodríguez, Beltrán, Rodríguez, Barrientos, Daza & Mazariegos, 2019",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0140": {
+  "autoria": "(Werner, 1899)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0141": {
+  "autoria": "(Lynch, 1986)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0142": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1998)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0143": {
+  "autoria": "Rivera-Prieto, Rivera-Correa & Daza-R., 2014",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0144": {
+  "autoria": "(Rivero & Serna, 1988)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0145": {
+  "autoria": "(Lynch, 1996)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0146": {
+  "autoria": "(Lynch, 1998)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0147": {
+  "autoria": "(Lynch, 1995)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0148": {
+  "autoria": "(Boulenger, 1898)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0149": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1998)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0150": {
+  "autoria": "Rivera-Correa, Jiménez-Rivillas & Daza-R., 2017",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0151": {
+  "autoria": "(Lynch, 1991)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0152": {
+  "autoria": "(Lynch, 1998)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0153": {
+  "autoria": "(Lynch, Ruiz-Carranza & Ardila-Robayo, 1994)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0154": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1998)",
+  "nombre": "Rana Diminuta",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0155": {
+  "autoria": "(Rivero & Serna, 1988)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0156": {
+  "autoria": "(Lynch, Ruiz-Carranza & Ardila-Robayo, 1996)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0157": {
+  "autoria": "(Lynch, 1996)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0158": {
+  "autoria": "(Ruiz-Carranza, Lynch & Ardila-Robayo, 1997)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0159": {
+  "autoria": "Palacios-Rodríguez, Daza, Mazariegos-H, Rendón & Amézquita, 2022",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0160": {
+  "autoria": "(Lynch, 1998)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0161": {
+  "autoria": "(Lynch, 1996)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0162": {
+  "autoria": "(Cope, 1866)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0163": {
+  "autoria": "(Ruiz-Carranza, Lynch & Ardila-Robayo, 1997)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0164": {
+  "autoria": "(Lynch, 1998)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0165": {
+  "autoria": "(Lynch, 1995)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0166": {
+  "autoria": "(Pyburn & Lynch, 1981)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0167": {
+  "autoria": "(Lynch, 1991)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0168": {
+  "autoria": "(Ruiz-Carranza, Lynch & Ardila-Robayo, 1997)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0169": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1998)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0170": {
+  "autoria": "(Lynch, 1979)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0171": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1997)",
+  "nombre": "Rana Ornamentada",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0172": {
+  "autoria": "(Günther, 1859)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0173": {
+  "autoria": "(Lynch, 1991)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0174": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1997)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0175": {
+  "autoria": "(Boulenger, 1886)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0176": {
+  "autoria": "(Lynch & Rueda-Almonacid, 1999)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0177": {
+  "autoria": "(Ruiz-Carranza, Lynch & Ardila-Robayo, 1997)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0178": {
+  "autoria": "(Boettger, 1892)",
+  "nombre": "Cualita",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0179": {
+  "autoria": "(Lynch & Ardila-Robayo, 1999)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0180": {
+  "autoria": "Rivera-Correa & Daza, 2020",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0181": {
+  "autoria": "Peters, 1863",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0182": {
+  "autoria": "(Boulenger, 1896)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0183": {
+  "autoria": "(Lynch, 1975)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0184": {
+  "autoria": "(Lynch, 1990)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0185": {
+  "autoria": "(Lynch, 1997)",
+  "nombre": "Rana Cabezona",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0186": {
+  "autoria": "(Lynch, 1981)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0187": {
+  "autoria": "(Lynch & Myers, 1983)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0188": {
+  "autoria": "(Myers & Daly, 1980)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0189": {
+  "autoria": "Amézquita, Márquez, Mejía-Vargas, Kahn, Suárez & Mazariegos, 2013",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0190": {
+  "autoria": "(Rueda-Almonacid, Rada, Sánchez-Pacheco, Velásquez-Álvarez & Quevedo-Gil, 2006)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0191": {
+  "autoria": "(Silverstone, 1975)",
+  "nombre": "Rana Venenosa andina Verde/Amarilla",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0192": {
+  "autoria": "(Boulenger, 1899)",
+  "nombre": "Rana Venenosa Norandina",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0193": {
+  "autoria": "Márquez, Mejía-Vargas, Palacios-Rodríguez, Ramírez-Castañeda & Amézquita, 2017",
+  "nombre": "Rana venenosa andina escarlata",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0194": {
+  "autoria": "Rivero & Serna, 2000",
+  "sinonimos": [
+   "Leucostethus dysprosium"
+  ],
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0195": {
+  "autoria": "Silverstone, 1975",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0196": {
+  "autoria": "(Cope, 1868)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0197": {
+  "autoria": "(Cope, 1863)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0198": {
+  "autoria": "(Boulenger, 1899)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0199": {
+  "autoria": "(Cochran & Goin, 1970)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0200": {
+  "autoria": "Rivero & Serna, 1991",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0201": {
+  "autoria": "(Girard, 1855)",
+  "nombre": "rana venenosa verdinegra",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0202": {
+  "autoria": "(Cuvier, 1797)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0203": {
+  "autoria": "(Grant, Humphrey & Myers, 1997)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0204": {
+  "autoria": "Grant, Rada, Anganoy-Criollo, Batista, Dias, Jeckel, Machado & Rueda-Almonacid, 2017",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0205": {
+  "autoria": "(Silverstone, 1975)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0206": {
+  "autoria": "Jiménez de la Espada, 1870",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0207": {
+  "autoria": "Boulenger, 1912",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0208": {
+  "autoria": "(Coloma, 1995)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0209": {
+  "autoria": "(Rivero & Serna, 2000)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0210": {
+  "autoria": "(Silverstone, 1971)",
+  "nombre": "Rana cohete de Lehmann",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0211": {
+  "autoria": "(Silverstone, 1971)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0212": {
+  "autoria": "(Cope, 1899)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0213": {
+  "autoria": "Hellmich, 1940",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0214": {
+  "autoria": "(Rivero & Serna, 1986)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0215": {
+  "autoria": "(Silverstone, 1971)",
+  "nombre": "Rana cohete silbadora",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0216": {
+  "autoria": "Marín-Castaño, Molina-Zuluaga & Restrepo, 2018",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0217": {
+  "autoria": "(Rivero & Serna, 2000)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0218": {
+  "autoria": "Posso-Terranova & Andrés, 2018",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0219": {
+  "autoria": "(Berthold, 1845)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0220": {
+  "autoria": "Posso-Terranova & Andrés, 2018",
+  "nombre": "Rana Venenosa Arlequín Chocoana",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0221": {
+  "autoria": "(Boulenger, 1913)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0222": {
+  "autoria": "Myers, Daly & Malkin, 1978",
+  "nombre": "Rana dorada venenosa",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0223": {
+  "autoria": "(Rivero & Serna, 2000)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0224": {
+  "autoria": "Grant & Myers, 2013",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0225": {
+  "autoria": "(Dunn, 1924)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0226": {
+  "autoria": "(Daudin, 1802)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0227": {
+  "autoria": "(Lynch, 2001)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0228": {
+  "autoria": "(Cope, 1875)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0229": {
+  "autoria": "(Boulenger, 1898)",
+  "nombre": "Rana naranja de Esmeraldas",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0230": {
+  "autoria": "(Lynch, 2001)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0231": {
+  "autoria": "(Lynch, 2001)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0232": {
+  "autoria": "Dunn, 1926",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0233": {
+  "autoria": "Barbour, 1914",
+  "nombre": "Coqui Antillano",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0234": {
+  "autoria": "(Peracca, 1914)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0235": {
+  "autoria": "Ruiz-Carranza, Ardila-Robayo, Lynch & Restrepo-Toro, 1997",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0236": {
+  "autoria": "(Boettger, 1892)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0237": {
+  "autoria": "Cochran & Goin, 1970",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0238": {
+  "autoria": "Duellman, 1983",
+  "nombre": "Rana marsupial del río Calima",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0239": {
+  "autoria": "Lutz, 1977",
+  "nombre": "Rana Marsupial Norandina",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0240": {
+  "autoria": "(Boulenger, 1882)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0241": {
+  "autoria": "Gaige, 1933",
+  "nombre": "Rana Marsupial De Niceforo",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0242": {
+  "autoria": "Peters, 1862",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0243": {
+  "autoria": "Baird, 1854",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0244": {
+  "autoria": "(Spix, 1824)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0245": {
+  "autoria": "(Wied-Neuwied, 1824)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0246": {
+  "autoria": "(Werner, 1901)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0247": {
+  "autoria": "(Boulenger, 1899)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0248": {
+  "autoria": "(Cochran & Goin, 1970)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0249": {
+  "autoria": "(Fouquette, 1961)",
+  "nombre": "Rana Arborícola de La Zona del Canal",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0250": {
+  "autoria": "(Duellman, 1969)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0251": {
+  "autoria": "(Stejneger, 1906)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0252": {
+  "autoria": "(Dunn, 1934)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0253": {
+  "autoria": "(Dunn, 1943)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0254": {
+  "autoria": "Rivera-Correa & Faivovich, 2013",
+  "nombre": "Rana chocolate antioqueña",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0255": {
+  "autoria": "(Peters, 1882)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0256": {
+  "autoria": "(Dunn, 1931)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0257": {
+  "autoria": "(Duellman, 1973)",
+  "nombre": "Rana de torrente pastusa",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0258": {
+  "autoria": "(Linnaeus, 1758)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0259": {
+  "autoria": "(Solano, 1971)",
+  "nombre": "Ranita Vigilante",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0260": {
+  "autoria": "(Cope, 1887)",
+  "nombre": "rana arboricola narizona de boulenger",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0261": {
+  "autoria": "Acosta-Galvis, 2018",
+  "nombre": "Scinax canto de cabra",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0262": {
+  "autoria": "(Cope, 1875)",
+  "nombre": "rana arborícola hocico oliva",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0263": {
+  "autoria": "(Peters, 1863)",
+  "nombre": "Ranita Rostral",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0264": {
+  "autoria": "(Duellman, 1973)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0265": {
+  "autoria": "(Spix, 1824)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0266": {
+  "autoria": "(Cope, 1862)",
+  "nombre": "rana arborícola enmascarada",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0267": {
+  "autoria": "Duellman & Trueb, 1966",
+  "nombre": "rana arborícola ñata",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0268": {
+  "autoria": "(Peters, 1863)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0269": {
+  "autoria": "(Andersson, 1945)",
+  "nombre": "Rana Gomosa Grande",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0270": {
+  "autoria": "(Linnaeus, 1758)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0271": {
+  "autoria": "(Laurenti, 1768)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0272": {
+  "autoria": "Boulenger, 1898",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0273": {
+  "autoria": "(Brocchi, 1877)",
+  "nombre": "Rana de bigotes",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0274": {
+  "autoria": "(Schneider, 1799)",
+  "nombre": "Rana Picuda",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0275": {
+  "autoria": "Barbour, 1906",
+  "nombre": "Rana Caribeña",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0276": {
+  "autoria": "(Hallowell, 1861)",
+  "nombre": "Ranita hojarasca",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0277": {
+  "autoria": "(Burmeister, 1861)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0278": {
+  "autoria": "(Laurenti, 1768)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0279": {
+  "autoria": "(Cope, 1862)",
+  "nombre": "rana de labio turbo blanco",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0280": {
+  "autoria": "Heyer, 2005",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0281": {
+  "autoria": "Heyer, 2005",
+  "nombre": "Rana de dedos delgados de Savage",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0282": {
+  "autoria": "Boulenger, 1902",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0283": {
+  "autoria": "(Boulenger, 1890)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0284": {
+  "autoria": "(Cope, 1869)",
+  "nombre": "Sapito Lipón",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0285": {
+  "autoria": "(Ruthven, 1916)",
+  "nombre": "Ranita Enana",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0286": {
+  "autoria": "(Günther, 1901)",
+  "nombre": "Ranita hocicuda negra",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0287": {
+  "autoria": "(Dunn, Trapido & Evans, 1948)",
+  "nombre": "Ranita termitera",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0288": {
+  "autoria": "(Ruthven, 1914)",
+  "nombre": "Rana Pingüina",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0289": {
+  "autoria": "(Boulenger, 1882)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0290": {
+  "autoria": "(Ruiz-Carranza, Hernández-Camacho & Rueda-Almonacid, 1988)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0291": {
+  "autoria": "Boulenger, 1913",
+  "nombre": "Rana Deslizadora",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0292": {
+  "autoria": "Rivera-Correa, Duarte-Cubides, Rueda-Almonacid & Daza-R., 2013",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0293": {
+  "autoria": "(Duellman, 1973)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0294": {
+  "autoria": "(Boddaert, 1772)",
+  "nombre": "Rana Lemur Gigante",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0295": {
+  "autoria": "Trueb, 1984",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0296": {
+  "autoria": "(Shaw, 1802)",
+  "nombre": "Rana toro americana",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0297": {
+  "autoria": "(Spix, 1824)",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ },
+ "COL_ANURA_0298": {
+  "autoria": "(Brocchi, 1877)",
+  "nombre": "Rana de Vaillant",
+  "fuente": "GBIF Backbone (catálogo Antioquia), verificado 2026-09-13"
+ }
+}

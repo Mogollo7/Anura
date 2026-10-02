@@ -275,7 +275,9 @@ async function evaluar(db, subregionId, ctx = null) {
   // Si algo de esto cambia, un borrador compilado con la huella anterior ya no se aprueba.
   const huella = crypto.createHash('sha256').update(JSON.stringify([
     ENCODER, ctx.version?.id ?? null, ctx.experimento?.id ?? null, osr?.id ?? null, osr?.tau ?? null,
-    incluidas.map((e) => [e.especie_id, e.contexto]),
+    // Nombre, familia y taxon_id también viajan en el paquete: renombrar o mover de familia una especie
+    // después de compilar deja ese borrador desactualizado (antes seguía aprobándose con el nombre viejo).
+    incluidas.map((e) => [e.especie_id, e.taxon_id, e.nombre_cientifico, e.genero, e.familia, e.contexto]),
     morfos.map((mo) => [mo.morfo_id, mo.nombre, mo.calculado]),
     clusteres.map((c) => [c.id, c.miembros, c.decidido_en]),
   ])).digest('hex');
