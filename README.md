@@ -61,21 +61,25 @@ anura/
 
 ## Inicio rápido
 
-```bash
+```powershell
 # 1. Configurar variables de entorno
-cp .env.example .env
+copy .env.example .env
 # Editar .env con tus credenciales
 
-# 2. Levantar toda la infraestructura
-docker compose up -d
+# 2. Levantar el servidor (web, panel y APIs). Espera a que cada uno responda.
+.\scripts\up.ps1
+
+# Con el modelo de GPU, que si falla no debe tumbar el resto:
+.\scripts\up.ps1 -Model
 
 # 3. Ver logs
 docker compose logs -f
 
 # 4. Acceder
+#   Web:          http://localhost
+#   Panel:        http://localhost:3010
 #   NPM Admin:    http://localhost:81
-#   AI Service:   http://localhost:8000/docs
-#   Frontend dev: cd frontend && npm run dev
+#   Modelo (GPU): http://localhost:8000/docs
 ```
 
 ---
