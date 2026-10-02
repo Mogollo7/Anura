@@ -130,9 +130,10 @@ export function publishedToSpecies(e) {
     iucn: e.uicn?.categoria || null,
     iucnYear: e.uicn?.anio || null,
     iucnSource: e.uicn?.fuente || null,
-    toxicity: e.toxicidad ? { label: TOXICIDAD[e.toxicidad.nivel], level: e.toxicidad.nivel, note: e.toxicidad.nota || null } : null,
+    toxicity: e.toxicidad ? { label: TOXICIDAD[e.toxicidad.nivel], level: e.toxicidad.nivel, note: e.toxicidad.nota || null, source: e.toxicidad.fuente || null } : null,
     endemic: e.endemismo ? e.endemismo.endemica : null,
     endemicScope: e.endemismo?.alcance || null,
+    endemicSource: e.endemismo?.fuente || null,
     altitudeRange: e.altitud_literatura
       ? { min: e.altitud_literatura.min ?? null, max: e.altitud_literatura.max ?? null, source: e.altitud_literatura.fuente || null }
       : null,
@@ -141,12 +142,15 @@ export function publishedToSpecies(e) {
     diet: e.dieta || null,
     reproduction: e.reproduccion || null,
     curiosity: e.dato_curioso?.valor || null,
+    curiositySource: e.dato_curioso?.fuente || null,
     threats: e.amenazas?.lista || [],
+    threatsSource: e.amenazas?.fuente || null,
     distribution: e.distribucion || null,
     whatIs: e.descripcion || null,
     synonyms: e.sinonimos || [],
     morphology: {
       size: e.lhc ? `Longitud hocico-cloaca: ${rango(e.lhc.min, e.lhc.max, 'mm')}` : null,
+      sizeSource: e.lhc?.fuente || null,
       dorsal: m.patron_dorsal || null,
       ventral: m.patron_ventral || null,
       tympanum: m.timpano || null,

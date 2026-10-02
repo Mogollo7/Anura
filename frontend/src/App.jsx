@@ -21,6 +21,7 @@ import AuthenticatedLayout from './layouts/AuthenticatedLayout'
 import { usePreferencesStore } from './store/preferencesStore'
 import { API_BASE, apiGet, apiPost } from './services/api'
 import LoadingSpinner from './components/LoadingSpinner'
+import GoogleMark from './components/GoogleMark'
 
 // ── Protected route ──────────────────────────────────────────────
 function ProtectedRoute({ children, token }) {
@@ -86,10 +87,15 @@ function Login({ setToken }) {
         <h1>🐸 Bienvenido</h1>
         <p className="subtitle">Inicia sesión en Anura</p>
 
-        <button onClick={() => { window.location.href = `${API_BASE}/api/auth/google` }} className="btn-google">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="google-icon" />
+        <button type="button" onClick={() => { window.location.href = `${API_BASE}/api/auth/google` }} className="btn-google">
+          <GoogleMark />
           Continuar con Google
         </button>
+
+        <button type="button" className="btn-secondary auth-guest" onClick={() => navigate('/inicio')}>
+          Ingresar como invitado
+        </button>
+        <p className="auth-guest-note">Puedes leer observaciones y fichas. Para comentar, guardar o seguir hace falta una cuenta.</p>
 
         <div className="divider"><span>o usa tu email</span></div>
 
@@ -158,8 +164,8 @@ function Register({ setToken }) {
         <h1>🐸 Únete a Anura</h1>
         <p className="subtitle">Crea tu cuenta de explorador</p>
 
-        <button onClick={() => { window.location.href = `${API_BASE}/api/auth/google` }} className="btn-google">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="google-icon" />
+        <button type="button" onClick={() => { window.location.href = `${API_BASE}/api/auth/google` }} className="btn-google">
+          <GoogleMark />
           Registrarse con Google
         </button>
 

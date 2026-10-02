@@ -158,9 +158,24 @@
   border-radius: 16px;
 }
 
+/* Altura de la foto/audio de la observación. Antes era height="280px" en línea en el JSX, que gana
+   a cualquier regla de CSS: por eso no se podía cambiar desde aquí. Se cambia solo en esta variable. */
+.detail-card {
+  --detail-media-h: clamp(340px, 42vw, 560px);
+}
+.detail-card .a-media-carousel {
+  height: var(--detail-media-h);
+}
+@media (max-width: 560px) {
+  .detail-card {
+    --detail-media-h: clamp(300px, 85vw, 440px);
+  }
+}
+
 .detail-image-wrapper {
   width: 100%;
-  height: 500px;
+  /* Misma altura fluida que el hero de /taxa (TaxonDetail.css). */
+  height: clamp(220px, 28vw, 500px);
   background: #000;
   position: relative;
   overflow: hidden;
@@ -461,7 +476,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .detail-image-wrapper {
-    height: 400px;
+    height: clamp(220px, 28vw, 500px);
   }
 }
 
@@ -571,7 +586,7 @@
   }
 
   .detail-image-wrapper {
-    height: 200px !important;
+    height: clamp(220px, 28vw, 500px) !important;
   }
 
   /* info-section como columna fluida */

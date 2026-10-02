@@ -1,0 +1,51 @@
+/* Observaciones en el tiempo (ficha de especie): barras por mes + tres cifras. */
+.timeline-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.timeline-stats > div {
+  display: grid;
+  gap: 2px;
+}
+.timeline-stats span {
+  font-size: var(--text-xs, 12px);
+  color: var(--muted);
+}
+.timeline-stats strong {
+  font-size: var(--text-base, 15px);
+}
+.timeline-stats strong::first-letter {
+  text-transform: uppercase;
+}
+.timeline-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.timeline-axis {
+  stroke: var(--border, rgba(128, 128, 128, 0.4));
+  stroke-width: 1;
+}
+.timeline-bar {
+  fill: var(--accent, #4caf50);
+}
+.timeline-bar:hover {
+  opacity: 0.8;
+}
+.timeline-label {
+  font-size: 9px;
+  fill: var(--muted, #888);
+}
+.timeline-note {
+  margin: 8px 0 0;
+  font-size: var(--text-xs, 12px);
+  color: var(--muted);
+}
+.taxon-gallery-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}

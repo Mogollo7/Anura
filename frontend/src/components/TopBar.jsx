@@ -19,6 +19,12 @@ import { adminLoginUrl } from '../lib/adminAccess'
 import logoApp from '../assets/logo_app.webp'
 import './TopBar.css'
 
+/** El teléfono mete «Ver completo: url» al final del body. En la web ese enlace va aparte. */
+function cuerpoVisible(body) {
+  if (!body) return ''
+  return body.replace(/\n*Ver completo\b[\s\S]*$/, '').trim()
+}
+
 export default function TopBar({ onLogout, isGuest = false, isAdmin = false, token = null }) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -315,7 +321,18 @@ export default function TopBar({ onLogout, isGuest = false, isAdmin = false, tok
                         <li key={n.id} className={`notif-item ${n.is_read ? '' : 'unread'}`} onClick={() => markNotifRead(n.id)}>
                           <div className="notif-item-content">
                             <span className="notif-item-title">{n.title}</span>
-                            {n.body && <span className="notif-item-body">{n.body}</span>}
+                            {cuerpoVisible(n.body) && <span className="notif-item-body">{cuerpoVisible(n.body)}</span>}
+                            {n.enlace && (
+                              <a
+                                className="notif-item-link"
+                                href={n.enlace}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Ver completo
+                              </a>
+                            )}
                           </div>
                           <button
                             type="button"

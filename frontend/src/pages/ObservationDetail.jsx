@@ -259,7 +259,6 @@ export default function ObservationDetail() {
           {/* Columna Izquierda: Imagen y Taxonomía */}
           <div className="detail-card card glassmorphism">
             <MediaCarousel
-              height="280px"
               media={[
                 ...(obs.image_key || obs.thumbnail_key ? [{
                   type: 'image',

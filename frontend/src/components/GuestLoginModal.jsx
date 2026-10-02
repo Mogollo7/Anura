@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MdClose, MdFavorite } from 'react-icons/md'
-import { FaGoogle } from 'react-icons/fa6'
 import { API_BASE } from '../services/api'
+import GoogleMark from './GoogleMark'
 import './GuestLoginModal.css'
 
 /**
@@ -43,7 +43,7 @@ export default function GuestLoginModal({
           className="btn-primary po-modal-login"
           onClick={() => { window.location.href = `${API_BASE}/api/auth/google` }}
         >
-          <FaGoogle aria-hidden /> Continuar con Google
+          <GoogleMark /> Continuar con Google
         </button>
         <button className="btn-secondary po-modal-skip" onClick={() => navigate('/login')}>
           Entrar con correo

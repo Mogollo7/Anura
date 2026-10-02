@@ -8,6 +8,9 @@ import './TaxonDetail.css';
 import LoadingSpinner from '../components/LoadingSpinner';
 import BackButton from '../components/BackButton';
 import FallbackImage from '../components/FallbackImage';
+import SourcesCard from '../components/SourcesCard';
+import ObservationsTimeline from '../components/ObservationsTimeline';
+import '../components/ObservationsTimeline.css';
 import { HeatmapLayer, GridDensityLayer } from '../maps/SpeciesDistributionLayers';
 import { usePublishedSpecies, publishedToSpecies } from '../species/publishedCatalog';
 import { apiGet, getThumbUrl } from '../services/api';
@@ -268,7 +271,8 @@ export default function TaxonDetail() {
             </div>
           </div>
 
-          {/* Right: Description / What is card */}
+          {/* Right: Description / What is card + observaciones en el tiempo */}
+          <div className="taxon-gallery-side-col">
           {!species.published && publishedReady && (
           <div className="taxon-gallery-side-card">
             <section className="taxon-section card">
@@ -308,6 +312,8 @@ export default function TaxonDetail() {
             </section>
           </div>
           )}
+          <ObservationsTimeline observations={observations} />
+          </div>
         </div>
       </section>
 
@@ -452,11 +458,6 @@ export default function TaxonDetail() {
                   <span className="iucn-label">{iucnInfo.label}</span>
                 </div>
               )}
-              {(species.iucnYear || species.iucnSource) && (
-                <p className="taxon-source">
-                  Fuente: {[species.iucnSource, species.iucnYear].filter(Boolean).join(', ')}
-                </p>
-              )}
               {threats.length > 0 && (
                 <div className="threat-list">
                   <p className="morpho-label">Amenazas principales</p>
@@ -503,6 +504,9 @@ export default function TaxonDetail() {
               )}
             </section>
             )}
+
+            {/* ── Fuentes: todas en un solo bloque ── */}
+            <SourcesCard species={species} />
 
             {/* ── Observations counter + link ── */}
             <section className="taxon-section card taxon-obs-summary">

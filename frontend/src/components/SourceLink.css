@@ -1,0 +1,56 @@
+.source-link {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  font-size: var(--text-xs, 12px);
+  color: var(--muted);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.source-link-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.85em;
+}
+.source-link-anchor {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--accent-wash, rgba(0, 0, 0, 0.06));
+  color: var(--accent, inherit);
+  text-decoration: none;
+  font-weight: 500;
+}
+.source-link-anchor:hover,
+.source-link-anchor:focus-visible {
+  text-decoration: underline;
+}
+.source-link-anchor svg {
+  font-size: 1.05em;
+}
+
+/* Tarjeta «Fuentes» de la ficha: una fila por dato, con su fuente al lado. */
+.taxon-sources-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.taxon-sources-list li {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+}
+.taxon-sources-list li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.taxon-sources-list strong {
+  font-size: var(--text-sm, 13px);
+}

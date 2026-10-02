@@ -300,7 +300,15 @@ h2 { font-size: var(--f-title2); font-weight: 700; color: var(--label-primary); 
 
 .btn-google:hover { box-shadow: var(--sh-float); }
 
-.google-icon { width: 20px; height: 20px; }
+.google-icon { width: 20px; height: 20px; flex-shrink: 0; }
+
+.auth-guest { width: 100%; margin-top: 0.75rem; }
+.auth-guest-note {
+  margin: 0.4rem 0 0.75rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+}
 
 /* Divider */
 .divider {
