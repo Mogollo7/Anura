@@ -38,5 +38,28 @@ Thumbs.db
 # Docker volumes
 infrastructure/postgres/data/
 
-models/
+/models/
 datasets/
+
+# Respaldos de Postgres/MinIO: contienen datos de usuarios (hashes de contraseña), nunca a git
+infrastructure/backups/*.dump
+
+# Copias de la base hechas desde el panel (contienen todos los datos)
+_respaldos/panel/
+
+# Logs, datos del gateway, respaldos y salidas locales
+*.log
+*.log.*
+gateway/data/
+_respaldos/
+brag-output-*/
+.mcp.json
+.claude/
+.cursor/
+.agents/
+skills-lock.json
+.fotos/
+*.dump
+*.sql.gz
+.github/prompts/
+manual-de-usuario-anura/public/*.pdf
