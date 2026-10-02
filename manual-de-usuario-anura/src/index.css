@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+/* ── iNaturalist design tokens ──────────────────────────────────── */
+:root {
+  /* Brand greens */
+  --primary:       #4f8f1f;
+  --primary-light: #8bcf43;
+  --primary-dark:  #326414;
+  --earth:         #8b6f47;
+  --sky:           #dff3f0;
+  --danger:        #c0392b;
+  --success:       #2f7d32;
+
+  /* Light theme */
+  --bg:      #f4f7ef;
+  --surface: #ffffff;
+  --surface-2: #eef5e6;
+  --border:  #d7e3c8;
+  --text:    #16240d;
+  --muted:   #62705a;
+  --shadow:  0 18px 45px rgba(45, 74, 14, 0.12);
+  --shadow-soft: 0 8px 24px rgba(45, 74, 14, 0.08);
+
+  --accent:  var(--primary);
+  --accent2: var(--primary-light);
+  --radius:  12px;
+
+  /* Typography scale */
+  --text-2xs:  0.7rem;    /* 11px */
+  --text-xs:   0.85rem;   /* 13.6px */
+  --text-sm:   0.95rem;   /* 15.2px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.2rem;    /* 19.2px */
+  --text-xl:   1.5rem;    /* 24px */
+  --text-2xl:  2rem;      /* 32px */
+  --text-3xl:  3rem;      /* 48px */
+  --text-4xl:  4.5rem;    /* 72px */
+
+  color-scheme: light;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --bg:      #09110a;
+  --surface: #111d12;
+  --surface-2: #172817;
+  --border:  #284726;
+  --text:    #edf7df;
+  --muted:   #aec39e;
+  --shadow:  0 20px 55px rgba(0, 0, 0, 0.34);
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+  color-scheme: dark;
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-primary-dark: var(--primary-dark);
+  --color-earth: var(--earth);
+  --color-sky: var(--sky);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  
+  --radius-brand: var(--radius);
+  --shadow-brand: var(--shadow);
+  --shadow-soft-brand: var(--shadow-soft);
+}
+
+/* Custom design classes for the Bold Typography theme */
+.bold-headline {
+  font-family: "Outfit", "Inter", sans-serif;
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+}
+
+.bold-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background-color: var(--sky);
+  color: var(--primary-dark);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom scrollbars inspired by nature */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
