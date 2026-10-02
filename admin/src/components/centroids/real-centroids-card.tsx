@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TaskProgress } from "@/components/ui/task-progress";
 import { Table, THead, TBody, TRow, TH, TD } from "@/components/ui/table";
 import { usePanelSession } from "@/lib/session/panel-session";
 import { calcularCentroides, getCentroides, type CentroideRegional, type LoteCentroides } from "@/lib/dataset/dataset-client";
@@ -73,12 +74,13 @@ export function RealCentroidsCard({ onCalculado }: { onCalculado?: () => void } 
           </p>
         </div>
         {session.can("ejecutarEntrenamiento") && (
-          <Button variant="primary" disabled={calculando} onClick={calcular}>
+          <Button variant="primary" loading={calculando} disabled={calculando} onClick={calcular}>
             {calculando ? "Calculando…" : exp ? "Recalcular" : "Calcular centroides"}
           </Button>
         )}
       </CardHeader>
 
+      {calculando && <TaskProgress taskKey="calculo-centroides" label="Calculando centroides globales y regionales…" />}
       {error && <p className="mb-3 rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>}
       {!lote && !error && <p className="text-sm text-label-secondary">Cargando el lote…</p>}
       {lote && !exp && (

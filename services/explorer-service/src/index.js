@@ -44,6 +44,44 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'explorer-ser
 // Salidas de campo (lectura): rutas en ./field-trips.js
 require('./field-trips').registrarSalidasDeCampo(app, pool, JWT_SECRET);
 
+// Observaciones de la sesión actual. No depende del nombre de usuario (que puede cambiar) y
+// conserva las privadas: solo la dueña llega a esta ruta autenticada.
+app.get('/api/explorer/mine', async (req, res) => {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) return res.status(401).json({ message: 'No autorizado' });
+  let viewer;
+  try {
+    viewer = jwt.verify(header.slice(7), JWT_SECRET);
+  } catch {
+    return res.status(401).json({ message: 'Token inválido' });
+  }
+  try {
+    const { rows } = await pool.query(`
+      SELECT o.id, o.image_key, o.thumbnail_key, o.lat, o.lon, o.place_guess, o.altitude_m, o.notes,
+             o.is_private, o.created_at, u.username, u.profile_image, o.user_id,
+             COALESCE((
+               SELECT json_agg(json_build_object('image_key', m.image_key, 'thumbnail_key', m.thumbnail_key) ORDER BY m.position)
+               FROM observations.observation_media m WHERE m.observation_id = o.id
+             ), '[]'::json) AS photos,
+             p.top_class AS ai_class, p.top_probability AS ai_prob,
+             ${columnasTaxon()}
+      FROM observations.observations o
+      JOIN auth.users u ON u.id = o.user_id
+      LEFT JOIN LATERAL (
+        SELECT top_class, top_probability FROM ai.predictions
+        WHERE observation_id = o.id ORDER BY created_at DESC LIMIT 1
+      ) p ON TRUE
+      ${unirEspecie()}
+      WHERE o.user_id = $1
+      ORDER BY COALESCE(o.recorded_at, o.created_at) DESC
+    `, [viewer.id]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching own observations:', err);
+    res.status(500).json({ message: 'Error fetching own observations' });
+  }
+});
+
 // Feed (Latest observations)
 app.get('/api/explorer/feed', async (req, res) => {
   const { username } = req.query;
@@ -61,6 +99,10 @@ app.get('/api/explorer/feed', async (req, res) => {
 
     let query = `
       SELECT o.id, o.image_key, o.thumbnail_key, o.lat, o.lon, o.place_guess, o.notes, o.is_private, o.created_at,
+             COALESCE((
+               SELECT json_agg(json_build_object('image_key', m.image_key, 'thumbnail_key', m.thumbnail_key) ORDER BY m.position)
+               FROM observations.observation_media m WHERE m.observation_id = o.id
+             ), '[]'::json) AS photos,
              u.username, u.profile_image,
              p.top_class as ai_class, p.top_probability as ai_prob,
              ${columnasTaxon()}
@@ -297,6 +339,10 @@ app.get('/api/explorer/observation/:id', async (req, res) => {
 
     const query = `
       SELECT o.id, o.image_key, o.thumbnail_key, o.lat, o.lon, o.place_guess, o.altitude_m, o.notes, o.is_private, o.created_at,
+             COALESCE((
+               SELECT json_agg(json_build_object('image_key', m.image_key, 'thumbnail_key', m.thumbnail_key) ORDER BY m.position)
+               FROM observations.observation_media m WHERE m.observation_id = o.id
+             ), '[]'::json) AS photos,
              u.username, u.profile_image, o.user_id,
              (SELECT COUNT(*) FROM observations.observations WHERE user_id = u.id)::int as user_obs_count,
              p.top_class as ai_class, p.top_probability as ai_prob,

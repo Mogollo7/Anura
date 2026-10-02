@@ -6,6 +6,7 @@ import { DatabaseBackup as IconoRespaldo, Download } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
+import { TaskProgress } from "@/components/ui/task-progress";
 import { getToken } from "@/lib/auth/panel-client";
 import { usePanelSession } from "@/lib/session/panel-session";
 
@@ -13,7 +14,7 @@ type Respaldo = {
   archivo: string; base: string; creado: string; bytes: number; sha256: string; por: string | null;
   fotos?: { objetos: number } | null; fotos_nota?: string | null;
 };
-type Estado = { base: string; permiteLimpiar: boolean; respaldos: Respaldo[] };
+type Estado = { base: string; permiteLimpiar: boolean; fotosConfiguradas: boolean; respaldos: Respaldo[] };
 
 const auth = (): Record<string, string> => (getToken() ? { Authorization: `Bearer ${getToken()}` } : {});
 
@@ -38,8 +39,9 @@ export function DatabaseBackup() {
   const [estado, setEstado] = useState<Estado | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [haciendo, setHaciendo] = useState(false);
+  const [proceso, setProceso] = useState<{ clave: string; etiqueta: string } | null>(null);
   const [bajando, setBajando] = useState<string | null>(null);
-  const [avance, setAvance] = useState<{ leidos: number; total: number } | null>(null);
+  const [avance, setAvance] = useState<{ leidos: number; total: number; inicio: number; actualizado: number } | null>(null);
   const [hecho, setHecho] = useState<Respaldo | null>(null);
   const [recuperar, setRecuperar] = useState<Respaldo | null>(null);
   const [nombreRecuperar, setNombreRecuperar] = useState("");
@@ -65,6 +67,7 @@ export function DatabaseBackup() {
 
   async function respaldar(conFotosCopia = true) {
     setHaciendo(true);
+    setProceso({ clave: "respaldo", etiqueta: "Creando la copia de seguridad…" });
     setError(null);
     setMensaje(null);
     try {
@@ -76,12 +79,14 @@ export function DatabaseBackup() {
       setError(e instanceof Error ? e.message : "No se pudo hacer el respaldo.");
     } finally {
       setHaciendo(false);
+      setProceso(null);
     }
   }
 
   async function descargar(archivo: string, totalConocido = 0) {
     setBajando(archivo);
-    setAvance({ leidos: 0, total: totalConocido });
+    const inicio = Date.now();
+    setAvance({ leidos: 0, total: totalConocido, inicio, actualizado: inicio });
     setError(null);
     const control = new AbortController();
     cancelarRef.current = control;
@@ -98,7 +103,7 @@ export function DatabaseBackup() {
           if (done) break;
           partes.push(value);
           leidos += value.byteLength;
-          setAvance({ leidos, total });
+          setAvance({ leidos, total, inicio, actualizado: Date.now() });
         }
       } else {
         partes.push(new Uint8Array(await res.arrayBuffer()));
@@ -122,6 +127,7 @@ export function DatabaseBackup() {
   async function eliminarCopia() {
     if (!eliminar) return;
     setHaciendo(true);
+    setProceso({ clave: "eliminar-respaldo", etiqueta: "Eliminando la copia…" });
     setError(null);
     try {
       await pedir(`/api/system/respaldo/${encodeURIComponent(eliminar.archivo)}`, { method: "DELETE" });
@@ -132,12 +138,14 @@ export function DatabaseBackup() {
       setError(e instanceof Error ? e.message : "No se pudo eliminar la copia.");
     } finally {
       setHaciendo(false);
+      setProceso(null);
     }
   }
 
   async function cargarDump(file: File | undefined) {
     if (!file) return;
     setHaciendo(true);
+    setProceso({ clave: "cargar-dump", etiqueta: "Subiendo el dump al servidor…" });
     setError(null);
     setMensaje(null);
     try {
@@ -152,12 +160,14 @@ export function DatabaseBackup() {
       setError(e instanceof Error ? e.message : "No se pudo cargar el dump.");
     } finally {
       setHaciendo(false);
+      setProceso(null);
     }
   }
 
   async function recuperarAhora() {
     if (!recuperar) return;
     setHaciendo(true);
+    setProceso({ clave: "recuperar-base", etiqueta: "Recuperando la base y los archivos…" });
     setError(null);
     try {
       const r = await pedir<{ fotos: { objetos: number } | null; fotos_nota: string | null }>("/api/system/respaldo/recuperar", {
@@ -172,6 +182,7 @@ export function DatabaseBackup() {
       setError(e instanceof Error ? e.message : "No se pudo recuperar la base.");
     } finally {
       setHaciendo(false);
+      setProceso(null);
     }
   }
 
@@ -180,7 +191,7 @@ export function DatabaseBackup() {
       <CardHeader className="mb-2">
         <CardTitle>Respaldo de la base de datos</CardTitle>
         <div className="flex flex-wrap gap-2">
-          <Button variant="primary" className="text-xs" disabled={!puede || haciendo} onClick={() => { setConFotos(true); setBorrarFotos(true); void respaldar(true); }}>
+          <Button variant="primary" className="text-xs" loading={haciendo && proceso?.clave === "respaldo"} disabled={!puede || haciendo} onClick={() => { setConFotos(true); setBorrarFotos(true); void respaldar(true); }}>
             <IconoRespaldo size={14} aria-hidden /> {haciendo ? "Trabajando…" : "Respaldar base"}
           </Button>
           <Button variant="outline" className="text-xs text-danger" disabled={!puede || haciendo} onClick={() => setPreparando(true)}>
@@ -195,11 +206,12 @@ export function DatabaseBackup() {
       </CardHeader>
       <p className="text-xs text-label-secondary">
         Hace una copia de {estado ? <span className="font-mono">{estado.base}</span> : "la base"} y, si MinIO está configurado, de las fotos y los paquetes.
-        Descargar baja el dump. Cargar guarda un dump que trajiste. Recuperar sustituye la base y las fotos por esa copia: está apagado mientras el servidor no tenga BACKUP_ALLOW_CLEAN=1.
+        Descargar baja el dump. Cargar guarda un dump que trajiste. Recuperar restaura la base y reemplaza MinIO solo si la copia incluye fotos: está apagado mientras el servidor no tenga BACKUP_ALLOW_CLEAN=1.
         {!puede && " Necesita el permiso Debug técnico."}
       </p>
       {mensaje && <p role="status" className="mt-3 rounded-md bg-accent-wash px-3 py-2 text-sm text-accent-ink">{mensaje}</p>}
       {error && <p role="alert" className="mt-3 rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>}
+      {proceso && <TaskProgress key={proceso.clave} taskKey={`base:${proceso.clave}`} label={proceso.etiqueta} />}
       {estado && estado.respaldos.length > 0 && (
         <ul className="mt-3 divide-y divide-border text-sm">
           {estado.respaldos.map((r) => (
@@ -213,7 +225,7 @@ export function DatabaseBackup() {
                   {r.fotos_nota ? ` · ${r.fotos_nota}` : ""}
                 </p>
               </div>
-              <Button variant="outline" className="px-2.5 py-1 text-xs" disabled={bajando === r.archivo} onClick={() => void descargar(r.archivo, r.bytes)}>
+              <Button variant="outline" className="px-2.5 py-1 text-xs" loading={bajando === r.archivo} disabled={bajando === r.archivo} onClick={() => void descargar(r.archivo, r.bytes)}>
                 <Download size={12} aria-hidden /> {bajando === r.archivo ? "Descargando…" : "Descargar"}
               </Button>
               {bajando === r.archivo && (
@@ -223,6 +235,15 @@ export function DatabaseBackup() {
               )}
               {bajando === r.archivo && avance && (() => {
                 const pct = avance.total > 0 ? Math.min(100, Math.floor((avance.leidos / avance.total) * 100)) : null;
+                  const velocidad = avance.leidos / ((avance.actualizado - avance.inicio) / 1000);
+                  const segundosRestantes = velocidad > 0 && avance.total > avance.leidos
+                    ? Math.ceil((avance.total - avance.leidos) / velocidad)
+                    : null;
+                  const tiempoRestante = segundosRestantes === null
+                    ? null
+                    : segundosRestantes >= 60
+                      ? `${Math.floor(segundosRestantes / 60)} min ${segundosRestantes % 60} s`
+                      : `${segundosRestantes} s`;
                 return (
                   <div className="basis-full" role="progressbar" aria-label="Avance de la descarga"
                     aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct ?? undefined}>
@@ -231,6 +252,7 @@ export function DatabaseBackup() {
                     </div>
                     <p className="mt-1 text-[11px] text-label-tertiary">
                       {pct === null ? tamano(avance.leidos) : `${pct} % · ${tamano(avance.leidos)} de ${tamano(avance.total)}`}
+                      {tiempoRestante && ` · estimado restante ~${tiempoRestante}`}
                     </p>
                   </div>
                 );
@@ -258,7 +280,7 @@ export function DatabaseBackup() {
               </RadixDialog.Description>
               <div className="mt-5 flex justify-end gap-2">
                 <Button variant="outline" disabled={haciendo} onClick={() => setEliminar(null)}>Cancelar</Button>
-                <Button variant="danger" disabled={haciendo} onClick={() => void eliminarCopia()}>
+                <Button variant="danger" loading={haciendo && !!eliminar} disabled={haciendo} onClick={() => void eliminarCopia()}>
                   {haciendo ? "Eliminando…" : "Eliminar copia"}
                 </Button>
               </div>
@@ -278,7 +300,8 @@ export function DatabaseBackup() {
             >
               <RadixDialog.Title className="text-base font-semibold text-label-primary">¿Recuperar esta copia?</RadixDialog.Title>
               <RadixDialog.Description className="mt-1 text-sm text-label-secondary">
-                Sustituye la base <span className="font-mono text-xs">{estado.base}</span> y las fotos por {recuperar.archivo}. Lo que hay ahora se pierde.
+                Sustituye la base <span className="font-mono text-xs">{estado.base}</span> por {recuperar.archivo}.
+                {recuperar.fotos ? " También reemplaza los objetos de MinIO por el snapshot de esta copia." : " Esta copia no incluye fotos de MinIO; los objetos actuales se conservarán."}
               </RadixDialog.Description>
               {!estado.permiteLimpiar && (
                 <p className="mt-3 rounded-md bg-danger/10 px-3 py-2 text-sm text-label-primary">
@@ -291,7 +314,7 @@ export function DatabaseBackup() {
               </label>
               <div className="mt-5 flex justify-end gap-2">
                 <Button variant="outline" disabled={haciendo} onClick={() => { setRecuperar(null); setNombreRecuperar(""); }}>Cancelar</Button>
-                <Button variant="danger" disabled={nombreRecuperar !== estado.base || haciendo} onClick={() => void recuperarAhora()}>
+                <Button variant="danger" loading={haciendo && proceso?.clave === "recuperar-base"} disabled={nombreRecuperar !== estado.base || haciendo} onClick={() => void recuperarAhora()}>
                   {haciendo ? "Recuperando…" : "Recuperar todo"}
                 </Button>
               </div>
@@ -318,13 +341,16 @@ export function DatabaseBackup() {
                   <input type="checkbox" className="mt-1" checked={borrarFotos} disabled={haciendo} onChange={(e) => setBorrarFotos(e.target.checked)} />
                   <span>Borrar también las fotos de MinIO al limpiar<br /><span className="text-xs text-label-tertiary">Desmárcalo para dejarlas donde están y limpiar solo la base.</span></span>
                 </label>
+                {!estado.fotosConfiguradas && borrarFotos && (
+                  <p className="rounded-md bg-warning/10 px-3 py-2 text-sm text-label-primary">MinIO no está configurado aquí; las fotos no se borrarán.</p>
+                )}
                 {!conFotos && borrarFotos && (
                   <p className="rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">Así las fotos se borrarían sin copia. No podrás recuperarlas.</p>
                 )}
               </div>
               <div className="mt-5 flex justify-end gap-2">
                 <Button variant="outline" disabled={haciendo} onClick={() => setPreparando(false)}>Cancelar</Button>
-                <Button variant="primary" disabled={haciendo} onClick={() => void respaldar(conFotos)}>
+                <Button variant="primary" loading={haciendo && proceso?.clave === "respaldo"} disabled={haciendo} onClick={() => void respaldar(conFotos)}>
                   {haciendo ? "Haciendo la copia…" : "Hacer la copia y continuar"}
                 </Button>
               </div>
@@ -339,6 +365,7 @@ export function DatabaseBackup() {
           respaldo={hecho}
           base={estado.base}
           permiteLimpiar={estado.permiteLimpiar}
+          fotosConfiguradas={estado.fotosConfiguradas}
           onConservar={() => {
             setHecho(null);
             setMensaje(`Copia ${hecho.archivo} lista para descargar. La base actual se conserva.`);
@@ -359,6 +386,7 @@ function PreguntaBase({
   respaldo,
   base,
   permiteLimpiar,
+  fotosConfiguradas,
   onConservar,
   onLimpiada,
 }: {
@@ -366,6 +394,7 @@ function PreguntaBase({
   respaldo: Respaldo;
   base: string;
   permiteLimpiar: boolean;
+  fotosConfiguradas: boolean;
   onConservar: () => void;
   onLimpiada: () => void;
 }) {
@@ -411,11 +440,17 @@ function PreguntaBase({
               {!permiteLimpiar && (
                 <p className="text-sm text-label-primary">La limpieza está desactivada en este servidor, así que el servidor la rechazará.</p>
               )}
+              {borrarFotos && fotosConfiguradas && !respaldo.fotos && (
+                <p role="alert" className="text-sm font-medium text-danger">
+                  {respaldo.fotos_nota ?? "Esta copia no tiene un snapshot completo de MinIO."} No se borrarán las fotos; desmarca su eliminación o conserva la base actual.
+                </p>
+              )}
               <label className="block space-y-1">
                 <span className="text-xs font-medium text-label-secondary">Escribe el nombre de la base para confirmar</span>
                 <Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder={base} autoComplete="off" spellCheck={false} disabled={trabajando} />
               </label>
               {error && <p role="alert" className="text-sm text-danger">{error}</p>}
+              {trabajando && <TaskProgress taskKey="base:limpieza" label="Limpiando la base y los archivos seleccionados…" />}
             </div>
           )}
 
@@ -428,7 +463,7 @@ function PreguntaBase({
                 Limpiar la actual y conservar la copia
               </Button>
             ) : (
-              <Button variant="danger" disabled={nombre !== base || trabajando} onClick={() => void limpiar()}>
+              <Button variant="danger" loading={trabajando} disabled={nombre !== base || trabajando || (borrarFotos && fotosConfiguradas && !respaldo.fotos)} onClick={() => void limpiar()}>
                 {trabajando ? "Limpiando…" : "Confirmar limpieza"}
               </Button>
             )}

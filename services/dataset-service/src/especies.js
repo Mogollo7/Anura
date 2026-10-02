@@ -290,7 +290,10 @@ async function dependencias(db, especieId) {
   const sinFk = [{ tabla: 'dataset.centroide_regional', columna: 'especie_id' }];
   const vistas = new Set();
   for (const { tabla, columna } of [...refs, ...sinFk]) {
-    if (tabla === 'dataset.foto') continue;
+    // conrelid::regclass::text puede omitir el schema si no está en search_path,
+    // así que normalizamos antes de comparar (p.ej. "foto" == "dataset.foto").
+    const tablaSimple = tabla.replace(/^[^.]+\./, '').replace(/"/g, '');
+    if (tablaSimple === 'foto') continue;
     const clave = `${tabla}.${columna}`;
     if (vistas.has(clave)) continue;
     vistas.add(clave);
@@ -299,6 +302,7 @@ async function dependencias(db, especieId) {
     agrega(grupo, que, n, quitar);
   }
   return out;
+
 }
 
 const mensajeDeBloqueo = (nombre, deps) =>

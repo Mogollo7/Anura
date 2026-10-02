@@ -103,8 +103,8 @@ function SyncBody({
           se quedaron solo en el aparato. Las públicas aparecen en Observaciones de la web, de todas las cuentas.
           Las privadas llegan al servidor y se ven aquí, no en el mapa público.
         </p>
-        <Button variant="primary" onClick={onSync} disabled={busy} className="shrink-0">
-          <RefreshCw size={14} className={busy ? "animate-spin" : undefined} aria-hidden />
+        <Button variant="primary" onClick={onSync} loading={busy} disabled={busy} className="shrink-0">
+          <RefreshCw size={14} aria-hidden />
           Pedir sincronización
         </Button>
       </div>

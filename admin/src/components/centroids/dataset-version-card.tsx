@@ -129,7 +129,7 @@ export function DatasetVersionCard({ onCreada }: { onCreada?: () => void }) {
         />
         <div className="flex justify-end gap-2">
           <Button variant="outline" disabled={creando} onClick={() => setConfirmando(false)}>Volver</Button>
-          <Button variant="primary" disabled={creando} onClick={crear}>{creando ? "Creando…" : "Crear versión"}</Button>
+          <Button variant="primary" loading={creando} disabled={creando} onClick={crear}>{creando ? "Creando…" : "Crear versión"}</Button>
         </div>
       </Dialog>
     </Card>

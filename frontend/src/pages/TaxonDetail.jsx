@@ -173,8 +173,10 @@ export default function TaxonDetail() {
   ];
 
   const galleryObs = observations.slice(0, 6);
-  const heroObs = galleryObs[0] || null;
-  const thumbObs = galleryObs.slice(1, 6);
+  // La foto principal que se eligió en Admin → Contenido manda en el hero; sin ella, la primera
+  // observación. Si el hero es la foto de la ficha, las miniaturas empiezan en la primera observación.
+  const heroObs = species.photo ? null : galleryObs[0] || null;
+  const thumbObs = species.photo ? galleryObs.slice(0, 5) : galleryObs.slice(1, 6);
   const hasMore = observations.length > 6;
   const browseUrl = `/taxa/${taxonIdSlug}/fotos`;
 
@@ -543,8 +545,10 @@ export default function TaxonDetail() {
               >
                 {mapMode === 'geographic' && (
                   <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; OpenStreetMap'
+                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                    subdomains="abcd"
+                    maxZoom={19}
                   />
                 )}
                 
@@ -558,7 +562,8 @@ export default function TaxonDetail() {
                 {mapMode === 'altitudinal' && (
                   <TileLayer
                     url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; OpenTopoMap'
+                    attribution='&copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+                    maxZoom={17}
                   />
                 )}
 

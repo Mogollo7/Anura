@@ -36,6 +36,48 @@ const storage = multer.memoryStorage();
 
 // Una imagen por petición y con tope (el mismo de nginx, 25 MB): sin límite, cada subida vive entera en memoria.
 const upload = multer({ storage, limits: { fileSize: 25 * 1024 * 1024, files: 1 } });
+const uploadObservation = multer({ storage, limits: { fileSize: 25 * 1024 * 1024, files: 8 } });
+
+function parseObservationUploads(req, res, next) {
+  uploadObservation.fields([{ name: 'image', maxCount: 1 }, { name: 'images', maxCount: 8 }])(req, res, (err) => {
+    if (!err) return next();
+    const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    res.status(status).json({ message: status === 413 ? 'Una foto supera el límite de 25 MB' : 'No se pudieron leer las fotos enviadas' });
+  });
+}
+
+function galeriaDe(req) {
+  const files = req.files || {};
+  return [...(files.image || []), ...(files.images || [])];
+}
+
+async function respuestaSubida(observationId) {
+  const { rows: [observation] } = await pool.query(
+    'SELECT id, image_key, thumbnail_key FROM observations.observations WHERE id = $1', [observationId]);
+  if (!observation) return null;
+  const { rows } = await pool.query(`
+    SELECT image_key, thumbnail_key FROM observations.observation_media
+    WHERE observation_id = $1 ORDER BY position`, [observationId]);
+  const photos = rows.length ? rows : [{ image_key: observation.image_key, thumbnail_key: observation.thumbnail_key }];
+  const url = (size, key) => `/api/explorer/thumbnail/${size}/${encodeURIComponent(String(key || '').split('/').pop())}`;
+  return {
+    message: 'Observación guardada correctamente',
+    observation_id: observation.id,
+    image_url: url('original', observation.image_key),
+    thumbnail_url: url('medium', observation.thumbnail_key),
+    photos: photos.map((photo) => ({
+      image_url: url('original', photo.image_key),
+      thumbnail_url: url('medium', photo.thumbnail_key),
+    })),
+  };
+}
+
+async function borrarObjetos(minioClient, bucket, assets) {
+  await Promise.all(assets.flatMap((asset) => [asset.imageFilename, asset.thumbnailFilename].map(async (name) => {
+    if (!name) return;
+    await minioClient.removeObject(bucket, name).catch(() => {});
+  })));
+}
 
 function createMinioClient() {
   const Minio = require('minio');
@@ -213,56 +255,85 @@ router.post('/claim', authMiddleware, async (req, res) => {
     client.release();
   }
 });
-router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
+router.post('/', authMiddleware, parseObservationUploads, async (req, res) => {
   const client = await pool.connect();
+  const assets = [];
+  let minioClient = null;
+  let transaction = false;
+  let committed = false;
+  const BUCKET = process.env.MINIO_BUCKET || 'anura-images';
   try {
-    const { lat, lon, notes, is_private, ai_top_class, ai_top_prob, ai_location_used } = req.body;
+    const { lat, lon, notes, is_private, ai_top_class, ai_top_prob, ai_location_used, client_id, recorded_at } = req.body;
     const userId = req.user.id;
+    const clientId = typeof client_id === 'string' ? client_id.trim() : '';
+    const files = galeriaDe(req);
 
-    if (!req.file) {
+    if (!files.length) {
       return res.status(400).json({ message: 'No se envió ninguna imagen' });
     }
-
-    const imageFilename = `${uuidv4()}.webp`;
-    const filePath = path.join(uploadDir, imageFilename);
-    await sharp(req.file.buffer).webp({ quality: 80 }).toFile(filePath);
-
-    const thumbnailFilename = `thumb_${imageFilename}`;
-    const thumbnailPath = path.join(thumbnailDir, thumbnailFilename);
-
-    // Generar thumbnail
-    const thumbBuffer = await sharp(req.file.buffer)
-      .resize(300, 300, { fit: 'cover' })
-      .webp({ quality: 80 })
-      .toBuffer();
-
-    // Guardar en disco
-    fs.writeFileSync(thumbnailPath, thumbBuffer);
-
-    // Guardar en Redis
-    try {
-      await redisClient.set(`thumb:${thumbnailFilename}`, thumbBuffer, {
-        EX: 3600 * 24 // 24 hours
-      });
-    } catch (redisErr) {
-      console.error('Error saving thumbnail to Redis:', redisErr);
+    if (files.length > 8) return res.status(400).json({ message: 'Una observación admite hasta 8 fotos' });
+    if (clientId && (clientId.length > 80 || clientId.length === 0)) {
+      return res.status(400).json({ message: 'client_id inválido' });
     }
 
-    await client.query('BEGIN');
+    if (clientId) {
+      const { rows: [existing] } = await client.query(
+        'SELECT id FROM observations.observations WHERE user_id = $1 AND client_id = $2', [userId, clientId]);
+      if (existing) return res.status(200).json(await respuestaSubida(existing.id));
+    }
+
+    for (const [position, file] of files.entries()) {
+      const imageBuffer = await sharp(file.buffer).rotate().webp({ quality: 80 }).toBuffer();
+      const thumbBuffer = await sharp(imageBuffer).resize(300, 300, { fit: 'cover' }).webp({ quality: 80 }).toBuffer();
+      const imageFilename = `${uuidv4()}.webp`;
+      const thumbnailFilename = `thumb_${imageFilename}`;
+      const filePath = path.join(uploadDir, imageFilename);
+      const thumbnailPath = path.join(thumbnailDir, thumbnailFilename);
+      await fs.promises.writeFile(filePath, imageBuffer);
+      await fs.promises.writeFile(thumbnailPath, thumbBuffer);
+      assets.push({
+        position,
+        imageFilename,
+        thumbnailFilename,
+        imageKey: `uploads/${imageFilename}`,
+        thumbnailKey: `thumbnails/${thumbnailFilename}`,
+        imageBuffer,
+        thumbBuffer,
+        filePath,
+        thumbnailPath,
+      });
+    }
+
+    minioClient = createMinioClient();
+    try {
+      await ensureMinioBucket(minioClient, BUCKET);
+      for (const asset of assets) {
+        await minioClient.putObject(BUCKET, asset.imageFilename, asset.imageBuffer, asset.imageBuffer.length, { 'Content-Type': 'image/webp' });
+        await minioClient.putObject(BUCKET, asset.thumbnailFilename, asset.thumbBuffer, asset.thumbBuffer.length, { 'Content-Type': 'image/webp' });
+        await redisClient.set(`thumb:${asset.thumbnailFilename}`, asset.thumbBuffer, { EX: 3600 * 24 }).catch(() => {});
+      }
+    } catch (minioErr) {
+      throw Object.assign(new Error(`No se pudieron guardar todas las fotos en MinIO: ${minioErr.message}`), { status: 503 });
+    }
 
     // Fetch altitude & weather & place_guess from Geo Service
     let altitude = null;
     let place_guess = null;
-    if (lat && lon) {
+    const parsedLat = lat == null || lat === '' ? null : Number(lat);
+    const parsedLon = lon == null || lon === '' ? null : Number(lon);
+    if ((parsedLat == null) !== (parsedLon == null) || (parsedLat != null && !Number.isFinite(parsedLat)) || (parsedLon != null && !Number.isFinite(parsedLon))) {
+      throw Object.assign(new Error('Coordenadas inválidas'), { status: 400 });
+    }
+    if (parsedLat != null && parsedLon != null) {
       try {
         const geoUrl = process.env.GEO_SERVICE_URL || 'http://geo-service:3003';
-        const geoRes = await fetch(`${geoUrl}/api/geo/altitude?lat=${lat}&lon=${lon}`);
+        const geoRes = await fetch(`${geoUrl}/api/geo/altitude?lat=${parsedLat}&lon=${parsedLon}`);
         if (geoRes.ok) {
           const geoData = await geoRes.json();
           altitude = geoData.altitude_m;
         }
 
-        const revRes = await fetch(`${geoUrl}/api/geo/geocoding/reverse?lat=${lat}&lon=${lon}`);
+        const revRes = await fetch(`${geoUrl}/api/geo/geocoding/reverse?lat=${parsedLat}&lon=${parsedLon}`);
         if (revRes.ok) {
           const revData = await revRes.json();
           place_guess = revData.display_name;
@@ -272,45 +343,59 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
       }
     }
 
-    const imageKey = `uploads/${imageFilename}`;
-    const thumbnailKey = `thumbnails/${thumbnailFilename}`;
-
-    // Réplica en MinIO (objeto = nombre de fichero, igual que en disco)
-    const BUCKET = process.env.MINIO_BUCKET || 'anura-images';
-    try {
-      const minioClient = createMinioClient();
-      await ensureMinioBucket(minioClient, BUCKET);
-      await minioClient.putObject(BUCKET, imageFilename, fs.readFileSync(filePath));
-      await minioClient.putObject(BUCKET, thumbnailFilename, thumbBuffer);
-      console.log(`[minio] OK ${imageFilename}, ${thumbnailFilename}`);
-    } catch (minioErr) {
-      console.error('[minio] Subida fallida (se mantiene disco + DB):', minioErr.message);
-    }
-
     // Insertar Observación
     const obsQuery = `
       INSERT INTO observations.observations 
-        (user_id, image_key, thumbnail_key, thumbnail_blob, lat, lon, altitude_m, place_guess, notes, status, is_private, recorded_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'synced', $10, NOW())
+        (user_id, image_key, thumbnail_key, thumbnail_blob, lat, lon, altitude_m, place_guess, notes, status, is_private, recorded_at, client_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'synced', $10, COALESCE($11::timestamptz, NOW()), $12)
+      ON CONFLICT (user_id, client_id) WHERE client_id IS NOT NULL DO NOTHING
       RETURNING id
     `;
     const obsValues = [
       userId,
-      imageKey,
-      thumbnailKey,
-      thumbBuffer,
-      lat ? parseFloat(lat) : null,
-      lon ? parseFloat(lon) : null,
+      assets[0].imageKey,
+      assets[0].thumbnailKey,
+      assets[0].thumbBuffer,
+      parsedLat,
+      parsedLon,
       altitude,
       place_guess,
       notes || null,
-      is_private === 'true' || is_private === true || is_private === 'private'
+      is_private === 'true' || is_private === true || is_private === 'private',
+      recorded_at || null,
+      clientId || null,
     ];
+    await client.query('BEGIN');
+    transaction = true;
     const obsRes = await client.query(obsQuery, obsValues);
+    if (!obsRes.rows[0]) {
+      await client.query('ROLLBACK');
+      transaction = false;
+      await borrarObjetos(minioClient, BUCKET, assets);
+      assets.forEach((asset) => { fs.rmSync(asset.filePath, { force: true }); fs.rmSync(asset.thumbnailPath, { force: true }); });
+      const { rows: [existing] } = await client.query(
+        'SELECT id FROM observations.observations WHERE user_id = $1 AND client_id = $2', [userId, clientId]);
+      if (!existing) throw new Error('No se pudo confirmar la observación idempotente');
+      return res.status(200).json(await respuestaSubida(existing.id));
+    }
     const observationId = obsRes.rows[0].id;
+    transaction = true;
+
+    for (const asset of assets) {
+      await client.query(`
+        INSERT INTO observations.observation_media
+          (observation_id, client_media_id, position, image_key, thumbnail_key)
+        VALUES ($1, $2, $3, $4, $5)`, [
+        observationId,
+        clientId ? `${clientId}:${asset.position}` : uuidv4(),
+        asset.position,
+        asset.imageKey,
+        asset.thumbnailKey,
+      ]);
+    }
 
     // Insertar Predicción
-    if (ai_top_class && ai_top_prob) {
+    if (ai_top_class && ai_top_prob != null && Number.isFinite(Number(ai_top_prob))) {
       const predQuery = `
         INSERT INTO ai.predictions 
           (observation_id, model_version, top_class, top_probability, location_used)
@@ -327,18 +412,16 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
     }
 
     await client.query('COMMIT');
-    
-    res.status(201).json({
-      message: 'Observación guardada correctamente',
-      observation_id: observationId,
-      image_url: `/api/explorer/thumbnail/large/${imageFilename}`,
-      thumbnail_url: `/api/explorer/thumbnail/medium/${thumbnailFilename}`
-    });
+    transaction = false;
+    committed = true;
+    res.status(201).json(await respuestaSubida(observationId));
 
   } catch (err) {
-    await client.query('ROLLBACK');
+    if (transaction) await client.query('ROLLBACK').catch(() => {});
+    if (!committed && minioClient) await borrarObjetos(minioClient, BUCKET, assets);
+    if (!committed) assets.forEach((asset) => { fs.rmSync(asset.filePath, { force: true }); fs.rmSync(asset.thumbnailPath, { force: true }); });
     console.error('Error saving observation:', err);
-    res.status(500).json({ message: 'Error interno del servidor' });
+    res.status(err.status || 500).json({ message: err.message || 'Error interno del servidor' });
   } finally {
     client.release();
   }
@@ -488,6 +571,12 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       return res.status(403).json({ message: 'No tienes permiso para eliminar esta observación' });
     }
 
+    const { rows: media } = await client.query(
+      'SELECT image_key, thumbnail_key FROM observations.observation_media WHERE observation_id = $1',
+      [observationId],
+    );
+    const allMedia = media.length ? media : [obs];
+
     await client.query('BEGIN');
 
     // 2. Eliminar predicciones asociadas de la base de datos
@@ -503,44 +592,26 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       const minioClient = createMinioClient();
       const BUCKET = process.env.MINIO_BUCKET || 'anura-images';
       
-      if (obs.image_key) {
-        const imageFilename = obs.image_key.split('/').pop();
-        await minioClient.removeObject(BUCKET, imageFilename);
-      }
-      if (obs.thumbnail_key) {
-        const thumbFilename = obs.thumbnail_key.split('/').pop();
-        await minioClient.removeObject(BUCKET, thumbFilename);
-      }
+      await Promise.all(allMedia.flatMap((item) => [item.image_key, item.thumbnail_key].map(async (key) => {
+        if (key) await minioClient.removeObject(BUCKET, key.split('/').pop());
+      })));
     } catch (minioErr) {
       console.warn('No se pudo borrar el objeto de MinIO:', minioErr.message);
     }
 
     // 5. Intentar eliminar los archivos locales del disco
     try {
-      if (obs.image_key) {
-        const imageFilename = obs.image_key.split('/').pop();
-        const localImagePath = path.join(uploadDir, imageFilename);
-        if (fs.existsSync(localImagePath)) {
-          fs.unlinkSync(localImagePath);
-        }
-      }
-      if (obs.thumbnail_key) {
-        const thumbFilename = obs.thumbnail_key.split('/').pop();
-        const localThumbPath = path.join(thumbnailDir, thumbFilename);
-        if (fs.existsSync(localThumbPath)) {
-          fs.unlinkSync(localThumbPath);
-        }
-      }
+      allMedia.forEach((item) => {
+        if (item.image_key) fs.rmSync(path.join(uploadDir, item.image_key.split('/').pop()), { force: true });
+        if (item.thumbnail_key) fs.rmSync(path.join(thumbnailDir, item.thumbnail_key.split('/').pop()), { force: true });
+      });
     } catch (fsErr) {
       console.warn('No se pudo borrar el archivo local:', fsErr.message);
     }
 
     // 6. Borrar de Redis
     try {
-      if (obs.thumbnail_key) {
-        const thumbFilename = obs.thumbnail_key.split('/').pop();
-        await redisClient.del(`thumb:${thumbFilename}`);
-      }
+      await Promise.all(allMedia.map((item) => item.thumbnail_key && redisClient.del(`thumb:${item.thumbnail_key.split('/').pop()}`)));
     } catch (redisErr) {
       console.warn('No se pudo borrar el thumbnail de Redis:', redisErr.message);
     }

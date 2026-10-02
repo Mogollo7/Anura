@@ -6,6 +6,7 @@ import { CheckCircle2, Lock, MapPinned, PackageCheck, ShieldCheck, XCircle } fro
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TaskProgress } from "@/components/ui/task-progress";
 import { Dialog, DialogHeader } from "@/components/ui/dialog";
 import { Table, THead, TBody, TRow, TH, TD } from "@/components/ui/table";
 import { DataState } from "@/components/app-data/data-state";
@@ -145,6 +146,7 @@ function Detalle({ subregiones }: { subregiones: ResumenSubregion[] }) {
         <SubregionPicker subregiones={subregiones} value={id} onChange={(n) => { setId(n); setError(null); setAviso(null); }} />
         <Button
           variant="primary"
+          loading={ocupado === "compilar"}
           disabled={!canGenerar || !validacion?.lista || ocupado !== null}
           title={!canGenerar ? 'Falta el permiso "Generar paquete"' : undefined}
           onClick={() => id != null && accion("compilar", () => releaseApi.compilar(id), `Paquete compilado. ${REGLA_APROBACIONES}`)}
@@ -153,6 +155,7 @@ function Detalle({ subregiones }: { subregiones: ResumenSubregion[] }) {
           {ocupado === "compilar" ? "Compilando…" : "Compilar paquete"}
         </Button>
       </div>
+      {ocupado === "compilar" && <TaskProgress taskKey={`compilar-paquete:${id}`} label="Compilando el paquete de la subregión…" />}
 
       {aviso && <Card className="flex items-center gap-1.5 text-sm text-accent-ink"><CheckCircle2 size={14} aria-hidden /> {aviso}</Card>}
       {error && (

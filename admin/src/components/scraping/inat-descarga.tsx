@@ -38,6 +38,9 @@ export function InatDescarga({ especieId, nombre, calidad }: { especieId: number
   const [max, setMax] = useState(70);
   const [soloCc, setSoloCc] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [cancelando, setCancelando] = useState(false);
+  const [inicioDescarga, setInicioDescarga] = useState<number | null>(null);
+  const [ahora, setAhora] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
@@ -70,7 +73,12 @@ export function InatDescarga({ especieId, nombre, calidad }: { especieId: number
       try {
         const r = await send<{ descarga: Progreso | null }>("GET", `/api/dataset/especies/${especieId}/inaturalist/descarga`);
         setProgreso(r.descarga);
-        if (r.descarga && r.descarga.estado !== "en_curso") void cargar();
+        setAhora(Date.now());
+        if (r.descarga && r.descarga.estado !== "en_curso") {
+          setInicioDescarga(null);
+          setAhora(null);
+          void cargar();
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Se perdió el contacto con el servidor");
       }
@@ -81,21 +89,47 @@ export function InatDescarga({ especieId, nombre, calidad }: { especieId: number
   async function descargar() {
     if (especieId === null) return;
     setError(null);
+    const inicio = Date.now();
+    setInicioDescarga(inicio);
+    setAhora(inicio);
     try {
-      setProgreso(await send<Progreso>("POST", `/api/dataset/especies/${especieId}/inaturalist/descargar`, { calidad, max, solo_cc: soloCc }));
+      const r = await send<Progreso>("POST", `/api/dataset/especies/${especieId}/inaturalist/descargar`, { calidad, max, solo_cc: soloCc });
+      setProgreso(r);
+      if (r.estado !== "en_curso") {
+        setInicioDescarga(null);
+        setAhora(null);
+      }
     } catch (err) {
+      setInicioDescarga(null);
+      setAhora(null);
       setError(err instanceof Error ? err.message : "No se pudo iniciar la descarga");
     }
   }
 
   async function cancelar() {
     if (especieId === null) return;
+    setCancelando(true);
     try {
       setProgreso(await send<Progreso>("DELETE", `/api/dataset/especies/${especieId}/inaturalist/descarga`));
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo cancelar");
+    } finally {
+      setCancelando(false);
     }
   }
+  const avance = progreso
+    ? progreso.observaciones_total
+      ? progreso.observaciones_revisadas / progreso.observaciones_total
+      : progreso.guardadas / progreso.max
+    : 0;
+  const restanteMs = enCurso && inicioDescarga && ahora && avance > 0 && avance < 1
+    ? ((ahora - inicioDescarga) * (1 - avance)) / avance
+    : null;
+  const restante = restanteMs === null ? null : (() => {
+    const segundos = Math.ceil(restanteMs / 1000);
+    const minutos = Math.floor(segundos / 60);
+    return minutos ? `${minutos} min ${segundos % 60} s` : `${segundos} s`;
+  })();
 
   if (especieId === null) {
     return (
@@ -112,6 +146,7 @@ export function InatDescarga({ especieId, nombre, calidad }: { especieId: number
       <div className="flex flex-wrap items-center gap-3">
         <p className="text-sm font-medium text-label-primary">Fotos de {nombre}</p>
         <Button disabled={busy || enCurso} onClick={cargar}>{busy ? "Contando…" : "Contar fotos"}</Button>
+        <Button loading={busy} disabled={busy || enCurso} onClick={cargar}>{busy ? "Contando…" : "Contar fotos"}</Button>
       </div>
       {error && <p className="text-sm text-danger" role="alert">{error}</p>}
       {resumen && (
@@ -135,7 +170,8 @@ export function InatDescarga({ especieId, nombre, calidad }: { especieId: number
           Solo con licencia CC
         </label>
         <Button variant="primary" disabled={enCurso} onClick={descargar}>Descargar fotos</Button>
-        {enCurso && <Button onClick={cancelar}>Cancelar descarga</Button>}
+        <Button variant="primary" loading={enCurso && !cancelando} disabled={enCurso} onClick={descargar}>Descargar fotos</Button>
+        {enCurso && <Button loading={cancelando} disabled={cancelando} onClick={cancelar}>Cancelar descarga</Button>}
       </div>
       {progreso && (
         <div className="space-y-2" aria-live="polite">
@@ -144,6 +180,7 @@ export function InatDescarga({ especieId, nombre, calidad }: { especieId: number
               {{ en_curso: "Descargando", terminada: "Terminada", cancelada: "Cancelada", con_error: "Con error" }[progreso.estado]}
             </Badge>
             <span>{n(progreso.guardadas)} de {n(progreso.max)} fotos guardadas</span>
+                        <span>{n(progreso.guardadas)} de {n(progreso.max)} fotos guardadas{restante && ` · estimado restante ~${restante}`}</span>
             <span className="text-label-secondary">
               · {n(progreso.observaciones_revisadas)} observaciones revisadas · {n(progreso.ya_estaban)} ya estaban · {n(progreso.fallidas)} fallidas
               {progreso.renacuajos_omitidos > 0 ? ` · ${n(progreso.renacuajos_omitidos)} renacuajos omitidos` : ""}

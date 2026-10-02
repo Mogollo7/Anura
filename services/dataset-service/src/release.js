@@ -23,6 +23,7 @@
  * paquetes/<paquete_id>/v<version>/. El id de paquete es "<DANE>.<CLAVE>" (p. ej.
  * 05.VALLE_DE_ABURRA): estable aunque la subregión cambie de nombre.
  */
+const crypto = require('crypto');
 const validacion = require('./validacionTecnica');
 const { construir } = require('./paqueteSqlite');
 const priors = require('./priors');
@@ -41,6 +42,48 @@ const REGLA_APROBACIONES = 'Publicar necesita dos aprobaciones: científica y t�
 const misma = (cuentas) => cuentas.length > 0 && new Set(cuentas).size === 1;
 
 const paqueteIdDe = (sub) => `${sub.region}.${sub.clave}`;
+
+async function verificarArtefactos(minio, bucket, p) {
+  let sqliteStat;
+  let manifiestoStat;
+  try {
+    [sqliteStat, manifiestoStat] = await Promise.all([
+      minio.statObject(bucket, p.storage_key),
+      p.manifiesto_key ? minio.statObject(bucket, p.manifiesto_key) : Promise.reject(new Error('sin manifiesto')),
+    ]);
+  } catch {
+    throw falla('No se puede entregar: falta el SQLite o el manifiesto en MinIO. Compila de nuevo este paquete.', 409);
+  }
+  if (Number(sqliteStat.size) !== Number(p.size_bytes) || !Number(manifiestoStat.size)) {
+    throw falla('No se puede entregar: el tamaño del SQLite o del manifiesto no coincide con el registro. Compila de nuevo.', 409);
+  }
+
+  const hash = crypto.createHash('sha256');
+  const sqlite = await minio.getObject(bucket, p.storage_key);
+  for await (const chunk of sqlite) hash.update(chunk);
+  if (hash.digest('hex') !== p.sha256) {
+    throw falla('No se puede entregar: el SQLite no coincide con el SHA-256 registrado. Compila de nuevo.', 409);
+  }
+
+  const partes = [];
+  const json = await minio.getObject(bucket, p.manifiesto_key);
+  for await (const chunk of json) {
+    partes.push(chunk);
+    if (partes.reduce((n, parte) => n + parte.length, 0) > 10 * 1024 * 1024) {
+      throw falla('No se puede entregar: el manifiesto supera el tamaño permitido.', 409);
+    }
+  }
+  let manifiesto;
+  try {
+    manifiesto = JSON.parse(Buffer.concat(partes).toString('utf8'));
+  } catch {
+    throw falla('No se puede entregar: el manifiesto está dañado. Compila de nuevo.', 409);
+  }
+  if (manifiesto.paquete_id !== p.region_id || Number(manifiesto.version) !== Number(p.version)
+    || manifiesto.archivo?.sha256 !== p.sha256 || Number(manifiesto.archivo?.size_bytes) !== Number(p.size_bytes)) {
+    throw falla('No se puede entregar: el manifiesto no corresponde a este SQLite y versión. Compila de nuevo.', 409);
+  }
+}
 
 const COLUMNAS = `
   p.id, p.region_id AS paquete_id, p.subregion_id, p.version, p.estado, p.sha256, p.size_bytes, p.especies,
@@ -194,7 +237,7 @@ async function aprobar(pool, id, tipo, account, userId) {
 }
 
 /** POST /api/dataset/releases/:id/publicar — pasa a ser lo que la app descarga para esa subregión. */
-async function publicar(pool, id, account, userId) {
+async function publicar({ pool, minio, bucket }, id, account, userId) {
   const client = await pool.connect();
   let reemplazado = null;
   try {
@@ -212,6 +255,7 @@ async function publicar(pool, id, account, userId) {
     const v = await validacion.evaluar(client, p.subregion_id);
     if (!v.lista) throw falla('La subregión dejó de estar lista para compilar.', 409, { motivos: v.motivos });
     if (v.huella !== p.huella) throw desactualizado();
+    await verificarArtefactos(minio, bucket, p);
 
     const { rows: [prev] } = await client.query(`
       UPDATE packages.regional_packages SET estado = 'retirado', is_published = FALSE, retirado = NOW()
@@ -252,13 +296,7 @@ async function restaurar({ pool, minio, bucket }, id, account, userId) {
     throw falla(`Esta versión está ${previo.estado}: solo se restauran las versiones retiradas. Una versión sin publicar se publica con sus dos aprobaciones.`, 409);
   }
   // El objeto es la reversión: si ya no está en el almacenamiento no se puede prometer que la app lo baje.
-  const { rows: [obj] } = await pool.query('SELECT storage_key FROM packages.regional_packages WHERE id = $1', [id]);
-  try {
-    await minio.statObject(bucket, obj.storage_key);
-  } catch (err) {
-    if (err.code === 'NotFound' || err.code === 'NoSuchKey') throw falla('El archivo de esta versión ya no está guardado en el servidor: no se puede restaurar.', 409);
-    throw err;
-  }
+  await verificarArtefactos(minio, bucket, previo);
 
   const client = await pool.connect();
   let reemplazado = null;
@@ -268,6 +306,7 @@ async function restaurar({ pool, minio, bucket }, id, account, userId) {
     const p = await bloquear(client, id);
     if (p.estado === 'publicado') throw falla('Esta versión ya es la que se entrega ahora.', 409);
     if (p.estado !== 'retirado') throw falla(`Esta versión está ${p.estado}: solo se restauran las versiones retiradas.`, 409);
+    await verificarArtefactos(minio, bucket, p);
 
     const { rows: [prev] } = await client.query(`
       UPDATE packages.regional_packages SET estado = 'retirado', is_published = FALSE, retirado = NOW()

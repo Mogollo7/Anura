@@ -6,6 +6,7 @@ import { RefreshCw } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TaskProgress } from "@/components/ui/task-progress";
 import { Dialog, DialogHeader } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
@@ -97,6 +98,7 @@ export function DataCleaningConsole() {
   const [lista, setLista] = useState<{ hallazgos: Hallazgo[]; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
+  const [proceso, setProceso] = useState("Guardando las decisiones…");
   const [corrigiendo, setCorrigiendo] = useState<{ id: number; lat: string; lon: string } | null>(null);
   const [confirmarLote, setConfirmarLote] = useState(false);
   const [editandoParametros, setEditandoParametros] = useState<Record<string, string> | null>(null);
@@ -122,9 +124,10 @@ export function DataCleaningConsole() {
     };
   }, [session.isReal, cargar]);
 
-  async function accion(fn: () => Promise<unknown>) {
+  async function accion(fn: () => Promise<unknown>, etiqueta = "Guardando las decisiones…") {
     setOcupado(true);
     setError(null);
+    setProceso(etiqueta);
     try {
       await fn();
       const { e, l } = await cargar();
@@ -168,8 +171,9 @@ export function DataCleaningConsole() {
           <Button
             variant="outline"
             className="text-xs"
+            loading={ocupado}
             disabled={!canDecide || ocupado}
-            onClick={() => accion(() => correrLimpieza(estado?.ultima?.parametros))}
+            onClick={() => accion(() => correrLimpieza(estado?.ultima?.parametros), "Analizando observaciones y generando propuestas…")}
           >
             <RefreshCw size={13} /> {estado?.ultima ? "Volver a correr la limpieza" : "Correr la limpieza"}
           </Button>
@@ -224,7 +228,7 @@ export function DataCleaningConsole() {
               const parametros = Object.fromEntries(
                 Object.entries(editandoParametros).map(([k, v]) => [k, Number(v.replace(",", "."))])
               ) as ParametrosLimpieza;
-              accion(() => correrLimpieza(parametros)).then(() => setEditandoParametros(null));
+              accion(() => correrLimpieza(parametros), "Analizando observaciones y generando propuestas…").then(() => setEditandoParametros(null));
             }}
           >
             {PARAMETROS.map((x) => (
@@ -257,6 +261,7 @@ export function DataCleaningConsole() {
           </p>
         )}
       </Card>
+      {ocupado && <TaskProgress taskKey="limpieza-dataset" label={proceso} />}
 
       <div className="flex flex-wrap gap-2" role="tablist">
         {TIPOS.map((t) => (

@@ -5,7 +5,15 @@ import { mkdir, open, readdir, readFile, rename, rm, stat, writeFile } from "nod
 import { homedir } from "node:os";
 import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
-import { copiarFotos, fotosConfiguradas, restaurarFotos, vaciarFotos, type ResumenFotos } from "@/lib/system/fotos";
+import {
+  copiarFotos,
+  fotosConfiguradas,
+  restaurarFotos,
+  vaciarFotos,
+  verificarCopiaFotos,
+  verificarFotosRespaldadas,
+  type ResumenFotos,
+} from "@/lib/system/fotos";
 
 /**
  * Respaldo de la base de datos desde Sistema. Corre en el servidor del Admin con las herramientas
@@ -149,6 +157,7 @@ export async function crearRespaldo(por: string | null, opciones: { conFotos?: b
       } catch (err) {
         fotos_nota = err instanceof Error ? err.message : "No se pudieron copiar las fotos.";
         await rm(`${ruta}.fotos`, { recursive: true, force: true }).catch(() => {});
+        await rm(`${ruta}.fotos.manifest.json`, { force: true }).catch(() => {});
       }
     } else {
       fotos_nota = "MinIO no está configurado en el admin: la copia no incluye fotos.";
@@ -165,7 +174,7 @@ export async function crearRespaldo(por: string | null, opciones: { conFotos?: b
   }
 }
 
-export async function listarRespaldos(): Promise<{ base: string; permiteLimpiar: boolean; respaldos: Respaldo[] }> {
+export async function listarRespaldos(): Promise<{ base: string; permiteLimpiar: boolean; fotosConfiguradas: boolean; respaldos: Respaldo[] }> {
   const { base } = conexion();
   const dir = dirRespaldos();
   const respaldos: Respaldo[] = [];
@@ -178,7 +187,7 @@ export async function listarRespaldos(): Promise<{ base: string; permiteLimpiar:
     }
   }
   respaldos.sort((a, b) => b.creado.localeCompare(a.creado));
-  return { base, permiteLimpiar: permiteLimpiar(), respaldos: respaldos.filter((r) => r.base === base) };
+  return { base, permiteLimpiar: permiteLimpiar(), fotosConfiguradas: fotosConfiguradas(), respaldos: respaldos.filter((r) => r.base === base) };
 }
 
 /** Ruta de una copia ya hecha, validando el nombre (nada de rutas) y la ficha. */
@@ -229,6 +238,16 @@ export async function limpiarBase(
   const { ruta, respaldo } = await rutaDeRespaldo(archivo);
   if (respaldo.base !== base) throw new RespaldoError("Esa copia es de otra base.", 409);
   if ((await huella(ruta)) !== respaldo.sha256) throw new RespaldoError("La copia cambió desde que se hizo (la huella no coincide). Haz un respaldo nuevo antes de limpiar.", 409);
+  if (borrarFotos && fotosConfiguradas()) {
+    if (!respaldo.fotos) {
+      throw new RespaldoError("No se limpiará la base: esta copia no contiene las fotos de MinIO. Haz una copia completa con fotos o desmarca su eliminación.", 409);
+    }
+    try {
+      await verificarFotosRespaldadas(`${ruta}.fotos`, respaldo.fotos);
+    } catch (err) {
+      throw new RespaldoError(`No se limpiará la base: ${err instanceof Error ? err.message : "el snapshot de MinIO no está completo"}`, 409);
+    }
+  }
   await correr(comando("PSQL_BIN", "psql"), ["--no-password", "--no-psqlrc", "--set=ON_ERROR_STOP=1", "--single-transaction", "--command", SQL_LIMPIAR], env);
   let fotos: ResumenFotos | null = null;
   let fotos_nota: string | null = null;
@@ -273,18 +292,27 @@ export async function recuperarBase(archivo: string, confirmacion: string, por: 
   if (confirmacion !== base) throw new RespaldoError(`Para recuperar escribe el nombre de la base: ${base}.`, 400);
   const { ruta, respaldo } = await rutaDeRespaldo(archivo);
   if ((await huella(ruta)) !== respaldo.sha256) throw new RespaldoError("La copia cambió desde que se hizo (la huella no coincide).", 409);
+  if (respaldo.fotos) {
+    try {
+      await verificarCopiaFotos(`${ruta}.fotos`, respaldo.fotos);
+    } catch (err) {
+      throw new RespaldoError(`No se recuperará la base: ${err instanceof Error ? err.message : "el snapshot de MinIO no está completo"}`, 409);
+    }
+  }
   if (enCurso) throw new RespaldoError("Ya hay un respaldo en curso. Espera a que termine.", 409);
   enCurso = true;
   try {
     await correr(comando("PG_RESTORE_BIN", "pg_restore"), ["--clean", "--if-exists", "--no-owner", "--no-privileges", "--exit-on-error", "--dbname", base, ruta], env);
     let fotos: ResumenFotos | null = null;
     let fotos_nota: string | null = null;
-    if (fotosConfiguradas()) {
+    if (fotosConfiguradas() && respaldo.fotos) {
       try {
-        fotos = await restaurarFotos(`${ruta}.fotos`);
+        fotos = await restaurarFotos(`${ruta}.fotos`, respaldo.fotos);
       } catch (err) {
         fotos_nota = err instanceof Error ? err.message : "La base se recuperó, pero las fotos no.";
       }
+    } else if (fotosConfiguradas()) {
+      fotos_nota = "Esta copia no incluye fotos de MinIO; las fotos actuales se conservaron.";
     } else {
       fotos_nota = respaldo.fotos ? "MinIO no está configurado: las fotos de la copia no se subieron." : null;
     }
@@ -303,6 +331,7 @@ export async function eliminarRespaldo(archivo: string, por: string | null): Pro
   await rm(ruta, { force: true });
   await rm(`${ruta}.json`, { force: true });
   await rm(`${ruta}.fotos`, { recursive: true, force: true });
+  await rm(`${ruta}.fotos.manifest.json`, { force: true });
   await auditar(env, "respaldo.eliminar", base, { archivo, bytes: respaldo.bytes, por });
   return { archivo };
 }

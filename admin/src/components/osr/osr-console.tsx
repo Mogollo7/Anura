@@ -6,6 +6,7 @@ import { AlertTriangle, Lock, RotateCcw, ShieldCheck } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TaskProgress } from "@/components/ui/task-progress";
 import { Field, Input } from "@/components/ui/field";
 import { Table, THead, TBody, TRow, TH, TD } from "@/components/ui/table";
 import { cn, plural } from "@/lib/utils";
@@ -124,10 +125,11 @@ export function OsrConsole() {
                   ))}
                 </select>
               </Field>
-              <Button variant="primary" disabled={!puede || calculando} onClick={calcular}>
+              <Button variant="primary" loading={calculando} disabled={!puede || calculando} onClick={calcular}>
                 {puede ? null : <Lock size={12} />} {calculando ? "Calculando…" : c ? "Recalcular propuesta" : "Calcular propuesta"}
               </Button>
             </div>
+            {calculando && <TaskProgress taskKey={`osr:${paquete ?? "todas"}`} label="Calibrando el umbral OSR…" />}
             {!puede && (
               <p className="mt-2 text-xs text-label-tertiary">
                 <Lock size={11} className="mr-1 inline" />
@@ -282,7 +284,7 @@ function Calibracion({
           <Field label="Nota (opcional)" className="min-w-[240px] flex-1">
             <Input value={nota} disabled={!puede} maxLength={500} placeholder="Por qué este τ" onChange={(e) => setNota(e.target.value)} />
           </Field>
-          <Button variant="primary" disabled={!puede || !valido || validando || otroLote} onClick={validar}>
+          <Button variant="primary" loading={validando} disabled={!puede || !valido || validando || otroLote} onClick={validar}>
             {puede ? <ShieldCheck size={13} /> : <Lock size={12} />} {validando ? "Validando…" : "Validar τ"}
           </Button>
         </div>

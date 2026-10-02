@@ -575,6 +575,13 @@ export const renombrarSubregion = (codigo: string, id: number, nombre: string) =
 export const borrarSubregion = (codigo: string, id: number) => send<unknown>("DELETE", `/api/dataset/regiones/${codigo}/subregiones/${id}`);
 export const asignarMunicipios = (codigo: string, id: number, municipios: string[]) =>
   send<unknown>("POST", `/api/dataset/regiones/${codigo}/subregiones/${id}/municipios`, { municipios });
+export type EspecieSubregion = { id: number; nombre_cientifico: string; asignada_manual: boolean };
+export const getEspeciesSubregion = (codigo: string, id: number) =>
+  get<{ especies: EspecieSubregion[] }>(`/api/dataset/regiones/${codigo}/subregiones/${id}/especies`);
+export const asignarEspecieSubregion = (codigo: string, id: number, especie_id: number) =>
+  send<{ ok: boolean; nueva: boolean }>("POST", `/api/dataset/regiones/${codigo}/subregiones/${id}/especies`, { especie_id });
+export const quitarEspecieSubregion = (codigo: string, id: number, especieId: number) =>
+  send<{ ok: boolean }>("DELETE", `/api/dataset/regiones/${codigo}/subregiones/${id}/especies/${especieId}`);
 export const quitarRegion = (codigo: string) => send<unknown>("DELETE", `/api/dataset/regiones/${codigo}`);
 
 // ── Etiquetas de curación: morfos, estadio y sustrato (bloque 1) ─────────────────────────

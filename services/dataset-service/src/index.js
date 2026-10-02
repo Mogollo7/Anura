@@ -187,7 +187,15 @@ app.post('/api/dataset/especies/:id/fotos', requirePanelAction('revisarFotografi
     res.status(201).json(r);
   }));
 
-// ── Descarga de fotos de iNaturalist (Admin → Scraping) ────────────────────────────────
+// DELETE /api/dataset/especies/:id/fotos — borra permanentemente todas las fotos de la especie
+// (filas en dataset.foto + objetos en MinIO). Requiere editarTaxonomia: es una operación
+// destructiva que se usa para dejar limpia la especie antes de borrarla del catálogo.
+app.delete('/api/dataset/especies/:id/fotos', requirePanelAction('editarTaxonomia'), ah(async (req, res) => {
+  const r = await curacion.borrarTodasLasFotos({ pool, minio, bucket: BUCKET }, Number(req.params.id), req.userId);
+  res.json(r);
+}));
+
+
 // resumen: candidatas vs almacenadas · descargar: segundo plano, una a la vez · descarga: progreso
 app.get('/api/dataset/especies/:id/inaturalist', requirePanelAction('verEspecies'), ah(async (req, res) => {
   res.json(await inatDescarga.resumen(pool, Number(req.params.id), String(req.query.calidad || 'research')));
@@ -443,7 +451,7 @@ app.post('/api/dataset/releases/:id/aprobaciones', requirePanelAction('verEspeci
 }));
 
 app.post('/api/dataset/releases/:id/publicar', requirePanelAction('publicarPaquete'), ah(async (req, res) => {
-  res.json(await release.publicar(pool, Number(req.params.id), req.panelAccount, req.userId));
+  res.json(await release.publicar({ pool, minio, bucket: BUCKET }, Number(req.params.id), req.panelAccount, req.userId));
 }));
 
 // Retroceso: una versión retirada (incluida la del paquete anterior importado) vuelve a ser la publicada de su
@@ -539,6 +547,20 @@ app.delete('/api/dataset/regiones/:codigo/subregiones/:id', requirePanelAction('
 // { municipios: ['05001', …] } → esos municipios pasan a la subregión :id
 app.post('/api/dataset/regiones/:codigo/subregiones/:id/municipios', requirePanelAction('generarPaquete'), ah(async (req, res) => {
   res.json(await regiones.asignarMunicipios(pool, req.params.codigo, Number(req.params.id), req.body?.municipios, req.userId));
+}));
+
+app.get('/api/dataset/regiones/:codigo/subregiones/:id/especies', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json({ especies: await regiones.especiesSubregion(pool, req.params.codigo, Number(req.params.id)) });
+}));
+
+app.post('/api/dataset/regiones/:codigo/subregiones/:id/especies', requirePanelAction('generarPaquete'), ah(async (req, res) => {
+  res.status(201).json(await regiones.asignarEspecie(
+    pool, req.params.codigo, Number(req.params.id), Number(req.body?.especie_id), req.userId));
+}));
+
+app.delete('/api/dataset/regiones/:codigo/subregiones/:id/especies/:especieId', requirePanelAction('generarPaquete'), ah(async (req, res) => {
+  res.json(await regiones.quitarEspecie(
+    pool, req.params.codigo, Number(req.params.id), Number(req.params.especieId), req.userId));
 }));
 
 app.get('/api/dataset/contenido', requirePanelAction('verEspecies'), ah(async (_req, res) => {

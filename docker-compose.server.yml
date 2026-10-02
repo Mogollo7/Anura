@@ -100,6 +100,9 @@ services:
       - ./infrastructure/postgres/phase23.sql:/sql/phase23.sql:ro
       - ./infrastructure/postgres/phase24.sql:/sql/phase24.sql:ro
       - ./infrastructure/postgres/phase25.sql:/sql/phase25.sql:ro
+      - ./infrastructure/postgres/phase26.sql:/sql/phase26.sql:ro
+      - ./infrastructure/postgres/phase27.sql:/sql/phase27.sql:ro
+      - ./infrastructure/postgres/phase28.sql:/sql/phase28.sql:ro
       - ./infrastructure/postgres/seed_regiones_antioquia.sql:/sql/seed_regiones_antioquia.sql:ro
       - ./infrastructure/postgres/03-roles.sh:/sql/03-roles.sh:ro
     entrypoint: ["/bin/sh", "/sql/03-roles.sh"]

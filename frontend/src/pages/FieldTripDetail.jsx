@@ -99,7 +99,12 @@ export default function FieldTripDetail() {
                     : { center: [located[0].lat, located[0].lon], zoom: 15 })}
                   style={{ height: '100%', width: '100%' }}
                 >
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap" />
+                  <TileLayer
+                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                    subdomains="abcd"
+                    maxZoom={19}
+                  />
                   {located.map((obs) => (
                     <Marker key={obs.id} position={[obs.lat, obs.lon]} icon={registerIcon}>
                       <Popup>

@@ -12,13 +12,17 @@ import {
   activarRegion,
   agregarRegion,
   asignarMunicipios,
+  asignarEspecieSubregion,
   borrarSubregion,
   crearSubregion,
+  getEspeciesSubregion,
   getRegion,
   getRegiones,
+  quitarEspecieSubregion,
   quitarRegion,
   renombrarSubregion,
   type Departamento,
+  type EspecieSubregion,
   type Poligono,
   type RegionDetalle,
   type Subregion,
@@ -492,6 +496,7 @@ function RegionPanel({
               Especies con fotos en el dataset ({cifraSel.especies.length}): <i>{cifraSel.especies.join(", ") || "ninguna"}</i>.
             </p>
           )}
+          <EspeciesManuales codigo={codigo} subregion={seleccionada} />
         </div>
       ) : (
         d.cifras && (
@@ -501,6 +506,94 @@ function RegionPanel({
           </p>
         )
       )}
+    </div>
+  );
+}
+
+function EspeciesManuales({ codigo, subregion }: { codigo: string; subregion: Subregion }) {
+  const [especies, setEspecies] = useState<EspecieSubregion[] | null>(null);
+  const [especieId, setEspecieId] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [trabajando, setTrabajando] = useState(false);
+
+  async function cargar() {
+    const r = await getEspeciesSubregion(codigo, subregion.id);
+    setEspecies(r.especies);
+  }
+
+  useEffect(() => {
+    let cancelado = false;
+    getEspeciesSubregion(codigo, subregion.id)
+      .then((r) => !cancelado && setEspecies(r.especies))
+      .catch((e: Error) => !cancelado && setError(e.message));
+    return () => {
+      cancelado = true;
+    };
+  }, [codigo, subregion.id]);
+
+  async function cambiar(fn: () => Promise<unknown>) {
+    setTrabajando(true);
+    setError(null);
+    try {
+      await fn();
+      await cargar();
+      setEspecieId("");
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setTrabajando(false);
+    }
+  }
+
+  const manuales = especies?.filter((e) => e.asignada_manual) ?? [];
+  const disponibles = especies?.filter((e) => !e.asignada_manual) ?? [];
+
+  return (
+    <div className="mt-3 space-y-2 border-t border-border pt-3">
+      <div>
+        <p className="text-sm font-medium text-label-primary">Incluir especies manualmente</p>
+        <p className="text-xs text-label-secondary">
+          Se suman en el próximo cálculo de Centroides. Luego revisa OSR y Validación antes de compilar el paquete.
+        </p>
+      </div>
+      <form
+        className="flex flex-wrap items-end gap-2"
+        onSubmit={(ev) => {
+          ev.preventDefault();
+          if (especieId) void cambiar(() => asignarEspecieSubregion(codigo, subregion.id, Number(especieId)));
+        }}
+      >
+        <Field label="Especie">
+          <Select value={especieId} onChange={(ev) => setEspecieId(ev.target.value)} disabled={!especies || !disponibles.length || trabajando}>
+            <option value="">{!especies ? "Cargando…" : disponibles.length ? "Elige una especie" : "No hay más especies"}</option>
+            {disponibles.map((e) => <option key={e.id} value={e.id}>{e.nombre_cientifico}</option>)}
+          </Select>
+        </Field>
+        <Button type="submit" variant="outline" className="text-xs" disabled={!especieId || trabajando}>
+          <Plus size={13} aria-hidden /> Añadir
+        </Button>
+      </form>
+      {manuales.length > 0 && (
+        <ul className="divide-y divide-border">
+          {manuales.map((e) => (
+            <li key={e.id} className="flex items-center gap-2 py-1.5 text-sm">
+              <i className="min-w-0 flex-1 text-label-primary">{e.nombre_cientifico}</i>
+              <Button
+                type="button"
+                variant="ghost"
+                className="px-1.5 py-1 text-xs text-danger"
+                aria-label={`Quitar ${e.nombre_cientifico} de ${subregion.nombre}`}
+                disabled={trabajando}
+                onClick={() => void cambiar(() => quitarEspecieSubregion(codigo, subregion.id, e.id))}
+              >
+                <Trash2 size={13} aria-hidden />
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {especies && manuales.length === 0 && <p className="text-xs text-label-tertiary">No hay inclusiones manuales en esta subregión.</p>}
+      {error && <p role="alert" className="text-xs text-danger">{error}</p>}
     </div>
   );
 }

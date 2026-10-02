@@ -78,6 +78,13 @@ async function api(method, ruta, userId, body) {
 }
 const espera = (r, status, que) => assert.strictEqual(r.status, status, `${que}: esperaba ${status}, llegó ${r.status} ${r.texto.slice(0, 300)}`);
 
+async function bytesObjeto(minio, bucket, clave) {
+  const stream = await minio.getObject(bucket, clave);
+  const partes = [];
+  for await (const parte of stream) partes.push(parte);
+  return Buffer.concat(partes);
+}
+
 // Vectores sintéticos: una dirección por especie + ruido, normalizados (formato pgvector).
 function vector(semilla, ruido) {
   let x = semilla * 9301 + 49297;
@@ -254,6 +261,15 @@ async function esperarSalud() {
     assert.strictEqual(v1.tau, 0.4);
     console.log(`ok 5 · compilado ${v1.paquete_id} v${v1.version}: ${v1.size_bytes} bytes`);
 
+    await q('INSERT INTO dataset.subregion_especie (subregion_id, especie_id) VALUES ($1, $2)', [sub.id, idDe.Oophaga_sp]);
+    r = await api('GET', `/api/dataset/validacion/${sub.id}`, LECTOR);
+    assert.ok(r.body.motivos.some((m) => m.codigo === 'centroides_desactualizados'));
+    espera(await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, HERP, { tipo: 'cientifica' }), 409, 'asignación manual posterior a compilar');
+    await q('DELETE FROM dataset.subregion_especie WHERE subregion_id = $1 AND especie_id = $2', [sub.id, idDe.Oophaga_sp]);
+    r = await api('GET', `/api/dataset/validacion/${sub.id}`, LECTOR);
+    assert.strictEqual(r.body.lista, true, 'al revertir la asignación vuelve a coincidir la huella');
+    console.log('ok 5b · una asignación manual nueva invalida la corrida y el borrador');
+
     // 7) Publicar sin aprobaciones → 409. Aprobaciones: permisos y cuentas distintas.
     espera(await api('POST', `/api/dataset/releases/${v1.id}/publicar`, TEC), 409, 'publicar sin aprobaciones');
     espera(await api('POST', `/api/dataset/releases/${v1.id}/aprobaciones`, TEC, { tipo: 'cientifica' }), 403, 'técnico no aprueba lo científico');
@@ -382,6 +398,21 @@ async function esperarSalud() {
     espera(r, 201, 'v4 técnica (la misma cuenta super)');
     assert.strictEqual(r.body.estado, 'aprobado');
     assert.deepStrictEqual(r.body.aprobaciones.map((a) => `${a.tipo}:${a.cuenta}:${a.es_super}`), ['cientifica:acc-admin:true', 'tecnica:acc-admin:true']);
+    const { rows: [keysV4] } = await q('SELECT storage_key, manifiesto_key FROM packages.regional_packages WHERE id = $1', [v4.id]);
+    const manifiestoV4 = await bytesObjeto(minio, 'anura-dataset', keysV4.manifiesto_key);
+    const sqliteV4 = await bytesObjeto(minio, 'anura-dataset', keysV4.storage_key);
+    await minio.removeObject('anura-dataset', keysV4.manifiesto_key);
+    r = await api('POST', `/api/dataset/releases/${v4.id}/publicar`, TEC);
+    espera(r, 409, 'publicar sin manifiesto MinIO');
+    let { rows: [sigueV3] } = await q("SELECT version FROM packages.regional_packages WHERE region_id = '05.VALLE_DE_ABURRA' AND estado = 'publicado'");
+    assert.strictEqual(sigueV3.version, 3, 'si falta el manifiesto no se retira el paquete anterior');
+    await minio.putObject('anura-dataset', keysV4.manifiesto_key, manifiestoV4, manifiestoV4.length);
+    await minio.removeObject('anura-dataset', keysV4.storage_key);
+    r = await api('POST', `/api/dataset/releases/${v4.id}/publicar`, TEC);
+    espera(r, 409, 'publicar sin SQLite MinIO');
+    ({ rows: [sigueV3] } = await q("SELECT version FROM packages.regional_packages WHERE region_id = '05.VALLE_DE_ABURRA' AND estado = 'publicado'"));
+    assert.strictEqual(sigueV3.version, 3, 'si falta el SQLite no se retira el paquete anterior');
+    await minio.putObject('anura-dataset', keysV4.storage_key, sqliteV4, sqliteV4.length);
     r = await api('POST', `/api/dataset/releases/${v4.id}/publicar`, TEC);
     espera(r, 200, 'publicar v4 con las dos aprobaciones de la super');
     assert.strictEqual(r.body.reemplazado.version, 3);

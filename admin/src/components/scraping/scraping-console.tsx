@@ -5,6 +5,7 @@ import { getToken } from "@/lib/auth/panel-client";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
+import { TaskProgress } from "@/components/ui/task-progress";
 import { NameCombobox, type OpcionNombre } from "@/components/catalog/name-combobox";
 import { InatDescarga } from "@/components/scraping/inat-descarga";
 import { useNombresGuardados } from "@/components/catalog/taxonomia-api";
@@ -152,11 +153,12 @@ function Inaturalist({ nombres, especies }: { nombres: OpcionNombre[]; especies:
           {INAT_CAMPOS.map((item) => <li key={item}>{item}</li>)}
         </ul>
         <div className="flex flex-wrap items-center gap-3">
-          <Button variant="primary" disabled={busy || especie.trim().length < 3} onClick={consultar}>
+          <Button variant="primary" loading={busy} disabled={busy || especie.trim().length < 3} onClick={consultar}>
             {busy ? "Consultando…" : "Consultar muestra"}
           </Button>
           <code className="max-w-full overflow-x-auto rounded-md bg-surface-subtle px-2 py-1 text-xs text-label-secondary">{comando}</code>
         </div>
+        {busy && <TaskProgress taskKey="consulta-inaturalist" label="Consultando iNaturalist…" />}
         {error && <p className="text-sm text-danger">{error}</p>}
         <InatDescarga
           especieId={especies.find((e) => e.nombre_cientifico.toLowerCase() === especie.trim().toLowerCase())?.id ?? null}
@@ -237,7 +239,8 @@ function Gbif({ nombres }: { nombres: OpcionNombre[] }) {
           <li>Nombre científico, latitud, longitud, fecha y departamento</li>
           <li>Base del registro y dataset de origen</li>
         </ul>
-        <Button variant="primary" disabled={busy} onClick={consultar}>{busy ? "Consultando…" : "Consultar muestra"}</Button>
+        <Button variant="primary" loading={busy} disabled={busy} onClick={consultar}>{busy ? "Consultando…" : "Consultar muestra"}</Button>
+        {busy && <TaskProgress taskKey="consulta-gbif" label="Consultando GBIF…" />}
         {error && <p className="text-sm text-danger">{error}</p>}
         {total !== null && (
           <div className="space-y-2">

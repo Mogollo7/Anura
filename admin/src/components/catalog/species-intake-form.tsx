@@ -209,7 +209,7 @@ export function SpeciesIntakeForm({
           <Button type="button" variant="ghost" onClick={onCerrar} disabled={trabajando}>
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" disabled={!listo || sinCambios || trabajando}>
+          <Button type="submit" variant="primary" loading={trabajando} disabled={!listo || sinCambios || trabajando}>
             {trabajando ? "Guardando…" : editando ? "Guardar cambios" : "Crear especie"}
           </Button>
         </div>

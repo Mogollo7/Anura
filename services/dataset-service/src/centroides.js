@@ -13,6 +13,7 @@
  *   y solo si hay ≥ 3 individuos ahí; si no, ese paquete presta el global. Las
  *   coordenadas ocultas de iNaturalist no cuentan: pueden caer en la subregión vecina.
  */
+const crypto = require('crypto');
 const { completar } = require('./m3');
 const centroidesMorfo = require('./centroides_morfo');
 const falla = (mensaje, status = 400) => Object.assign(new Error(mensaje), { status });
@@ -37,10 +38,27 @@ const BASE = `
       SELECT 1 FROM dataset.exclusion x WHERE x.sha256 = e.sha256 AND x.revertida IS NULL
     )`;
 
-/** observacion_id → subregion_id, para los departamentos que ya tienen municipios asignados. */
-async function subregionPorObservacion(pool) {
-  const { rows: asignados } = await pool.query(
-    "SELECT m.municipio_dane, m.subregion_id, s.region FROM dataset.subregion_municipio m JOIN dataset.subregion s ON s.id = m.subregion_id");
+/** Configuración que decide cómo se forman los centroides regionales. */
+async function configuracionRegional(db) {
+  const [{ rows: municipios }, { rows: especies }] = await Promise.all([
+    db.query(`SELECT m.municipio_dane, m.subregion_id, s.region
+      FROM dataset.subregion_municipio m JOIN dataset.subregion s ON s.id = m.subregion_id
+      ORDER BY m.municipio_dane, m.subregion_id`),
+    db.query('SELECT subregion_id, especie_id FROM dataset.subregion_especie ORDER BY subregion_id, especie_id'),
+  ]);
+  const huella = crypto.createHash('sha256').update(JSON.stringify([
+    municipios.map((m) => [m.municipio_dane.trim(), m.subregion_id, m.region]),
+    especies.map((e) => [e.subregion_id, e.especie_id]),
+  ])).digest('hex');
+  return { municipios, especies, huella };
+}
+
+async function subregionPorObservacion(pool, asignados) {
+  if (!asignados) {
+    const { rows } = await pool.query(
+      "SELECT m.municipio_dane, m.subregion_id, s.region FROM dataset.subregion_municipio m JOIN dataset.subregion s ON s.id = m.subregion_id");
+    asignados = rows;
+  }
   const mapa = new Map();
   if (!asignados.length) return mapa;
   const subDeMunicipio = new Map(asignados.map((a) => [a.municipio_dane.trim(), a.subregion_id]));
@@ -86,7 +104,8 @@ async function calcular(pool, userId) {
   }
 
   // Fuera de la transacción: es una llamada HTTP a geo-service, no toca la base.
-  const ubicadas = await subregionPorObservacion(pool);
+  const configuracion = await configuracionRegional(pool);
+  const ubicadas = await subregionPorObservacion(pool, configuracion.municipios);
 
   const client = await pool.connect();
   try {
@@ -94,9 +113,9 @@ async function calcular(pool, userId) {
     const { rows: [version] } = await client.query('SELECT MAX(id) AS id FROM dataset.version');
     const { rows: [exp] } = await client.query(`
       INSERT INTO dataset.experimento
-        (tipo, encoder_sha256, version_id, fotos_train, fotos_train_con_vector, especies, creado_por)
-      VALUES ('centroides', $1, $2, $3, $4, 0, $5)
-      RETURNING id`, [ENCODER, version.id, cob.fotos_train, cob.fotos_train_con_vector, userId]);
+        (tipo, encoder_sha256, version_id, fotos_train, fotos_train_con_vector, especies, creado_por, configuracion_regional_sha256)
+      VALUES ('centroides', $1, $2, $3, $4, 0, $5, $6)
+      RETURNING id`, [ENCODER, version.id, cob.fotos_train, cob.fotos_train_con_vector, userId, configuracion.huella]);
 
     const insertados = await client.query(`
       WITH base AS (${BASE}),
@@ -182,6 +201,18 @@ async function calcular(pool, userId) {
       regionales = n.n;
     }
 
+    await client.query(`
+      INSERT INTO dataset.centroide_regional
+        (experimento_id, especie_id, subregion_id, n_vectores, n_observaciones, dispersion, coseno_global, vector)
+      SELECT $1, se.especie_id, se.subregion_id, 0, 0, NULL, NULL, NULL
+      FROM unnest($2::int[], $3::int[]) AS se(especie_id, subregion_id)
+      JOIN dataset.centroide c ON c.experimento_id = $1 AND c.especie_id = se.especie_id
+      ON CONFLICT (experimento_id, especie_id, subregion_id) DO NOTHING`, [
+      exp.id,
+      configuracion.especies.map((e) => e.especie_id),
+      configuracion.especies.map((e) => e.subregion_id),
+    ]);
+
     const morfos = await centroidesMorfo.calcular(client, BASE, ENCODER, exp.id, MIN_INDIVIDUOS_REGIONAL);
 
     const evaluacion = await completar(client, ENCODER, exp.id);
@@ -257,4 +288,4 @@ async function ultimo(pool) {
 /** Morfos declarados y su centroide en el último lote (o cuántos individuos faltan). */
 const morfos = (pool) => centroidesMorfo.estado(pool, BASE, ENCODER, MIN_INDIVIDUOS_REGIONAL);
 
-module.exports = { calcular, ultimo, morfos, ENCODER, BASE, MIN_INDIVIDUOS_REGIONAL };
+module.exports = { calcular, ultimo, morfos, configuracionRegional, ENCODER, BASE, MIN_INDIVIDUOS_REGIONAL };

@@ -272,7 +272,7 @@ export function UploadPhotoDialog({
           <Button variant="outline" onClick={() => cerrar(false)}>
             Cancelar
           </Button>
-          <Button variant="primary" disabled={!listo} onClick={enviar}>
+          <Button variant="primary" loading={enviando} disabled={!listo || enviando} onClick={enviar}>
             {enviando ? "Subiendo…" : "Subir foto"}
           </Button>
         </div>

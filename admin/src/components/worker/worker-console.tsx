@@ -37,6 +37,13 @@ function duracion(desde: string, hasta: string | null) {
 
 const corto = (sha: string | null) => (sha ? `${sha.slice(0, 12)}…` : "—");
 
+function estimadoRestante(t: Trabajo) {
+  if (t.estado !== "en_curso" || !t.empezado || !t.total || !t.hechos) return null;
+  const transcurrido = Date.now() - new Date(t.empezado).getTime();
+  const restante = Math.max(0, (transcurrido * (t.total - t.hechos)) / t.hechos);
+  return duracion(new Date().toISOString(), new Date(Date.now() + restante).toISOString());
+}
+
 /**
  * Worker de embeddings, real: los workers que se han reportado (model-service en el PC con GPU),
  * los encoders que registraron, la cola y el historial de trabajos, las fotos que fallaron, y
@@ -136,6 +143,7 @@ export function WorkerConsole() {
           </Button>
           <Button
             variant="danger"
+            loading={trabajando}
             disabled={trabajando}
             onClick={() => cancelando && accion(async () => {
               await cancelarTrabajo(cancelando.id);
@@ -312,6 +320,7 @@ function NuevoTrabajo({
         <Button
           variant="primary"
           className="mb-0.5"
+          loading={trabajando}
           disabled={trabajando || !!activo || faltan <= 0}
           onClick={() => onCrear(actual.sha256, elegida ? elegida.id : null)}
         >
@@ -409,6 +418,7 @@ function FilaTrabajo({
   puedeCancelar: boolean;
   onCancelar: () => void;
 }) {
+  const restante = estimadoRestante(t);
   return (
     <>
       <tr className="border-t border-border align-top">
@@ -439,6 +449,7 @@ function FilaTrabajo({
           {t.empezado && (
             <span className="block text-label-tertiary">
               {t.terminado ? "Duró" : "Lleva"} {duracion(t.empezado, t.terminado)}
+              {!t.terminado && restante && ` · estimado restante ~${restante}`}
             </span>
           )}
         </td>

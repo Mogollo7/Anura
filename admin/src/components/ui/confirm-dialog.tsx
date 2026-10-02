@@ -31,7 +31,7 @@ export function ConfirmDialog({
       <DialogHeader title={title} description={description} />
       <div className="flex justify-end gap-2">
         <Button variant="outline" disabled={busy} onClick={onCancel}>Volver</Button>
-        <Button variant={danger ? "danger" : "primary"} disabled={busy} onClick={onConfirm}>
+        <Button variant={danger ? "danger" : "primary"} loading={busy} disabled={busy} onClick={onConfirm}>
           {busy ? "Un momento…" : confirmLabel}
         </Button>
       </div>

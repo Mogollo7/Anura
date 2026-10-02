@@ -38,7 +38,7 @@
  * cubre otras especies que las del paquete (osr_otras_especies).
  */
 const crypto = require('crypto');
-const { ENCODER, BASE, MIN_INDIVIDUOS_REGIONAL } = require('./centroides');
+const { ENCODER, BASE, MIN_INDIVIDUOS_REGIONAL, configuracionRegional } = require('./centroides');
 const { MIN_FOTOS_ENTRENABLE, MIN_INDIVIDUOS, esEntrenable } = require('./reglas');
 const ficha = require('./ficha');
 
@@ -54,21 +54,25 @@ const nombres = (lista, max = 4) => {
 
 /** Lo que no depende de la subregión: encoder, última corrida de centroides y si sigue vigente. */
 async function contexto(db) {
+  const configuracion = await configuracionRegional(db);
   const { rows: [enc] } = await db.query(
     'SELECT sha256, archivo, dimension, preprocesado, normalizacion FROM dataset.encoder WHERE sha256 = $1', [ENCODER]);
   const { rows: [version] } = await db.query('SELECT id, nombre FROM dataset.version ORDER BY id DESC LIMIT 1');
   const { rows: [exp] } = await db.query(`
-    SELECT id, version_id, fotos_train_con_vector, creado FROM dataset.experimento
+    SELECT id, version_id, fotos_train_con_vector, creado, configuracion_regional_sha256 FROM dataset.experimento
     WHERE tipo = 'centroides' AND encoder_sha256 = $1 ORDER BY id DESC LIMIT 1`, [ENCODER]);
   let vigente = false;
   if (exp) {
     const { rows: [n] } = await db.query(`SELECT COUNT(*)::int AS n FROM (${BASE}) b`, [ENCODER]);
-    vigente = exp.version_id === (version?.id ?? null) && n.n === exp.fotos_train_con_vector;
+    vigente = exp.version_id === (version?.id ?? null)
+      && n.n === exp.fotos_train_con_vector
+      && exp.configuracion_regional_sha256 === configuracion.huella;
   }
   const { rows: [t] } = await db.query(`SELECT to_regclass('dataset.osr_umbral') IS NOT NULL AS osr,
     to_regclass('dataset.centroide_morfo') IS NOT NULL AS morfo, to_regclass('dataset.cluster') IS NOT NULL AS cluster`);
   return {
     encoder: enc || null, version: version || null, experimento: exp || null, vigente,
+    configuracionRegionalSha256: configuracion.huella,
     tablaOsr: t.osr, tablaMorfo: t.morfo, tablaCluster: t.cluster, fichas: new Map(),
   };
 }
@@ -226,7 +230,7 @@ async function evaluar(db, subregionId, ctx = null) {
   } else if (!ctx.experimento) {
     m('sin_centroides', 'Todavía no hay centroides calculados con el encoder del teléfono. Calcúlalos en Centroides.', '/centroides');
   } else if (!ctx.vigente) {
-    m('centroides_desactualizados', 'Los centroides son anteriores al dataset o a los vectores actuales. Vuelve a calcularlos en Centroides.', '/centroides');
+    m('centroides_desactualizados', 'Los centroides son anteriores al dataset, a los vectores o a las asignaciones de municipios/especies por subregión. Vuelve a calcularlos en Centroides.', '/centroides');
   }
   if (ctx.experimento && !incluidas.length) {
     m('sin_especies', especies.length
@@ -275,6 +279,7 @@ async function evaluar(db, subregionId, ctx = null) {
   // Si algo de esto cambia, un borrador compilado con la huella anterior ya no se aprueba.
   const huella = crypto.createHash('sha256').update(JSON.stringify([
     ENCODER, ctx.version?.id ?? null, ctx.experimento?.id ?? null, osr?.id ?? null, osr?.tau ?? null,
+    ctx.configuracionRegionalSha256,
     // Nombre, familia y taxon_id también viajan en el paquete: renombrar o mover de familia una especie
     // después de compilar deja ese borrador desactualizado (antes seguía aprobándose con el nombre viejo).
     incluidas.map((e) => [e.especie_id, e.taxon_id, e.nombre_cientifico, e.genero, e.familia, e.contexto]),

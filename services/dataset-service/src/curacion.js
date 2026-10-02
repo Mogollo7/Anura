@@ -1,7 +1,8 @@
 /**
  * Curación en el servidor (Admin → Curación): subir una foto a mano con su coordenada,
- * excluir o reincluir una foto, invalidar o revertir una observación. Nada se borra: todo
- * queda en dataset.exclusion / dataset.observacion y en audit.log con quién lo hizo.
+ * excluir o reincluir una foto, invalidar o revertir una observación.
+ * También expone borrarTodasLasFotos, que elimina permanentemente todas las fotos de
+ * una especie (BD + MinIO) cuando se va a borrar la especie del catálogo.
  */
 const crypto = require('crypto');
 const sharp = require('sharp');
@@ -240,4 +241,86 @@ async function revertirInvalidacion(pool, obsId, userId) {
   }
 }
 
-module.exports = { LICENCIAS, ubicar, coordenada, subirFoto, excluirFoto, reincluirFoto, invalidarObservacion, revertirInvalidacion };
+
+/**
+ * Borra permanentemente TODAS las fotos de una especie: primero las filas de dataset.foto
+ * (y en cascada sus exclusiones y versiones), luego los objetos de MinIO. Se registra en
+ * auditoría. Solo usar cuando la intención es borrar la especie entera.
+ *
+ * Las observaciones de tipo 'inaturalist' (fuente = iNaturalist) NO se borran: son del
+ * importador y pueden compartirse con otras fotos. Las observaciones huérfanas de tipo
+ * 'manual' (subidas a mano) SÍ se borran porque no tienen otro propietario.
+ */
+async function borrarTodasLasFotos({ pool, minio, bucket }, especieId, userId) {
+  if (!Number.isInteger(especieId)) throw falla('La especie no existe', 404);
+  const db = await pool.connect();
+  let objectKeys = [];
+  let totalFotos = 0;
+  let obsManualBorradas = 0;
+  try {
+    await db.query('BEGIN');
+    const { rows: [e] } = await db.query(
+      'SELECT id, nombre_cientifico FROM dataset.especie WHERE id = $1 FOR UPDATE', [especieId]);
+    if (!e) throw falla('La especie no existe', 404);
+
+    // Recoge las object_keys antes de borrar.
+    const { rows: fotas } = await db.query(
+      'SELECT sha256, object_key, observacion_id FROM dataset.foto WHERE especie_id = $1', [especieId]);
+    totalFotos = fotas.length;
+    objectKeys = fotas.map((f) => f.object_key).filter(Boolean);
+
+    // IDs de observaciones 'manual' (subidas a mano) que solo tienen fotos de esta especie.
+    const obsManualIds = [...new Set(fotas.map((f) => f.observacion_id).filter(Boolean))];
+    if (obsManualIds.length) {
+      // Borra solo las observaciones cuyo fuente = 'manual' y cuyas fotos son todas de esta especie.
+      const { rowCount } = await db.query(
+        `DELETE FROM dataset.observacion
+         WHERE id = ANY($1::int[])
+           AND fuente = 'manual'
+           AND NOT EXISTS (
+             SELECT 1 FROM dataset.foto f2
+             WHERE f2.observacion_id = dataset.observacion.id
+               AND f2.especie_id <> $2
+           )`,
+        [obsManualIds, especieId]);
+      obsManualBorradas = rowCount;
+    }
+
+    // Las filas de dataset.foto tienen ON DELETE CASCADE hacia dataset.exclusion,
+    // dataset.embedding y dataset.version_foto, así que basta con borrar foto.
+    await db.query('DELETE FROM dataset.foto WHERE especie_id = $1', [especieId]);
+
+    await auditar(db, userId, 'dataset.especie.fotos_borradas', 'especie', especieId, {
+      nombre_cientifico: e.nombre_cientifico,
+      fotos_borradas: totalFotos,
+      obs_manual_borradas: obsManualBorradas,
+    });
+    await db.query('COMMIT');
+  } catch (err) {
+    await db.query('ROLLBACK');
+    throw err;
+  } finally {
+    db.release();
+  }
+
+  // Limpieza de MinIO fuera de la transacción: si falla, las filas ya se borraron pero los
+  // archivos quedan huérfanos (se pueden limpiar luego con una tarea de mantenimiento).
+  let eliminados = 0;
+  for (const key of objectKeys) {
+    try {
+      await minio.removeObject(bucket, key);
+      eliminados++;
+    } catch {
+      // Sin llave = ya no existía o nunca se subió; no es un error fatal.
+    }
+  }
+
+  return {
+    fotos_borradas: totalFotos,
+    archivos_eliminados: eliminados,
+    obs_manual_borradas: obsManualBorradas,
+  };
+}
+
+module.exports = { LICENCIAS, ubicar, coordenada, subirFoto, excluirFoto, reincluirFoto, invalidarObservacion, revertirInvalidacion, borrarTodasLasFotos };
+

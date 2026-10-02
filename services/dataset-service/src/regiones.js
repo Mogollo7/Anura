@@ -198,6 +198,43 @@ async function asignarMunicipios(pool, codigo, subregionId, municipios, userId) 
   return { ok: true };
 }
 
+async function especiesSubregion(pool, codigo, subregionId) {
+  const { rows: [subregion] } = await pool.query(
+    'SELECT id FROM dataset.subregion WHERE id = $1 AND region = $2', [subregionId, codigo]);
+  if (!subregion) throw falla('Esa subregión no es de este departamento', 404);
+  const { rows } = await pool.query(`
+    SELECT e.id, e.nombre_cientifico, (se.especie_id IS NOT NULL) AS asignada_manual
+    FROM dataset.especie e
+    LEFT JOIN dataset.subregion_especie se ON se.especie_id = e.id AND se.subregion_id = $1
+    ORDER BY e.nombre_cientifico`, [subregionId]);
+  return rows;
+}
+
+async function asignarEspecie(pool, codigo, subregionId, especieId, userId) {
+  const { rows: [subregion] } = await pool.query(
+    'SELECT id FROM dataset.subregion WHERE id = $1 AND region = $2', [subregionId, codigo]);
+  if (!subregion) throw falla('Esa subregión no es de este departamento', 404);
+  const { rows: [especie] } = await pool.query('SELECT id FROM dataset.especie WHERE id = $1', [especieId]);
+  if (!especie) throw falla('Esa especie no existe', 404);
+  const { rowCount } = await pool.query(`
+    INSERT INTO dataset.subregion_especie (subregion_id, especie_id, creado_por)
+    VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`, [subregionId, especieId, userId]);
+  if (rowCount) {
+    await auditar(pool, userId, 'dataset.subregion.especie_asignada', codigo, { subregion: subregionId, especie: especieId });
+  }
+  return { ok: true, nueva: !!rowCount };
+}
+
+async function quitarEspecie(pool, codigo, subregionId, especieId, userId) {
+  const { rows: [asignacion] } = await pool.query(`
+    DELETE FROM dataset.subregion_especie se USING dataset.subregion s
+    WHERE se.subregion_id = s.id AND s.region = $1 AND s.id = $2 AND se.especie_id = $3
+    RETURNING se.especie_id`, [codigo, subregionId, especieId]);
+  if (!asignacion) throw falla('La especie no tenía asignación manual en esa subregión', 404);
+  await auditar(pool, userId, 'dataset.subregion.especie_quitada', codigo, { subregion: subregionId, especie: especieId });
+  return { ok: true };
+}
+
 async function activar(pool, codigo, userId) {
   const d = await detalle(pool, codigo);
   if (!d.limites_municipales) throw falla('Sin límites municipales no se puede dividir en subregiones');
@@ -216,4 +253,7 @@ async function quitar(pool, codigo, userId) {
   return { ok: true };
 }
 
-module.exports = { cifrasPorMunicipio, quitar, listar, detalle, agregar, crearSubregion, renombrarSubregion, borrarSubregion, asignarMunicipios, activar };
+module.exports = {
+  cifrasPorMunicipio, quitar, listar, detalle, agregar, crearSubregion, renombrarSubregion,
+  borrarSubregion, asignarMunicipios, especiesSubregion, asignarEspecie, quitarEspecie, activar,
+};

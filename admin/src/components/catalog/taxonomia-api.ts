@@ -18,6 +18,14 @@ export const getNombresGuardados = () => send<NombresGuardados>("GET", "/api/dat
 export const borrarEspecie = (id: number) =>
   send<{ id: number; nombre_cientifico: string; borrada: true }>("DELETE", `/api/dataset/especies/${id}`);
 
+/** Borra permanentemente todas las fotos de la especie de la BD y de MinIO. Operación irreversible. */
+export const borrarFotosEspecie = (id: number) =>
+  send<{ fotos_borradas: number; archivos_eliminados: number; obs_manual_borradas: number }>(
+    "DELETE",
+    `/api/dataset/especies/${id}/fotos`
+  );
+
+
 /**
  * Nombres que ya están en la base, para los combobox. `null` mientras carga; si no se pueden leer
  * (sin permiso, servicio caído) queda vacío y el campo sigue aceptando texto libre.
