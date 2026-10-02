@@ -35,7 +35,7 @@ exports.listDevices = async () => {
   const { rows } = await pool.query(`
     SELECT d.id, d.user_id, u.username, d.device_name AS modelo, d.os AS android, d.app_version,
            d.paquetes, d.espacio_libre_mb, d.last_seen, d.created_at, d.bloqueado, d.bloqueo_motivo,
-           u.is_active AS cuenta_activa
+           d.sync_pedida, u.is_active AS cuenta_activa
     FROM auth.user_devices d
     JOIN auth.users u ON u.id = d.user_id
     WHERE d.device_key IS NOT NULL
@@ -63,8 +63,30 @@ exports.upsertDevice = async (userId, d) => {
        device_name = EXCLUDED.device_name, os = EXCLUDED.os, app_version = EXCLUDED.app_version,
        paquetes = EXCLUDED.paquetes, espacio_libre_mb = EXCLUDED.espacio_libre_mb,
        last_seen = NOW(), last_login = NOW()
-     RETURNING id, bloqueado, bloqueo_motivo`,
+     RETURNING id, bloqueado, bloqueo_motivo, (sync_pedida IS NOT NULL) AS sincronizar`,
     [userId, d.deviceKey, d.modelo, d.android, d.appVersion, JSON.stringify(d.paquetes), d.espacioLibreMb]
   );
   return rows[0];
+};
+
+/** El admin pide que los teléfonos suban lo que sigue solo en el aparato. */
+exports.requestSync = async (id) => {
+  const params = [];
+  let where = 'device_key IS NOT NULL AND bloqueado = FALSE';
+  if (id) {
+    params.push(id);
+    where += ` AND id = $${params.length}`;
+  }
+  const { rowCount } = await pool.query(
+    `UPDATE auth.user_devices SET sync_pedida = NOW() WHERE ${where}`,
+    params
+  );
+  return rowCount;
+};
+
+exports.clearSync = async (userId, deviceKey) => {
+  await pool.query(
+    'UPDATE auth.user_devices SET sync_pedida = NULL WHERE user_id = $1 AND device_key = $2',
+    [userId, deviceKey]
+  );
 };

@@ -2,6 +2,7 @@ const router = require('express').Router();
 const passport = require('passport');
 const authController = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
+const { limitarIntentos } = require('../middleware/rateLimit');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -16,10 +17,10 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024, files: 1 } });
 
 // POST /api/auth/register
-router.post('/register', authController.registrar);
+router.post('/register', limitarIntentos('register'), authController.registrar);
 
 // POST /api/auth/login
-router.post('/login', authController.login);
+router.post('/login', limitarIntentos('login'), authController.login);
 
 // GET /api/auth/me
 router.get('/me', authMiddleware, authController.getMe);
@@ -33,6 +34,8 @@ router.put('/profile', authMiddleware, upload.single('image'), authController.up
 
 // POST /api/auth/dispositivos — el teléfono reporta modelo, versión y paquetes (C4)
 router.post('/dispositivos', authMiddleware, require('../controllers/appAccountsController').reportDevice);
+// POST /api/auth/dispositivos/sincronizada — el teléfono ya atendió la petición del admin
+router.post('/dispositivos/sincronizada', authMiddleware, require('../controllers/appAccountsController').acknowledgeSync);
 
 // Follows
 router.post('/follow/:username', authMiddleware, authController.toggleFollow);
@@ -66,13 +69,15 @@ router.get('/google/callback', passport.authenticate('google', { session: false,
     );
   }
 
+  const isMobile = req.query.state === 'mobile';
+  // La app no tiene refresh token: el login de Google del teléfono dura lo mismo que
+  // "recordarme" en correo (30 días). La web sigue en 1 día.
   const token = jwt.sign(
     { id: req.user.id, email: req.user.email, username: req.user.username, role: req.user.role },
     config.jwtSecret || process.env.JWT_SECRET || 'fallback_secret',
-    { expiresIn: '1d' }
+    { expiresIn: isMobile ? '30d' : '1d' }
   );
 
-  const isMobile = req.query.state === 'mobile';
   const target = isMobile
     ? `${config.mobileAuthScheme}?token=${token}`
     : `${config.frontendUrl}/auth/callback?token=${token}`;

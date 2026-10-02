@@ -30,6 +30,7 @@ router.get('/usuarios', requirePanelAction('gestionarCuentas'), appAccountsContr
 router.patch('/usuarios/:id', requirePanelAction('gestionarCuentas'), appAccountsController.setUserActive);
 router.get('/auditoria', appAccountsController.listAudit);
 router.get('/dispositivos', requirePanelAction('gestionarCuentas'), appAccountsController.listDevices);
+router.post('/dispositivos/sincronizar', requirePanelAction('gestionarCuentas'), appAccountsController.requestSync);
 router.patch('/dispositivos/:id', requirePanelAction('gestionarCuentas'), appAccountsController.setDeviceBlocked);
 
 module.exports = router;

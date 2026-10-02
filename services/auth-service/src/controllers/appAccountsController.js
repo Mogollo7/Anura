@@ -94,10 +94,51 @@ exports.reportDevice = async (req, res) => {
       paquetes,
       espacioLibreMb: espacio,
     });
-    res.json({ id: device.id, bloqueado: device.bloqueado, motivo: device.bloqueo_motivo });
+    res.json({
+      id: device.id,
+      bloqueado: device.bloqueado,
+      motivo: device.bloqueo_motivo,
+      sincronizar: device.sincronizar === true,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'No se pudo registrar el dispositivo' });
+  }
+};
+
+// POST /api/panel/dispositivos/sincronizar  { id?: uuid }
+// Sin id, pide la subida a todos los teléfonos que no están bloqueados.
+exports.requestSync = async (req, res) => {
+  const id = text(req.body?.id, 80);
+  try {
+    const pedidos = await repo.requestSync(id);
+    await auditRepository.log({
+      actorId: req.panelAccount.userId,
+      action: 'device.sync_request',
+      targetType: 'device',
+      targetId: id || 'todos',
+      metadata: { pedidos },
+    });
+    const mensaje = pedidos === 0
+      ? 'No hay teléfonos activos a los que pedir la sincronización.'
+      : `Pedido enviado a ${pedidos} ${pedidos === 1 ? 'teléfono' : 'teléfonos'}. Suben las fotos y observaciones pendientes al abrir la app o en los próximos minutos, si la sesión sigue vigente.`;
+    res.json({ pedidos, mensaje });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'No se pudo pedir la sincronización' });
+  }
+};
+
+// POST /api/auth/dispositivos/sincronizada  { device_key }
+exports.acknowledgeSync = async (req, res) => {
+  const deviceKey = text(req.body.device_key, 100);
+  if (!deviceKey) return res.status(400).json({ message: 'Falta device_key' });
+  try {
+    await repo.clearSync(req.user.id, deviceKey);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'No se pudo confirmar la sincronización' });
   }
 };
 
