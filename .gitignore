@@ -1,8 +1,13 @@
-# Envs
+# Envs y secretos
 .env
+.env.*
+.env*.local
+!.env.example
+
 venv/
 env/
 node_modules/
+**/node_modules/
 
 # Python
 __pycache__/
@@ -20,46 +25,58 @@ services/ai-service/models/hub/
 data/features_cache.pkl
 data/mlruns/
 datasets/raw/
+/models/
+datasets/
 
 # Build artifacts
 dist/
 build/
 *.egg
+.next/
+**/.next/
+**/.next-*/
+*.tsbuildinfo
+next-env.d.ts
 
-# IDE
+# IDE y herramientas de agentes
 .vscode/
 .idea/
 *.code-workspace
+.claude/
+.cursor/
+.agents/
+.kilo/
+**/.kilo/
+brain/
+.mcp.json
+skills-lock.json
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Docker volumes
+# Docker volumes y datos locales
 infrastructure/postgres/data/
+gateway/data/
+gateway/letsencrypt/
+gateway/ssl/
 
-/models/
-datasets/
+# Certificados y llaves
+*.pem
+*.key
+*.crt
 
 # Respaldos de Postgres/MinIO: contienen datos de usuarios (hashes de contraseña), nunca a git
 infrastructure/backups/*.dump
-
-# Copias de la base hechas desde el panel (contienen todos los datos)
-_respaldos/panel/
-
-# Logs, datos del gateway, respaldos y salidas locales
-*.log
-*.log.*
-gateway/data/
 _respaldos/
-brag-output-*/
-.mcp.json
-.claude/
-.cursor/
-.agents/
-skills-lock.json
-.fotos/
 *.dump
 *.sql.gz
+
+# Logs y salidas locales
+*.log
+*.log.*
+brag-output-*/
+.fotos/
 .github/prompts/
 manual-de-usuario-anura/public/*.pdf
+

@@ -25,7 +25,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "81:81"
+      # Panel de NPM protegido: solo accesible desde localhost del servidor o tunel SSH
+      - "127.0.0.1:81:81"
     volumes:
       - ./gateway/data:/data
       - ./gateway/letsencrypt:/etc/letsencrypt
@@ -120,7 +121,8 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
-      - "5050:80"
+      # pgAdmin protegido: solo accesible desde localhost o via tunel SSH
+      - "127.0.0.1:5050:80"
     depends_on:
       - postgres
     networks:
@@ -152,8 +154,10 @@ services:
       - ./infrastructure/minio/minio.license:/minio.license
       - ./infrastructure/minio/certs:/etc/minio/certs
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      # MinIO protegido: servicios internos usan minio:9000 y el trafico publico
+      # de fotos pasa por el proxy nginx (/anura-dataset/). No exponer a 0.0.0.0.
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9000/minio/health/live"]
       interval: 5s

@@ -1,3 +1,10 @@
-# Scripts que corren dentro de contenedores Linux: siempre LF.
+# Scripts y archivos que corren en servidores/contenedores Linux: siempre LF.
 *.sh text eol=lf
-infrastructure/postgres/*.sql text eol=lf
+*.sql text eol=lf
+*.conf text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+Dockerfile* text eol=lf
+.env* text eol=lf
+
