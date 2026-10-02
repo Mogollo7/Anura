@@ -98,6 +98,8 @@ services:
       - ./infrastructure/postgres/phase21.sql:/sql/phase21.sql:ro
       - ./infrastructure/postgres/phase22.sql:/sql/phase22.sql:ro
       - ./infrastructure/postgres/phase23.sql:/sql/phase23.sql:ro
+      - ./infrastructure/postgres/phase24.sql:/sql/phase24.sql:ro
+      - ./infrastructure/postgres/phase25.sql:/sql/phase25.sql:ro
       - ./infrastructure/postgres/seed_regiones_antioquia.sql:/sql/seed_regiones_antioquia.sql:ro
       - ./infrastructure/postgres/03-roles.sh:/sql/03-roles.sh:ro
     entrypoint: ["/bin/sh", "/sql/03-roles.sh"]
@@ -191,7 +193,12 @@ services:
 
   # ── Application Services ───────────────────────────────────────────
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        # Adónde lleva el botón «Modo administrativo» de la web. Para volver al panel local:
+        # ADMIN_PUBLIC_URL=http://localhost:3010 en .env y reconstruir (scripts/up.ps1 -Build).
+        VITE_ADMIN_URL: ${ADMIN_PUBLIC_URL:-https://admin.juanlabs.me}
     container_name: anura_frontend
     restart: unless-stopped
     # No direct ports: NPM handles it on port 80
@@ -211,8 +218,9 @@ services:
     restart: unless-stopped
     # Módulo administrativo: habla con los microservicios por nombre de red, a través de sus
     # propias rutas /api/* (admin/src/lib/auth/server-proxy.ts).
-    # Se expone en un puerto propio para pruebas locales; NPM lo enrutará cuando
-    # se defina el subdominio de administración.
+    # Público en https://admin.juanlabs.me: el túnel de Cloudflare entrega ese nombre DIRECTO a
+    # http://admin-web:3000 (no pasa por npm:80, que es de la web pública). El puerto local sigue
+    # para pruebas en este PC.
     environment:
       AUTH_SERVICE_URL: http://auth-service:3001
       DATASET_SERVICE_URL: http://dataset-service:3008
@@ -224,6 +232,22 @@ services:
       VALIDATION_SERVICE_URL: http://validation-service:3007
       # En este PC: host.docker.internal. En Hostinger: URL del túnel hacia la GPU de este PC.
       MODEL_SERVICE_URL: ${MODEL_SERVICE_URL:-http://host.docker.internal:8000}
+      # Sistema → Respaldar base (admin/src/lib/system/respaldo.ts). Los valores salen de .env.
+      BACKUP_DATABASE_URL: ${BACKUP_DATABASE_URL}
+      BACKUP_DIR: ${BACKUP_DIR:-/data/respaldos}
+      PG_DUMP_BIN: ${PG_DUMP_BIN:-/usr/bin/pg_dump}
+      PSQL_BIN: ${PSQL_BIN:-/usr/bin/psql}
+      BACKUP_ALLOW_CLEAN: ${BACKUP_ALLOW_CLEAN:-0}
+      # Fotos y paquetes en MinIO, copiados junto al dump y borrados al limpiar.
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: "9000"
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKETS: anura-images,anura-dataset
+    volumes:
+      # Las copias viven en el disco del servidor, fuera del contenedor: sobreviven a reinicios,
+      # rebuilds y `down -v`. Carpeta ignorada por git (contiene toda la base).
+      - ./_respaldos/panel:/data/respaldos
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
@@ -398,6 +422,8 @@ services:
       REDIS_URL: ${REDIS_URL}
       INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
       AUTH_SERVICE_URL: http://auth-service:3001
+      # De dónde cuelga el enlace /a/<token> de los avisos con imagen, enlaces o texto largo.
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://anura.juanlabs.me}
     ports:
       - "127.0.0.1:3006:3006"
     healthcheck:

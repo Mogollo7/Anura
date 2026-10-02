@@ -112,4 +112,10 @@ psql -v ON_ERROR_STOP=1 -f /sql/phase22.sql
 echo "aplicando phase23.sql"
 psql -v ON_ERROR_STOP=1 -f /sql/phase23.sql
 
-echo "phase 2 a 23 listas"
+echo "aplicando phase24.sql"
+psql -v ON_ERROR_STOP=1 -f /sql/phase24.sql
+
+echo "aplicando phase25.sql"
+psql -v ON_ERROR_STOP=1 -f /sql/phase25.sql
+
+echo "phase 2 a 25 listas"

@@ -1,0 +1,58 @@
+# model-service de ANURA: todo lo pesado, en la GPU de este PC (RTX 4050), para siempre.
+# Hoy: BioCLIP 2.5 (ViT-H/14) de auditoría/web, código en services/ai-service.
+# Después (M2, M3): el worker de embeddings y el creador de paquetes viven en este mismo servicio.
+# No comparte red ni base de datos con el servidor: solo se habla por HTTP con el token
+# MODEL_SERVICE_TOKEN (header X-Model-Token). Ver 19_ADMIN/Plan del Backend Real (E0).
+# Proyecto: "anura" (nombre de la carpeta), igual que el servidor, para compartir volúmenes y nombres.
+
+services:
+  model-service:
+    profiles: ["model"]
+    build: ./services/ai-service
+    container_name: anura_model_service
+    restart: unless-stopped
+    environment:
+      PYTHONUNBUFFERED: 1
+      HF_TOKEN: ${HF_TOKEN:-}
+      MODEL_SERVICE_TOKEN: ${MODEL_SERVICE_TOKEN:-}
+      # M2: el worker de embeddings PIDE trabajos a dataset-service (solo conexiones salientes).
+      DATASET_SERVICE_URL: ${DATASET_SERVICE_URL:-http://host.docker.internal:3008}
+      WORKER_TOKEN: ${WORKER_TOKEN:-}
+      WORKER_NOMBRE: ${WORKER_NOMBRE:-pc-rtx4050}
+      # El mismo ONNX del teléfono (sha256 219e860e…); ./models está montado en /app/models.
+      ENCODER_PATH: /app/models/encoder/encoder_anura_fp16.onnx
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./services/ai-service/app:/app/app
+      - ./services/ai-service/weights:/app/weights
+      - ./models:/app/models
+      # rembg descarga u2net.onnx (176 MB) al arrancar si no lo encuentra aquí.
+      - ./models/u2net:/root/.u2net
+      - hf_cache:/root/.cache/huggingface
+    ports:
+      # 127.0.0.1: solo este PC. Si el servidor corre en otra máquina, se expone con un túnel,
+      # no abriendo el puerto.
+      - "${MODEL_SERVICE_BIND:-127.0.0.1}:8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+    networks:
+      - model-net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+networks:
+  model-net:
+    driver: bridge
+
+volumes:
+  hf_cache:
