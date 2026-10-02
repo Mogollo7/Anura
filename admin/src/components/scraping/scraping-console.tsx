@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
 import { NameCombobox, type OpcionNombre } from "@/components/catalog/name-combobox";
+import { InatDescarga } from "@/components/scraping/inat-descarga";
 import { useNombresGuardados } from "@/components/catalog/taxonomia-api";
 
 const authHeader = (): Record<string, string> => {
@@ -61,13 +62,13 @@ export function ScrapingConsole() {
   );
   return (
     <div className="space-y-4">
-      <Inaturalist nombres={nombres} />
+      <Inaturalist nombres={nombres} especies={guardados?.especies ?? []} />
       <Gbif nombres={nombres} />
     </div>
   );
 }
 
-function Inaturalist({ nombres }: { nombres: OpcionNombre[] }) {
+function Inaturalist({ nombres, especies }: { nombres: OpcionNombre[]; especies: { id: number; nombre_cientifico: string }[] }) {
   const [especie, setEspecie] = useState("");
   const [calidad, setCalidad] = useState("research");
   const [minFotos, setMinFotos] = useState(70);
@@ -113,7 +114,7 @@ function Inaturalist({ nombres }: { nombres: OpcionNombre[] }) {
       <div className="space-y-4 px-5 pb-5">
         <p className="text-sm text-label-secondary">
           Misma consulta que <span className="font-mono text-xs">scraper_inaturalist.py</span>: grado de calidad, fotos en Colombia y el mínimo antes del fallback.
-          El grado de investigación es consenso de identificación, no nitidez. Esta pantalla trae una muestra; el script en el PC guarda los archivos en <span className="font-mono text-xs">data dirty</span>.
+          El grado de investigación es consenso de identificación, no nitidez. «Consultar muestra» trae unas filas; más abajo, «Descargar fotos» guarda las imágenes de una especie del dataset en el servidor (el script del PC sigue sirviendo para descargas masivas).
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <Field label="Especies" hint="Separadas por coma. El script también acepta especies_input.txt." className="sm:col-span-2">
@@ -157,6 +158,11 @@ function Inaturalist({ nombres }: { nombres: OpcionNombre[] }) {
           <code className="max-w-full overflow-x-auto rounded-md bg-surface-subtle px-2 py-1 text-xs text-label-secondary">{comando}</code>
         </div>
         {error && <p className="text-sm text-danger">{error}</p>}
+        <InatDescarga
+          especieId={especies.find((e) => e.nombre_cientifico.toLowerCase() === especie.trim().toLowerCase())?.id ?? null}
+          nombre={especie.trim()}
+          calidad={calidad}
+        />
         {data && (
           <div className="space-y-2">
             <p className="text-sm text-label-primary">

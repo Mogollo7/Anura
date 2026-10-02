@@ -4,7 +4,7 @@ const PASOS: { titulo: string; detalle: string }[] = [
   {
     titulo: "Traer fotos de iNaturalist",
     detalle:
-      "En Scraping ves qué hay de cada especie. La descarga masiva la hace el script del proyecto en el PC y sus fotos se importan al servidor con licencia, autor y coordenada.",
+      "En Scraping eliges una especie del dataset, ves cuántas fotos hay en iNaturalist y las descargas al servidor con licencia, autor y coordenada.",
   },
   {
     titulo: "Subir una foto a mano",
