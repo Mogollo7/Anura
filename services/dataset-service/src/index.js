@@ -26,6 +26,7 @@ const evaluacion = require('./evaluacion');
 const simulador = require('./simulador');
 const clave = require('./clave');
 const versiones = require('./versiones');
+const inatDescarga = require('./inatDescarga');
 
 const BUCKET = process.env.DATASET_BUCKET || 'anura-dataset';
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -185,6 +186,21 @@ app.post('/api/dataset/especies/:id/fotos', requirePanelAction('revisarFotografi
     const r = await curacion.subirFoto({ pool, minio, bucket: BUCKET }, Number(req.params.id), req.file, req.body || {}, req.userId);
     res.status(201).json(r);
   }));
+
+// ── Descarga de fotos de iNaturalist (Admin → Scraping) ────────────────────────────────
+// resumen: candidatas vs almacenadas · descargar: segundo plano, una a la vez · descarga: progreso
+app.get('/api/dataset/especies/:id/inaturalist', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json(await inatDescarga.resumen(pool, Number(req.params.id), String(req.query.calidad || 'research')));
+}));
+app.post('/api/dataset/especies/:id/inaturalist/descargar', requirePanelAction('revisarFotografias'), ah(async (req, res) => {
+  res.status(202).json(await inatDescarga.iniciar({ pool, minio, bucket: BUCKET }, Number(req.params.id), req.body || {}, req.userId));
+}));
+app.get('/api/dataset/especies/:id/inaturalist/descarga', requirePanelAction('verEspecies'), ah(async (req, res) => {
+  res.json({ descarga: inatDescarga.estado(Number(req.params.id)) });
+}));
+app.delete('/api/dataset/especies/:id/inaturalist/descarga', requirePanelAction('revisarFotografias'), ah(async (req, res) => {
+  res.json(inatDescarga.cancelar(Number(req.params.id)));
+}));
 
 app.post('/api/dataset/fotos/:sha256/exclusion', requirePanelAction('revisarFotografias'), ah(async (req, res) => {
   await curacion.excluirFoto(pool, req.params.sha256, req.body?.motivo, req.userId);
